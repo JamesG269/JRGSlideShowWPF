@@ -11,7 +11,14 @@
         Icon="cd.ico" Loaded="Window_Loaded" ShowInTaskbar="False" WindowStyle="None" MouseDoubleClick="Window_MouseDoubleClick" KeyDown="Window_KeyDown"
         PreviewMouseLeftButtonDown="Window_PreviewMouseLeftButtonDown" MouseMove="Window_MouseMove" WindowStartupLocation="Manual"
         >
-
+    <WindowChrome.WindowChrome>
+        <WindowChrome     
+        CaptionHeight="1"  
+        CornerRadius ="0"
+        ResizeBorderThickness="4"         
+        GlassFrameThickness="0">
+        </WindowChrome>
+    </WindowChrome.WindowChrome>
     <Grid Name="Grid1" Background="Black"  >
         <Image Height="auto" Margin="0,0,0,0"  Width="auto" Name="ImageControl" RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform"/>
         <Grid.ContextMenu>
