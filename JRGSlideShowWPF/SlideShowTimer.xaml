@@ -1,0 +1,15 @@
+﻿<Window x:Class="JRGSlideShowWPF.SlideShowTimer"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:JRGSlideShowWPF"
+        mc:Ignorable="d"
+        Title="SlideShowTimer" Height="130.08" Width="292.915">
+    <Grid Margin="0,0,0,0">
+        <StackPanel Margin="0,10,0,63" Orientation="Horizontal">
+            <TextBox x:Name="TimerTextBox" KeyDown="TimerTextBox_KeyDown" RenderTransformOrigin="2.797,0.506" Width="128" />
+            <Label Content="Enter Timer in Seconds" Height="26" VerticalAlignment="Bottom" />
+        </StackPanel>
+    </Grid>
+</Window>
