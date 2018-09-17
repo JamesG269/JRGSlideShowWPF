@@ -131,7 +131,7 @@ namespace JRGSlideShowWPF
             int c = 0;
             if (i == 0)
             {
-                c = 25;
+                c++;
             }
             dispatcherTimerSlow.Interval = new TimeSpan(0, 0, 0, i, c);
             if (b == true)

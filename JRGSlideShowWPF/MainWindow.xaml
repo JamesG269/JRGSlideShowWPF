@@ -8,8 +8,9 @@
         mc:Ignorable="d"
         AllowsTransparency="True"                
         Title="JRG's SlideShow WPF v1.0" Height="450" Width="800" MouseWheel="mouseWheel" Background="Black" StateChanged="Window_StateChanged" SizeChanged="Window_SizeChanged"
-        Icon="cd.ico" Loaded="Window_Loaded" ShowInTaskbar="False" WindowStyle="None" MouseDoubleClick="Window_MouseDoubleClick" KeyDown="Window_KeyDown"
-        PreviewMouseLeftButtonDown="Window_PreviewMouseLeftButtonDown" MouseMove="Window_MouseMove" WindowStartupLocation="Manual"
+        Icon="cd.ico" Loaded="Window_Loaded" ShowInTaskbar="False" WindowStyle="None" KeyDown="Window_KeyDown"
+        MouseLeftButtonUp="OnMouseLeftButtonUp" MouseLeftButtonDown="OnMouseLeftButtonDown" MouseMove="OnMouseMove" WindowStartupLocation="Manual"
+        
         >
     <WindowChrome.WindowChrome>
         <WindowChrome     

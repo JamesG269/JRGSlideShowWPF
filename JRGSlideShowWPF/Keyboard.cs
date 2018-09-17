@@ -37,14 +37,16 @@ namespace JRGSlideShowWPF
             }
             var imageName = imageInfo.Name;
 
-            MessageBox.Show((DpiError == true ? "DPI ERROR" + Environment.NewLine : "") + "Name: " + imageName + System.Environment.NewLine
-                + "Length: " + imageInfo.Length + Environment.NewLine
-                + "Height: " + DisplayPicInfoHeight + Environment.NewLine
-                + " Width: " + DisplayPicInfoWidth + Environment.NewLine
-                + "  DPIx: " + DisplayPicInfoDPIx + Environment.NewLine
-                + "  DPIy: " + DisplayPicInfoDPIy + Environment.NewLine
-                + "Mouse Wheel Count: " + MouseWheenCount + Environment.NewLine
-                + "Mouse Wheel with OneInt: " + MouseOneIntCount
+            MessageBox.Show((DpiError == true ? "DPI ERROR" + Environment.NewLine : "") 
+                + "                     Name: " + imageName + System.Environment.NewLine
+                + "                   Length: " + imageInfo.Length + Environment.NewLine
+                + "                   Height: " + DisplayPicInfoHeight + Environment.NewLine
+                + "                    Width: " + DisplayPicInfoWidth + Environment.NewLine
+                + "                     DpiX: " + DisplayPicInfoDPIx + Environment.NewLine
+                + "                     DpiY: " + DisplayPicInfoDPIy + Environment.NewLine
+                + "        Mouse Wheel Count: " + MouseWheenCount + Environment.NewLine
+                + "Mouse Wheel missed OneInt: " + MouseOneIntCount + Environment.NewLine
+                + "          ImageIdxListPtr: " + ImageIdxListPtr
                 );            
         }
     }

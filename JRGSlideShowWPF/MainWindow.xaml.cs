@@ -66,7 +66,7 @@ namespace JRGSlideShowWPF
 
             dispatcherTimerSlow.Tick += DisplayNextImageTimer;
             dispatcherTimerFast.Tick += DisplayImageTimer;
-            dispatcherTimerFast.Interval = new TimeSpan(0, 0, 0, 0, 25);
+            dispatcherTimerFast.Interval = new TimeSpan(0, 0, 0, 0, 2);
 
             ChangeIdxPtrBW.DoWork += ChangeIdxPtrBW_DoWork;
             ChangeIdxPtrBW.RunWorkerCompleted += ChangeIdxPtr_RunWorkerCompleted;
@@ -171,7 +171,9 @@ namespace JRGSlideShowWPF
                 {                    
                     ImageControl.Source = bitmapImage;
                     ImageControl.InvalidateVisual();
-                    ImageListDeletePtr = ImageIdxList[ImageIdxListPtr];                    
+                    ImageListDeletePtr = ImageIdxList[ImageIdxListPtr];
+                    bitmapImage = null;
+                    GC.Collect();
                     if (DisplayPicInfoDPIx != DisplayPicInfoDPIy)
                     {
                         DisplayFileInfo(true);
@@ -238,18 +240,19 @@ namespace JRGSlideShowWPF
 
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
         {
+            dispatcherTimerFast.Stop();
+            dispatcherTimerSlow.Stop();
             if (NIcon != null)
             {
                 NIcon.Dispose();
                 NIcon = null;
             }
-            if (0 != Interlocked.Exchange(ref OneInt, 1))
+            if (0 == Interlocked.Exchange(ref OneInt, 1))
             {
-                return;
-            }
-            if (StartUp == false)
-            { 
-                SaveSettings();
+                if (StartUp == false)
+                {
+                    SaveSettings();
+                }
             }
             Interlocked.Exchange(ref OneInt, 0);            
             base.OnClosing(e); 

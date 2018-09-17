@@ -7,24 +7,35 @@ namespace JRGSlideShowWPF
 {
     public partial class MainWindow : Window
     {
-        WindowState WState = WindowState.Normal;
+        private WindowState WState = WindowState.Normal;
+
+        protected override void OnStateChanged(EventArgs e)
+        {
+            base.OnStateChanged(e);
+            WindowStateCode(Height, Width);
+        }
+        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
+        {
+            base.OnRenderSizeChanged(sizeInfo);
+            WindowStateCode(sizeInfo.NewSize.Height, sizeInfo.NewSize.Width);
+        }
+
         private void Window_StateChanged(object sender, EventArgs e)
         {
             //MessageBox.Show("called statechanged - WindowState = " + WindowState.ToString());
-            WindowStateCode();
+            //WindowStateCode();
         }
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
         {            
             //MessageBox.Show("called sizechanged - WindowState = " + WindowState.ToString());
-            WindowStateCode();
-        }
-        private void WindowStateCode()
+            //WindowStateCode();
+        }        
+        private void WindowStateCode(double height, double width)
         {
             WState = WindowState;
             switch (WindowState)
-            {
+            {                
                 case WindowState.Minimized:
-                    Hide();
                     SetThreadExecutionState(EXECUTION_STATE.ES_CONTINUOUS);
                     return;
                 case WindowState.Maximized:
@@ -35,9 +46,9 @@ namespace JRGSlideShowWPF
                     return;
                 case WindowState.Normal:
                     SetThreadExecutionState(EXECUTION_STATE.ES_CONTINUOUS);
-                    if (Dragging == true)
+                    //if (Dragging == true)
                     {                        
-                        //WindowToCenter();
+                        //WindowToCenter((int)height,(int)width);
                     }                    
                     return;
             }
