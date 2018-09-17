@@ -14,7 +14,9 @@ namespace JRGSlideShowWPF
     public partial class MainWindow : Window
     {       
         Point mouseStartPoint = new Point(0, 0);
-        
+
+        int MouseWheenCount = 0;
+        int MouseOneIntCount = 0;
 
         private void Window_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {

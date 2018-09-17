@@ -43,9 +43,7 @@ namespace JRGSlideShowWPF
 
         int ChangeIdxPtrDirection = 1;
         int ImagesNotNull = 0;
-        int OneInt = 0;
-        int MouseWheenCount = 0;
-        int MouseOneIntCount = 0;
+        int OneInt = 0;        
         
         public static BitmapImage bitmapImage = null;
 
@@ -168,7 +166,8 @@ namespace JRGSlideShowWPF
             {
                 Pause();
                 if (ImageError == false)
-                {                    
+                {
+                    ImageControl.Source = null;
                     ImageControl.Source = bitmapImage;
                     ImageControl.InvalidateVisual();
                     ImageListDeletePtr = ImageIdxList[ImageIdxListPtr];
