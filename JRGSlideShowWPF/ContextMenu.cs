@@ -83,6 +83,7 @@ namespace JRGSlideShowWPF
         }
         private void DeleteCode()
         {
+            Pause();
             if (ImageListDeletePtr == -1)
             {
                 return;
@@ -92,14 +93,20 @@ namespace JRGSlideShowWPF
             {
                 try
                 {
-                    File.Delete(ImageList[ImageListDeletePtr]);
-                    MessageBox.Show("Image deleted.");
+                    if (bitmapImage != null && bitmapImage.StreamSource != null)
+                    {
+                        bitmapImage.StreamSource.Dispose();                        
+                        bitmapImage = null;
+                        File.Delete(ImageList[ImageListDeletePtr]);
+                        MessageBox.Show("Image deleted.");
+                    }
                 }
                 catch
                 {
                     MessageBox.Show("Error: Could not delete image.");
                 }
             }
+            Unpause();
         }
 
         private void ContextMenuChangeTimer(object sender, RoutedEventArgs e)

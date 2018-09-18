@@ -10,13 +10,13 @@ using MessageBox = System.Windows.MessageBox;
 using MouseEventArgs = System.Windows.Input.MouseEventArgs;
 
 namespace JRGSlideShowWPF
-{    
+{
     public partial class MainWindow : Window
-    {       
+    {
         Point mouseStartPoint = new Point(0, 0);
 
         int MouseWheenCount = 0;
-        int MouseOneIntCount = 0;        
+        int MouseOneIntCount = 0;
 
         private void mouseWheel(object sender, MouseWheelEventArgs e)
         {
@@ -34,7 +34,7 @@ namespace JRGSlideShowWPF
                 displayPrevImage();
             }
         }
-        
+
         private void OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ClickCount == 2)
@@ -56,8 +56,22 @@ namespace JRGSlideShowWPF
             }
         }
 
+        Point lastMovePosition;
         private void OnMouseMove(object sender, MouseEventArgs e)
-        {
+        {            
+            var l = e.GetPosition((IInputElement)sender);
+            Boolean mouseStartTimer = false;
+            if (l != lastMovePosition)
+            {                
+                if (MouseHidden == true)
+                {
+                    dispatcherTimerMouse.Stop();
+                    this.Cursor = System.Windows.Input.Cursors.Arrow;
+                    MouseHidden = false;
+                    mouseStartTimer = true;
+                }
+                lastMovePosition = l;                
+            }
             if (mRestoreForDragMove)
             {
                 mRestoreForDragMove = false;
@@ -69,8 +83,27 @@ namespace JRGSlideShowWPF
 
                 WindowState = WindowState.Normal;
                 DragMove();
-            }            
+            }
+            if (mouseStartTimer == true)
+            {
+                dispatcherTimerMouse.Start();
+            }
         }
+
+        Boolean MouseHidden = false;
+        private void MouseHide(object sender, EventArgs e)
+        {
+            if (WindowState == WindowState.Maximized)
+            {
+                if (MouseHidden == true)
+                {
+                    return;
+                }
+                MouseHidden = true;
+                this.Cursor = System.Windows.Input.Cursors.None;
+            }
+        }
+    
         
         private void OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {

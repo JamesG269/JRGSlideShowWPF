@@ -34,6 +34,7 @@ namespace JRGSlideShowWPF
 
         System.Windows.Threading.DispatcherTimer dispatcherTimerSlow = new System.Windows.Threading.DispatcherTimer();
         System.Windows.Threading.DispatcherTimer dispatcherTimerFast = new System.Windows.Threading.DispatcherTimer();
+        System.Windows.Threading.DispatcherTimer dispatcherTimerMouse = new System.Windows.Threading.DispatcherTimer();
 
         string SlideShowDirectory;
 
@@ -65,6 +66,8 @@ namespace JRGSlideShowWPF
             dispatcherTimerSlow.Tick += DisplayNextImageTimer;
             dispatcherTimerFast.Tick += DisplayImageTimer;
             dispatcherTimerFast.Interval = new TimeSpan(0, 0, 0, 0, 2);
+            dispatcherTimerMouse.Tick += MouseHide;
+            dispatcherTimerMouse.Interval = new TimeSpan(0, 0, 0, 5, 0);
 
             ChangeIdxPtrBW.DoWork += ChangeIdxPtrBW_DoWork;
             ChangeIdxPtrBW.RunWorkerCompleted += ChangeIdxPtr_RunWorkerCompleted;
@@ -171,7 +174,7 @@ namespace JRGSlideShowWPF
                     ImageControl.Source = bitmapImage;
                     ImageControl.InvalidateVisual();
                     ImageListDeletePtr = ImageIdxList[ImageIdxListPtr];
-                    bitmapImage = null;
+                   
                     GC.Collect();
                     if (DisplayPicInfoDPIx != DisplayPicInfoDPIy)
                     {
@@ -211,6 +214,7 @@ namespace JRGSlideShowWPF
                 ImageWhenReady = true;
             }
             StartUp = false;
+            dispatcherTimerMouse.Start();
             Unpause();
             Interlocked.Exchange(ref OneInt, 0);            
         }          

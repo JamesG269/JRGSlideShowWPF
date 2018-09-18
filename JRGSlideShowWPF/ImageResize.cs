@@ -24,14 +24,13 @@ namespace JRGSlideShowWPF
         
         public void ResizeImageCode()
         {
-
+            string imageFileName = ImageList[ImageIdxList[ImageIdxListPtr]];
             bitmapImage = new BitmapImage();
             try
             {                
                 bitmapImage.BeginInit();                
-                bitmapImage.UriSource = new Uri(ImageList[ImageIdxList[ImageIdxListPtr]]);                
-                bitmapImage.DecodePixelWidth = ResizeMaxWidth;                
-                bitmapImage.CreateOptions = BitmapCreateOptions.PreservePixelFormat;                  
+                bitmapImage.StreamSource = new FileStream(imageFileName, FileMode.Open, FileAccess.Read);
+                bitmapImage.DecodePixelWidth = ResizeMaxWidth;                             
                 bitmapImage.EndInit();
                 bitmapImage.Freeze();
                 DisplayPicInfoHeight = bitmapImage.PixelHeight;
@@ -43,12 +42,11 @@ namespace JRGSlideShowWPF
             }
             catch
             {
-                bitmapImage = null;
-                string fileName = ImageList[ImageIdxList[ImageIdxListPtr]];
-                string destName = @"c:\users\jgentile\desktop\broke\" + Path.GetFileName(fileName);
+                bitmapImage = null;                
+                string destName = @"c:\users\jgentile\desktop\broke\" + Path.GetFileName(imageFileName);
                 try
                 {
-                    File.Copy(fileName, destName);
+                    File.Copy(imageFileName, destName);
                 }
                 catch { }
                 if (File.Exists(destName))
