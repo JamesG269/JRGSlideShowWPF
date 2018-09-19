@@ -45,7 +45,7 @@ namespace JRGSlideShowWPF
         }
         private void NotifyFullScreenCode(object sender, EventArgs e)
         {
-            maximize();
+            ToggleMaximize();
         }
         private void NotifyFullScreenPickCode(object sender, EventArgs e)
         {

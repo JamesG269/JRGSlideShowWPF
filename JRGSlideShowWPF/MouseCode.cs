@@ -15,18 +15,19 @@ namespace JRGSlideShowWPF
     {
         Point mouseStartPoint = new Point(0, 0);
 
-        int MouseWheenCount = 0;
+        int MouseWheelCount = 0;
         int MouseOneIntCount = 0;
 
         private void mouseWheel(object sender, MouseWheelEventArgs e)
         {
             if (e.Delta > 0)
             {
-                MouseWheenCount++;
+                MouseWheelCount++;
                 if (OneInt == 1)
                 {
                     MouseOneIntCount++;
                 }
+                
                 displayNextImage();
             }
             else if (e.Delta < 0)
@@ -35,16 +36,16 @@ namespace JRGSlideShowWPF
             }
         }
 
+        Boolean MouseLeftDown = false;
         private void OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.ClickCount == 2)
+            if (MouseHidden == false)
             {
-                if (ResizeMode != ResizeMode.CanResize &&
-                    ResizeMode != ResizeMode.CanResizeWithGrip)
-                {
-                    return;
-                }
-
+                dispatcherTimerMouse.Stop();
+                dispatcherTimerMouse.Start();
+            }
+            if (e.ClickCount == 2)
+            {                
                 WindowState = WindowState == WindowState.Maximized
                     ? WindowState.Normal
                     : WindowState.Maximized;
@@ -52,7 +53,16 @@ namespace JRGSlideShowWPF
             else
             {
                 mRestoreForDragMove = WindowState == WindowState.Maximized;
-                DragMove();
+                
+                if (WindowState == WindowState.Maximized)
+                {
+                    DragMove();
+                }
+                else
+                {
+                    MouseLeftDown = true;
+                }
+                
             }
         }
 
@@ -75,14 +85,23 @@ namespace JRGSlideShowWPF
             if (mRestoreForDragMove)
             {
                 mRestoreForDragMove = false;
-
                 var point = PointToScreen(e.MouseDevice.GetPosition(this));
 
                 Left = point.X - (RestoreBounds.Width * 0.5);
                 Top = point.Y - (RestoreBounds.Height * 0.5);
-
                 WindowState = WindowState.Normal;
                 DragMove();
+            }
+            else if (MouseLeftDown == true)
+            {
+                MouseLeftDown = false;
+                var point = PointToScreen(e.MouseDevice.GetPosition(this));
+
+                Left = point.X - (RestoreBounds.Width * 0.5);
+                Top = point.Y - (RestoreBounds.Height * 0.5);
+                
+                DragMove();
+                
             }
             if (mouseStartTimer == true)
             {
@@ -90,6 +109,7 @@ namespace JRGSlideShowWPF
             }
         }
 
+        
         Boolean MouseHidden = false;
         private void MouseHide(object sender, EventArgs e)
         {
@@ -108,6 +128,7 @@ namespace JRGSlideShowWPF
         private void OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             mRestoreForDragMove = false;
+            MouseLeftDown = false;
         }
 
         private bool mRestoreForDragMove;

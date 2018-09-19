@@ -45,16 +45,12 @@ namespace JRGSlideShowWPF
                     }
                     return;
                 case WindowState.Normal:
-                    SetThreadExecutionState(EXECUTION_STATE.ES_CONTINUOUS);
-                    //if (Dragging == true)
-                    {                        
-                        //WindowToCenter((int)height,(int)width);
-                    }                    
+                    SetThreadExecutionState(EXECUTION_STATE.ES_CONTINUOUS);                                    
                     return;
             }
             
         }
-        private void maximize()
+        private void ToggleMaximize()
         {
             if (WindowState != WindowState.Maximized)
             {

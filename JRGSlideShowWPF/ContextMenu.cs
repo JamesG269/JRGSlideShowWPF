@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Windows;
 using System.Windows.Forms;
@@ -12,7 +13,7 @@ namespace JRGSlideShowWPF
     {
         private void ContextMenuOpenFolder(object sender, RoutedEventArgs e)
         {
-            if (0 != Interlocked.Exchange(ref OneInt,1))
+            if (0 != Interlocked.Exchange(ref OneInt, 1))
             {
                 return;
             }
@@ -49,7 +50,7 @@ namespace JRGSlideShowWPF
                 return;
             }
             CopyDeleteCode();
-            Interlocked.Exchange(ref OneInt, 0);                
+            Interlocked.Exchange(ref OneInt, 0);
         }
         private void CopyDeleteCode()
         {
@@ -57,6 +58,11 @@ namespace JRGSlideShowWPF
             {
                 return;
             }
+            if (0 != Interlocked.Exchange(ref OneInt, 1))
+            {
+                return;
+            }
+            Pause();
             try
             {
                 string destPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
@@ -69,6 +75,8 @@ namespace JRGSlideShowWPF
             {
                 MessageBox.Show("Error: image not copied to desktop.");
             }
+            Unpause();
+            Interlocked.Exchange(ref OneInt, 0);
         }
 
         private void ContextMenuDelete(object sender, RoutedEventArgs e)
@@ -86,27 +94,46 @@ namespace JRGSlideShowWPF
             Pause();
             if (ImageListDeletePtr == -1)
             {
+                Unpause();
                 return;
             }
-            var result = MessageBox.Show("Delete " + ImageList[ImageListDeletePtr] + " ?", "Confirm delete image.", MessageBoxButton.YesNo);
-            if (result == MessageBoxResult.Yes)
+            var fileName = ImageList[ImageListDeletePtr];
+            if (fileName != null)
             {
-                try
+                var result = MessageBox.Show("Delete " + fileName + " ?", "Confirm delete image.", MessageBoxButton.YesNo);
+                if (result == MessageBoxResult.Yes)
                 {
-                    if (bitmapImage != null && bitmapImage.StreamSource != null)
+                    try
                     {
-                        bitmapImage.StreamSource.Dispose();                        
+                        if (bitmapImage != null && bitmapImage.StreamSource != null)
+                        {
+                            bitmapImage.StreamSource.Dispose();
+                        }
                         bitmapImage = null;
-                        File.Delete(ImageList[ImageListDeletePtr]);
+                        File.Delete(fileName);
+                        ImageList[ImageListDeletePtr] = null;
+                        ImagesNotNull--;
+                        ImageListDeletePtr = -1;
                         MessageBox.Show("Image deleted.");
                     }
-                }
-                catch
-                {
-                    MessageBox.Show("Error: Could not delete image.");
+                    catch
+                    {
+                        MessageBox.Show("Error: Could not delete image.");
+                    }
+                    if (ImagesNotNull > 0)
+                    {
+                        ImageListReady = false;
+                    }
                 }
             }
-            Unpause();
+            if (ImagesNotNull > 0)
+            {
+                Unpause();
+            }
+            else
+            {
+                ImageListReady = false;
+            }
         }
 
         private void ContextMenuChangeTimer(object sender, RoutedEventArgs e)
@@ -115,43 +142,39 @@ namespace JRGSlideShowWPF
         }
         private void ChangeTimerCode()
         {
+            if (0 != Interlocked.Exchange(ref OneInt, 1))
+            {
+                return;
+            }
+
+            Pause();
+            
             SlideShowTimer SlideShowTimerWindow = new SlideShowTimer
             {
                 Owner = this,
                 ResizeMode = ResizeMode.NoResize,
             };
-            SlideShowTimerWindow.Closed += new EventHandler(ContextMenuChangeTimerClosed);
-            SlideShowTimerWindow.TimerTextBox.Text = dispatcherTimerSlow.Interval.Seconds.ToString();            
-            SlideShowTimerWindow.Show();
-        }
-        
-        private void ContextMenuChangeTimerClosed(object sender, EventArgs e)
-        {
-            if (0 != Interlocked.Exchange(ref OneInt,1))
-            {
-                return;
-            }
-            var SlideShowTimerWindow = sender as SlideShowTimer;
-            int i = int.Parse(SlideShowTimerWindow.TimerTextBox.Text);
-            Boolean b = dispatcherTimerSlow.IsEnabled;
-            dispatcherTimerSlow.Stop();
+            
+            SlideShowTimerWindow.TimerTextBox.Text = dispatcherTimerSlow.Interval.Seconds.ToString();
+            SlideShowTimerWindow.ShowDialog();  
+            
+            int i = int.Parse(SlideShowTimerWindow.TimerTextBox.Text);            
             int c = 0;
             if (i == 0)
             {
                 c++;
             }
             dispatcherTimerSlow.Interval = new TimeSpan(0, 0, 0, i, c);
-            if (b == true)
-            {
-                dispatcherTimerSlow.Start();
-            }
+            
             this.Focus();
+
             Interlocked.Exchange(ref OneInt, 0);
+            Unpause();
         }
 
         private void ContextMenuFullScreen(object sender, RoutedEventArgs e)
         {
-            maximize();
+            ToggleMaximize();
         }
 
         private void CheckedRandomize(object sender, RoutedEventArgs e)
@@ -160,20 +183,20 @@ namespace JRGSlideShowWPF
             {
                 return;
             }
-            Randomize = ContextMenuCheckBox.IsChecked;            
+            Randomize = ContextMenuCheckBox.IsChecked;
             RandomizeBW.RunWorkerAsync();
         }
-        
+
         private void RandomizeBW_DoWork(object sender, DoWorkEventArgs e)
         {
-            Pause();            
+            Pause();
             ImageListReady = false;
             ImageWhenReady = false;
             CreateIdxListCode();
             ResizeImageCode();
             ImageListReady = true;
-            ImageWhenReady = true;   
-            
+            ImageWhenReady = true;
+
             Interlocked.Exchange(ref OneInt, 0);
             Unpause();
         }

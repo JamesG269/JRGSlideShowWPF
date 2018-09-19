@@ -25,14 +25,18 @@ namespace JRGSlideShowWPF
         public void ResizeImageCode()
         {
             string imageFileName = ImageList[ImageIdxList[ImageIdxListPtr]];
+
             bitmapImage = new BitmapImage();
+
             try
             {                
                 bitmapImage.BeginInit();                
                 bitmapImage.StreamSource = new FileStream(imageFileName, FileMode.Open, FileAccess.Read);
-                bitmapImage.DecodePixelWidth = ResizeMaxWidth;                             
+                bitmapImage.CreateOptions = BitmapCreateOptions.IgnoreColorProfile;
+                bitmapImage.DecodePixelHeight = ResizeMaxHeight;                
                 bitmapImage.EndInit();
                 bitmapImage.Freeze();
+
                 DisplayPicInfoHeight = bitmapImage.PixelHeight;
                 DisplayPicInfoWidth = bitmapImage.PixelWidth;
                 DisplayPicInfoDPIx = (int)bitmapImage.DpiX;
@@ -42,21 +46,21 @@ namespace JRGSlideShowWPF
             }
             catch
             {
+                if (bitmapImage != null && bitmapImage.StreamSource != null)
+                {
+                    bitmapImage.StreamSource.Dispose();
+                }
                 bitmapImage = null;                
                 string destName = @"c:\users\jgentile\desktop\broke\" + Path.GetFileName(imageFileName);
                 try
                 {
                     File.Copy(imageFileName, destName);
-                }
-                catch { }
-                if (File.Exists(destName))
-                {
                     MessageBox.Show(destName + " is broken, copied successfully");
                 }
-                else
+                catch
                 {
                     MessageBox.Show(destName + " is broken, FAILED to copy.");
-                }
+                }                
             }
         }
 
