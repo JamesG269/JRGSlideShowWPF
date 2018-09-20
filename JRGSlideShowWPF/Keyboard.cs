@@ -27,7 +27,7 @@ namespace JRGSlideShowWPF
 
         private void DisplayFileInfo(Boolean DpiError = false)
         {
-            Pause();
+            Stop();
             FileInfo imageInfo = null;
             try
             {
@@ -49,7 +49,7 @@ namespace JRGSlideShowWPF
                 + "Mouse Wheel missed OneInt: " + MouseOneIntCount + Environment.NewLine
                 + "          ImageIdxListPtr: " + ImageIdxListPtr
                 );
-            Unpause();
+            Play();
         }
     }
 }

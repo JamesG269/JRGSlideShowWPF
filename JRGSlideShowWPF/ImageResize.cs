@@ -5,6 +5,7 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -21,19 +22,21 @@ namespace JRGSlideShowWPF
         int ResizeMaxHeight = 0;
 
         Boolean ImageError = false;
-        
+
+        string ErrorMessage = "";
+
         public void ResizeImageCode()
         {
             string imageFileName = ImageList[ImageIdxList[ImageIdxListPtr]];
 
             bitmapImage = new BitmapImage();
-
+            
             try
             {                
                 bitmapImage.BeginInit();                
                 bitmapImage.StreamSource = new FileStream(imageFileName, FileMode.Open, FileAccess.Read);
                 bitmapImage.CreateOptions = BitmapCreateOptions.IgnoreColorProfile;
-                bitmapImage.DecodePixelHeight = ResizeMaxHeight;                
+                bitmapImage.DecodePixelHeight = ResizeMaxHeight;
                 bitmapImage.EndInit();
                 bitmapImage.Freeze();
 
@@ -41,25 +44,28 @@ namespace JRGSlideShowWPF
                 DisplayPicInfoWidth = bitmapImage.PixelWidth;
                 DisplayPicInfoDPIx = (int)bitmapImage.DpiX;
                 DisplayPicInfoDPIy = (int)bitmapImage.DpiY;
-
-                ImageError = false;
+                
+                ImageError = false;                
             }
             catch
             {
+                ImageError = true;
                 if (bitmapImage != null && bitmapImage.StreamSource != null)
                 {
                     bitmapImage.StreamSource.Dispose();
                 }
-                bitmapImage = null;                
-                string destName = @"c:\users\jgentile\desktop\broke\" + Path.GetFileName(imageFileName);
+                bitmapImage = null;
+                
+                
+                string destName = @"c:\users\jgentile\desktop\" + Path.GetFileName(imageFileName);                
                 try
                 {
                     File.Copy(imageFileName, destName);
-                    MessageBox.Show(destName + " is broken, copied successfully");
+                    ErrorMessage = destName + " is broken, copied successfully";                                     
                 }
                 catch
                 {
-                    MessageBox.Show(destName + " is broken, FAILED to copy.");
+                    ErrorMessage = destName + " is broken, FAILED to copy.";                                      
                 }                
             }
         }

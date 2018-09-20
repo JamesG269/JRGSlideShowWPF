@@ -12,6 +12,7 @@ using MessageBox = System.Windows.MessageBox;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Windows.Media;
+using System.Threading.Tasks;
 
 namespace JRGSlideShowWPF
 {
@@ -58,7 +59,7 @@ namespace JRGSlideShowWPF
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
-        {            
+        {
             LoadSettings();
             GetMaxPicSize();
             NotifyStart();
@@ -145,7 +146,7 @@ namespace JRGSlideShowWPF
             Interlocked.Exchange(ref OneInt, 0);
         }
 
-        private void DisplayImageTimer(object sender, EventArgs e)
+        private async void DisplayImageTimer(object sender, EventArgs e)
         {
             if (0 != Interlocked.Exchange(ref OneInt, 1))
             {
@@ -155,10 +156,9 @@ namespace JRGSlideShowWPF
             {
                 if (ImageError == false)
                 {
-                    PauseSave();       
+                    PauseSave();
 
                     ImageControl.Source = bitmapImage;
-                    //ImageControl.InvalidateVisual();
                     ImageListDeletePtr = ImageIdxList[ImageIdxListPtr];
 
                     PauseRestore();
@@ -169,9 +169,31 @@ namespace JRGSlideShowWPF
                         DisplayFileInfo(true);
                     }
                 }
+                else
+                {
+                    await DisplayError();
+                }
                 ImageWhenReady = false;
             }
             Interlocked.Exchange(ref OneInt, 0);
+        }
+        private async Task<Boolean> DisplayError()
+        {
+            CustMessageBox custMessageBox = new CustMessageBox
+            {
+                Owner = this,
+                ResizeMode = ResizeMode.NoResize,
+            };
+            custMessageBox.CustMessageBoxTextBlock.Text = ErrorMessage;
+            custMessageBox.Show();
+            int i = 300;
+            while (i > 0 && custMessageBox.IsEnabled == true)
+            {
+                await Task.Delay(100);
+                i--;
+            }
+            custMessageBox.Close();
+            return true;
         }
         private void DisplayNextImageTimer(object sender, EventArgs e)
         {
@@ -186,7 +208,7 @@ namespace JRGSlideShowWPF
 
         private void StartGetFilesCode()
         {
-            Pause();
+            Stop();
             GetFilesCode();
             if (NewImageList != null && NewImageList.Count > 0)
             {
@@ -202,7 +224,7 @@ namespace JRGSlideShowWPF
             }
             StartUp = false;
             dispatcherTimerMouse.Start();
-            Unpause();
+            Play();
             Interlocked.Exchange(ref OneInt, 0);
         }
 
@@ -232,13 +254,13 @@ namespace JRGSlideShowWPF
                 dispatcherTimerSlow.Start();
             }
         }
-        private void Pause()
+        private void Stop()
         {
             dispatcherTimerSlow.Stop();
             dispatcherTimerFast.Stop();
             SetThreadExecutionState(EXECUTION_STATE.ES_CONTINUOUS);
         }
-        private void Unpause()
+        private void Play()
         {
             if (ImageListReady == false)
             {
@@ -250,12 +272,11 @@ namespace JRGSlideShowWPF
             {
                 SetThreadExecutionState(EXECUTION_STATE.ES_DISPLAY_REQUIRED | EXECUTION_STATE.ES_CONTINUOUS);
             }
-
         }
 
-        protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+        protected override void OnClosing(CancelEventArgs e)
         {
-            Pause();
+            Stop();
             if (NIcon != null)
             {
                 NIcon.Dispose();

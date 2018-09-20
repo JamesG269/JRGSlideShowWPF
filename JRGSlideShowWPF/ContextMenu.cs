@@ -35,12 +35,12 @@ namespace JRGSlideShowWPF
         }
         private void ContextMenuPause(object sender, RoutedEventArgs e)
         {
-            Pause();
+            Stop();
         }
 
         private void ContextMenuPlay(object sender, RoutedEventArgs e)
         {
-            Unpause();
+            Play();
         }
 
         private void ContextMenuCopyDelete(object sender, RoutedEventArgs e)
@@ -62,7 +62,7 @@ namespace JRGSlideShowWPF
             {
                 return;
             }
-            Pause();
+            Stop();
             try
             {
                 string destPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
@@ -75,7 +75,7 @@ namespace JRGSlideShowWPF
             {
                 MessageBox.Show("Error: image not copied to desktop.");
             }
-            Unpause();
+            Play();
             Interlocked.Exchange(ref OneInt, 0);
         }
 
@@ -91,10 +91,10 @@ namespace JRGSlideShowWPF
         }
         private void DeleteCode()
         {
-            Pause();
+            Stop();
             if (ImageListDeletePtr == -1)
             {
-                Unpause();
+                Play();
                 return;
             }
             var fileName = ImageList[ImageListDeletePtr];
@@ -119,16 +119,12 @@ namespace JRGSlideShowWPF
                     catch
                     {
                         MessageBox.Show("Error: Could not delete image.");
-                    }
-                    if (ImagesNotNull > 0)
-                    {
-                        ImageListReady = false;
-                    }
+                    }                    
                 }
             }
             if (ImagesNotNull > 0)
             {
-                Unpause();
+                Play();
             }
             else
             {
@@ -147,7 +143,7 @@ namespace JRGSlideShowWPF
                 return;
             }
 
-            Pause();
+            Stop();
             
             SlideShowTimer SlideShowTimerWindow = new SlideShowTimer
             {
@@ -169,7 +165,7 @@ namespace JRGSlideShowWPF
             this.Focus();
 
             Interlocked.Exchange(ref OneInt, 0);
-            Unpause();
+            Play();
         }
 
         private void ContextMenuFullScreen(object sender, RoutedEventArgs e)
@@ -189,7 +185,7 @@ namespace JRGSlideShowWPF
 
         private void RandomizeBW_DoWork(object sender, DoWorkEventArgs e)
         {
-            Pause();
+            Stop();
             ImageListReady = false;
             ImageWhenReady = false;
             CreateIdxListCode();
@@ -198,7 +194,7 @@ namespace JRGSlideShowWPF
             ImageWhenReady = true;
 
             Interlocked.Exchange(ref OneInt, 0);
-            Unpause();
+            Play();
         }
     }
 }

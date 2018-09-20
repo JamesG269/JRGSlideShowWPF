@@ -82,6 +82,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="CustMessageBox.xaml.cs">
+      <DependentUpon>CustMessageBox.xaml</DependentUpon>
+    </Compile>
     <Compile Include="FullScreen.cs" />
     <Compile Include="Keyboard.cs" />
     <Compile Include="LoadSaveSettings.cs" />
@@ -89,6 +92,10 @@
     <Compile Include="SlideShowTimer.xaml.cs">
       <DependentUpon>SlideShowTimer.xaml</DependentUpon>
     </Compile>
+    <Page Include="CustMessageBox.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -106,8 +113,8 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="SlideShowTimer.xaml">
-      <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
   <ItemGroup>
@@ -129,6 +136,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="ClassDiagram1.cd" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
