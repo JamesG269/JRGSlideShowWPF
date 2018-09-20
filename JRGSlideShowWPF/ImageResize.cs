@@ -23,7 +23,7 @@ namespace JRGSlideShowWPF
 
         Boolean ImageError = false;
 
-        string ErrorMessage = "";
+        public string ErrorMessage = "";
 
         public void ResizeImageCode()
         {
@@ -44,7 +44,7 @@ namespace JRGSlideShowWPF
                 DisplayPicInfoWidth = bitmapImage.PixelWidth;
                 DisplayPicInfoDPIx = (int)bitmapImage.DpiX;
                 DisplayPicInfoDPIy = (int)bitmapImage.DpiY;
-                
+                GC.Collect();
                 ImageError = false;                
             }
             catch

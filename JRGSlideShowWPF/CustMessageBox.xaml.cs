@@ -24,7 +24,21 @@ namespace JRGSlideShowWPF
             InitializeComponent();
             
         }
+        public async Task<Boolean> ShowTimeOut(int timer, string ErrorMessage)
+        {
 
+            CustMessageBoxTextBlock.Text = ErrorMessage;
+            Show();
+
+            int i = timer*10;
+            while (i > 0 && this.IsEnabled == true)
+            {
+                await Task.Delay(100);
+                i--;
+            }
+            this.Close();
+            return true;
+        }
         private void Window_Closed(object sender, EventArgs e)
         {
             this.IsEnabled = false;

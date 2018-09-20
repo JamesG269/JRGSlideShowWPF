@@ -162,8 +162,7 @@ namespace JRGSlideShowWPF
                     ImageListDeletePtr = ImageIdxList[ImageIdxListPtr];
 
                     PauseRestore();
-
-                    GC.Collect();
+                    
                     if (DisplayPicInfoDPIx != DisplayPicInfoDPIy)
                     {
                         DisplayFileInfo(true);
@@ -184,15 +183,7 @@ namespace JRGSlideShowWPF
                 Owner = this,
                 ResizeMode = ResizeMode.NoResize,
             };
-            custMessageBox.CustMessageBoxTextBlock.Text = ErrorMessage;
-            custMessageBox.Show();
-            int i = 300;
-            while (i > 0 && custMessageBox.IsEnabled == true)
-            {
-                await Task.Delay(100);
-                i--;
-            }
-            custMessageBox.Close();
+            await custMessageBox.ShowTimeOut(30, ErrorMessage);
             return true;
         }
         private void DisplayNextImageTimer(object sender, EventArgs e)
@@ -220,12 +211,12 @@ namespace JRGSlideShowWPF
                 CreateIdxListCode();
                 ResizeImageCode();
                 ImageListReady = true;
-                ImageWhenReady = true;
+                ImageWhenReady = true;                                
+                dispatcherTimerMouse.Start();
             }
-            StartUp = false;
-            dispatcherTimerMouse.Start();
-            Play();
+            StartUp = false;            
             Interlocked.Exchange(ref OneInt, 0);
+            Play();
         }
 
         private void GetMaxPicSize()
@@ -240,18 +231,13 @@ namespace JRGSlideShowWPF
         {
             OldFast = dispatcherTimerFast.IsEnabled;
             OldSlow = dispatcherTimerSlow.IsEnabled;
-            dispatcherTimerFast.Stop();
-            dispatcherTimerSlow.Stop();
+            Stop();
         }
         private void PauseRestore()
         {
-            if (OldFast == true)
+            if (OldFast == true && OldSlow == true)
             {
-                dispatcherTimerFast.Start();
-            }
-            if (OldSlow == true)
-            {
-                dispatcherTimerSlow.Start();
+                Play();
             }
         }
         private void Stop()
