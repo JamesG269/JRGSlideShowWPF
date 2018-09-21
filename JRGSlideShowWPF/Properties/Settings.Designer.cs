@@ -70,5 +70,17 @@ namespace JRGSlideShowWPF.Properties {
                 this["WindowState"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool isMaximized {
+            get {
+                return ((bool)(this["isMaximized"]));
+            }
+            set {
+                this["isMaximized"] = value;
+            }
+        }
     }
 }

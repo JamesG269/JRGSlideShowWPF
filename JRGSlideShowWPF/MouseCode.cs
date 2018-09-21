@@ -45,18 +45,24 @@ namespace JRGSlideShowWPF
                 dispatcherTimerMouse.Start();
             }
             if (e.ClickCount == 2)
-            {                
-                WindowState = WindowState == WindowState.Maximized
-                    ? WindowState.Normal
-                    : WindowState.Maximized;
+            {
+                if (isMaximized == true)
+                {
+                    LeaveFullScreen();                                       
+                }
+                else
+                {
+                    GoFullScreen();
+                }                
             }
             else
             {
-                mRestoreForDragMove = WindowState == WindowState.Maximized;
+                mRestoreForDragMove = isMaximized;// = WindowState == WindowState.Maximized;
                 
-                if (WindowState == WindowState.Maximized)
+                if (isMaximized)
                 {
-                    DragMove();
+                    //LeaveFullScreen();
+                    //DragMove();
                 }
                 else
                 {
@@ -87,19 +93,30 @@ namespace JRGSlideShowWPF
                 mRestoreForDragMove = false;
                 var point = PointToScreen(e.MouseDevice.GetPosition(this));
 
+                //oldLeft = (int)(point.X - (oldLeft * .5)); // RestoreBounds.Width * 0.5);
+                // oldTop = (int)(point.Y - (oldTop * .5));//  RestoreBounds.Height * 0.5);
+                //MessageBox.Show("FUCK");
+                LeaveFullScreen();
+
+                WindowState = WindowState.Normal;
                 Left = point.X - (RestoreBounds.Width * 0.5);
                 Top = point.Y - (RestoreBounds.Height * 0.5);
-                WindowState = WindowState.Normal;
                 DragMove();
             }
             else if (MouseLeftDown == true)
             {
                 MouseLeftDown = false;
                 var point = PointToScreen(e.MouseDevice.GetPosition(this));
-
+                /*
                 Left = point.X - (RestoreBounds.Width * 0.5);
                 Top = point.Y - (RestoreBounds.Height * 0.5);
-                
+
+                oldTop = (int)Top;
+                oldLeft = (int)Left;
+                */
+                LeaveFullScreen();
+                Left = point.X - (RestoreBounds.Width * 0.5);
+                Top = point.Y - (RestoreBounds.Height * 0.5);
                 DragMove();
                 
             }

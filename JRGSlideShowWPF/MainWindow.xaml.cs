@@ -254,7 +254,7 @@ namespace JRGSlideShowWPF
             }
             dispatcherTimerSlow.Start();
             dispatcherTimerFast.Start();
-            if (WState == WindowState.Maximized)
+            if (isMaximized)
             {
                 SetThreadExecutionState(EXECUTION_STATE.ES_DISPLAY_REQUIRED | EXECUTION_STATE.ES_CONTINUOUS);
             }
