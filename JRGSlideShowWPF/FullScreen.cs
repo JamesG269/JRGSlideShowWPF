@@ -13,25 +13,15 @@ namespace JRGSlideShowWPF
         protected override void OnStateChanged(EventArgs e)
         {
             base.OnStateChanged(e);
-            WindowStateCode(Height, Width);            
+            WindowStateCode();            
         }
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
         {
             base.OnRenderSizeChanged(sizeInfo);
-            WindowStateCode(sizeInfo.NewSize.Height, sizeInfo.NewSize.Width);            
+            WindowStateCode();            
         }
-
-        private void Window_StateChanged(object sender, EventArgs e)
-        {
-            //MessageBox.Show("called statechanged - WindowState = " + WindowState.ToString());
-            //WindowStateCode();
-        }
-        private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
-        {            
-            //MessageBox.Show("called sizechanged - WindowState = " + WindowState.ToString());
-            //WindowStateCode();
-        }
-        private void WindowStateCode(double height, double width)
+        
+        private void WindowStateCode()
         {                        
             switch (WindowState)
             {                
@@ -72,6 +62,7 @@ namespace JRGSlideShowWPF
                 Width = ResizeMaxWidth;
                 Top = Left = 0;                
                 isMaximized = true;
+                dispatcherTimerMouse.Start();
             }            
         }
 
@@ -79,24 +70,23 @@ namespace JRGSlideShowWPF
         {
             if (isMaximized == true)
             {
-                //MessageBox.Show("FUCK");
                 Height = oldHeight;
                 Width = oldWidth;
                 Top = oldTop;
                 Left = oldLeft;
                 isMaximized = false;
+                dispatcherTimerMouse.Stop();
             }
         }
         private void ToggleMaximize()
         {
-            if (WindowState != WindowState.Maximized)
+            if (isMaximized)
             {
-                WindowState = WindowState.Maximized;
+                LeaveFullScreen();
             }
             else
             {
-                WindowState = WindowState.Normal;
-                
+                GoFullScreen();
             }
         }
     }

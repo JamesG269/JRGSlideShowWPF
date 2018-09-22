@@ -18,6 +18,7 @@ namespace JRGSlideShowWPF
                 return;
             }
             OpenImageDirectory();
+            GetMaxPicSize();
             StartGetFilesBW.RunWorkerAsync();
         }
         private void ContextMenuExit(object sender, RoutedEventArgs e)
@@ -180,6 +181,7 @@ namespace JRGSlideShowWPF
                 return;
             }
             Randomize = ContextMenuCheckBox.IsChecked;
+            GetMaxPicSize();
             RandomizeBW.RunWorkerAsync();
         }
 
@@ -188,11 +190,10 @@ namespace JRGSlideShowWPF
             Stop();
             ImageListReady = false;
             ImageWhenReady = false;
-            CreateIdxListCode();
+            CreateIdxListCode();            
             ResizeImageCode();
             ImageListReady = true;
             ImageWhenReady = true;
-
             Interlocked.Exchange(ref OneInt, 0);
             Play();
         }

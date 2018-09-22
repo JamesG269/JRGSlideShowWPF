@@ -37,6 +37,7 @@ namespace JRGSlideShowWPF
                 return;
             }
             OpenImageDirectory();
+            GetMaxPicSize();
             StartGetFilesBW.RunWorkerAsync();
         }
         private void NotifyTimerCode(object sender, EventArgs e)
@@ -62,6 +63,7 @@ namespace JRGSlideShowWPF
             (sender as MenuItem).Checked = !(sender as MenuItem).Checked;
             var s = (sender as MenuItem).Checked;
             Randomize = s;
+            GetMaxPicSize();
             RandomizeBW.RunWorkerAsync();
         }
         private void NotifyWipeCode(object sender, EventArgs e)

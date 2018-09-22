@@ -120,7 +120,7 @@ namespace JRGSlideShowWPF
                 DragMove();
                 
             }
-            if (mouseStartTimer == true)
+            if (mouseStartTimer && isMaximized)
             {
                 dispatcherTimerMouse.Start();
             }
@@ -130,7 +130,7 @@ namespace JRGSlideShowWPF
         Boolean MouseHidden = false;
         private void MouseHide(object sender, EventArgs e)
         {
-            if (WindowState == WindowState.Maximized)
+            if (isMaximized)
             {
                 if (MouseHidden == true)
                 {
