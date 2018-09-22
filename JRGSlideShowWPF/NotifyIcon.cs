@@ -88,21 +88,24 @@ namespace JRGSlideShowWPF
             BuildNotify();
         }
 
+        Boolean isMinimized = false;
         public void NotifyIconShowWindow(object sender, MouseEventArgs e)
         {
             if (e.Button != MouseButtons.Left)
             {
                 return;
             }
-            if (WindowState == WindowState.Minimized)
+            if (isMinimized)
             {
-                Show();
-                WindowState = WindowState.Normal;
+                Show();                
+                isMinimized = false;                
+                Activate();                
             }
             else
-            {
-                WindowState = WindowState.Minimized;
+            {               
                 Hide();
+                isMinimized = true;                
+                SetThreadExecutionState(EXECUTION_STATE.ES_CONTINUOUS);
             }
         }
         public void BuildNotify()

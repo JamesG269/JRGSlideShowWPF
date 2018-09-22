@@ -16,7 +16,7 @@ namespace JRGSlideShowWPF
             WindowStateCode();            
         }
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
-        {
+        {            
             base.OnRenderSizeChanged(sizeInfo);
             WindowStateCode();            
         }
@@ -24,20 +24,11 @@ namespace JRGSlideShowWPF
         private void WindowStateCode()
         {                        
             switch (WindowState)
-            {                
-                case WindowState.Minimized:
-                    SetThreadExecutionState(EXECUTION_STATE.ES_CONTINUOUS);                    
-                    return;
+            {                                
                 case WindowState.Maximized:                    
-                    GoFullScreen();
-                    
-                    if (dispatcherTimerSlow.IsEnabled == true && dispatcherTimerFast.IsEnabled == true)
-                    {
-                        SetThreadExecutionState(EXECUTION_STATE.ES_DISPLAY_REQUIRED | EXECUTION_STATE.ES_CONTINUOUS);
-                    }                    
+                    GoFullScreen();                                 
                     return;
-                case WindowState.Normal:
-                    SetThreadExecutionState(EXECUTION_STATE.ES_CONTINUOUS);
+                case WindowState.Normal:                    
                     LeaveFullScreen();                   
                     return;
             }                    
@@ -47,11 +38,18 @@ namespace JRGSlideShowWPF
         int oldWidth = 0;
         int oldTop = 0;
         int oldLeft = 0;
+        int inScreenChange = 0;
+
         Boolean isMaximized = false;
         private void GoFullScreen()
         {
+            if (0 != Interlocked.Exchange(ref inScreenChange, 1))
+            {
+                return;
+            }
             if (isMaximized == false)
             {
+                GetMaxPicSize();
                 WindowState = WindowState.Normal;
                 oldHeight = (int)Height;
                 oldWidth = (int)Width;
@@ -62,12 +60,22 @@ namespace JRGSlideShowWPF
                 Width = ResizeMaxWidth;
                 Top = Left = 0;                
                 isMaximized = true;
+                Activate();
                 dispatcherTimerMouse.Start();
-            }            
+                if (dispatcherTimerSlow.IsEnabled == true)
+                {
+                    SetThreadExecutionState(EXECUTION_STATE.ES_DISPLAY_REQUIRED | EXECUTION_STATE.ES_CONTINUOUS);
+                }
+            }
+            Interlocked.Exchange(ref inScreenChange, 0);
         }
 
         private void LeaveFullScreen()
         {
+            if (0 != Interlocked.Exchange(ref inScreenChange, 1))
+            {
+                return;
+            }
             if (isMaximized == true)
             {
                 Height = oldHeight;
@@ -75,11 +83,19 @@ namespace JRGSlideShowWPF
                 Top = oldTop;
                 Left = oldLeft;
                 isMaximized = false;
+                Activate();
                 dispatcherTimerMouse.Stop();
+                SetThreadExecutionState(EXECUTION_STATE.ES_CONTINUOUS);
             }
+            Interlocked.Exchange(ref inScreenChange, 0);
         }
         private void ToggleMaximize()
         {
+            if (isMinimized)
+            {
+                Show();
+                isMinimized = false;
+            }
             if (isMaximized)
             {
                 LeaveFullScreen();
