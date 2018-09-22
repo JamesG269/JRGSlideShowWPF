@@ -67,8 +67,7 @@ namespace JRGSlideShowWPF
                 else
                 {
                     MouseLeftDown = true;
-                }
-                
+                }                
             }
         }
 
@@ -92,13 +91,9 @@ namespace JRGSlideShowWPF
             {
                 mRestoreForDragMove = false;
                 var point = PointToScreen(e.MouseDevice.GetPosition(this));
-
-                //oldLeft = (int)(point.X - (oldLeft * .5)); // RestoreBounds.Width * 0.5);
-                // oldTop = (int)(point.Y - (oldTop * .5));//  RestoreBounds.Height * 0.5);
-                //MessageBox.Show("FUCK");
+                
                 LeaveFullScreen();
-
-                WindowState = WindowState.Normal;
+                
                 Left = point.X - (RestoreBounds.Width * 0.5);
                 Top = point.Y - (RestoreBounds.Height * 0.5);
                 DragMove();
@@ -107,18 +102,12 @@ namespace JRGSlideShowWPF
             {
                 MouseLeftDown = false;
                 var point = PointToScreen(e.MouseDevice.GetPosition(this));
-                /*
-                Left = point.X - (RestoreBounds.Width * 0.5);
-                Top = point.Y - (RestoreBounds.Height * 0.5);
-
-                oldTop = (int)Top;
-                oldLeft = (int)Left;
-                */
-                LeaveFullScreen();
-                Left = point.X - (RestoreBounds.Width * 0.5);
-                Top = point.Y - (RestoreBounds.Height * 0.5);
-                DragMove();
                 
+                LeaveFullScreen();
+
+                Left = point.X - (RestoreBounds.Width * 0.5);
+                Top = point.Y - (RestoreBounds.Height * 0.5);
+                DragMove();                
             }
             if (mouseStartTimer && isMaximized)
             {
