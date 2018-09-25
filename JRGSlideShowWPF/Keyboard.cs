@@ -20,14 +20,14 @@ namespace JRGSlideShowWPF
                 {
                     return;
                 }
-                DeleteCode();
+                DeleteNoInterlock();
                 Interlocked.Exchange(ref OneInt, 0);
             }
         }
 
         private void DisplayFileInfo(Boolean DpiError = false)
         {
-            Stop();
+            PauseSave();
             FileInfo imageInfo = null;
             try
             {
@@ -43,13 +43,13 @@ namespace JRGSlideShowWPF
                 + "                   Length: " + imageInfo.Length + Environment.NewLine
                 + "                   Height: " + DisplayPicInfoHeight + Environment.NewLine
                 + "                    Width: " + DisplayPicInfoWidth + Environment.NewLine
-                + "                     DpiX: " + DisplayPicInfoDPIx + Environment.NewLine
-                + "                     DpiY: " + DisplayPicInfoDPIy + Environment.NewLine
+                + "                     DpiX: " + DisplayPicInfoDpiX + Environment.NewLine
+                + "                     DpiY: " + DisplayPicInfoDpiY + Environment.NewLine
                 + "        Mouse Wheel Count: " + MouseWheelCount + Environment.NewLine
                 + "Mouse Wheel missed OneInt: " + MouseOneIntCount + Environment.NewLine
                 + "          ImageIdxListPtr: " + ImageIdxListPtr
                 );
-            Play();
+            PauseRestore();
         }
     }
 }

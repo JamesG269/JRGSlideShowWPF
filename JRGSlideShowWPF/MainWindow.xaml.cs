@@ -53,13 +53,26 @@ namespace JRGSlideShowWPF
 
         FolderBrowserDialog dialog = new FolderBrowserDialog();
 
+        IntPtr thisHandle = IntPtr.Zero;
+
+        PresentationSource PSource = null;
+
+
         public MainWindow()
         {
             InitializeComponent();
+            
+            
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            PSource = PresentationSource.FromVisual(this);
+            if (PSource == null)
+            {
+                MessageBox.Show("NULL-2");
+            }
+            thisHandle = new WindowInteropHelper(this).Handle;
             LoadSettings();            
             NotifyStart();
 
@@ -161,9 +174,13 @@ namespace JRGSlideShowWPF
                     ImageControl.Source = bitmapImage;
                     ImageListDeletePtr = ImageIdxList[ImageIdxListPtr];
 
-                    Play();
+                    if (dispatcherTimerSlow.IsEnabled)
+                    {
+                        dispatcherTimerSlow.Stop();
+                        dispatcherTimerSlow.Start();
+                    }
                     
-                    if (DisplayPicInfoDPIx != DisplayPicInfoDPIy)
+                    if (DisplayPicInfoDpiX != DisplayPicInfoDpiY)
                     {
                         DisplayFileInfo(true);
                     }
@@ -220,9 +237,10 @@ namespace JRGSlideShowWPF
             Play();
         }
 
+        
         private void GetMaxPicSize()
-        {
-            var bounds = Screen.FromHandle(new WindowInteropHelper(this).Handle).Bounds;
+        {            
+            var bounds = Screen.FromHandle(thisHandle).Bounds;
             ResizeMaxHeight = bounds.Height;
             ResizeMaxWidth = bounds.Width;
         }

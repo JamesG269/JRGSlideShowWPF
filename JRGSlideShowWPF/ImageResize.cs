@@ -16,8 +16,8 @@ namespace JRGSlideShowWPF
     {
         int DisplayPicInfoHeight = 0;
         int DisplayPicInfoWidth = 0;
-        int DisplayPicInfoDPIx = 0;
-        int DisplayPicInfoDPIy = 0;
+        int DisplayPicInfoDpiX = 0;
+        int DisplayPicInfoDpiY = 0;
         int ResizeMaxWidth = 0;
         int ResizeMaxHeight = 0;
 
@@ -42,8 +42,8 @@ namespace JRGSlideShowWPF
 
                 DisplayPicInfoHeight = bitmapImage.PixelHeight;
                 DisplayPicInfoWidth = bitmapImage.PixelWidth;
-                DisplayPicInfoDPIx = (int)bitmapImage.DpiX;
-                DisplayPicInfoDPIy = (int)bitmapImage.DpiY;
+                DisplayPicInfoDpiX = (int)bitmapImage.DpiX;
+                DisplayPicInfoDpiY = (int)bitmapImage.DpiY;
                 GC.Collect();
                 ImageError = false;                
             }

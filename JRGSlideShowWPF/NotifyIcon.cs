@@ -24,11 +24,16 @@ namespace JRGSlideShowWPF
         }
         private void NotifyDeleteCode(object sender, EventArgs e)
         {
-            DeleteCode();
+            if (0 != Interlocked.Exchange(ref OneInt, 1))
+            {
+                return;
+            }
+            DeleteNoInterlock();
+            Interlocked.Exchange(ref OneInt, 0);
         }
         private void NotifyCopyDeleteCode(object sender, EventArgs e)
-        {
-            CopyDeleteCode();
+        {            
+            CopyDeleteCode();            
         }
         private void NotifyOpenCode(object sender, EventArgs e)
         {

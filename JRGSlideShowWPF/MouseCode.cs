@@ -10,13 +10,15 @@ using MessageBox = System.Windows.MessageBox;
 using MouseEventArgs = System.Windows.Input.MouseEventArgs;
 
 namespace JRGSlideShowWPF
-{
+{   
     public partial class MainWindow : Window
-    {
+    {        
         Point mouseStartPoint = new Point(0, 0);
 
         int MouseWheelCount = 0;
         int MouseOneIntCount = 0;
+
+        private bool mRestoreForDragMove;
 
         private void mouseWheel(object sender, MouseWheelEventArgs e)
         {
@@ -26,8 +28,7 @@ namespace JRGSlideShowWPF
                 if (OneInt == 1)
                 {
                     MouseOneIntCount++;
-                }
-                
+                }                
                 displayNextImage();
             }
             else if (e.Delta < 0)
@@ -48,7 +49,9 @@ namespace JRGSlideShowWPF
             {
                 if (isMaximized == true)
                 {
-                    LeaveFullScreen();                                       
+                    var point = System.Windows.Forms.Cursor.Position;
+                    LeaveFullScreen();                    
+                    MoveWindow(point);
                 }
                 else
                 {
@@ -57,15 +60,10 @@ namespace JRGSlideShowWPF
             }
             else
             {
-                mRestoreForDragMove = isMaximized;// = WindowState == WindowState.Maximized;
+                mRestoreForDragMove = isMaximized;
                 
-                if (isMaximized)
-                {
-                    //LeaveFullScreen();
-                    //DragMove();
-                }
-                else
-                {
+                if (!isMaximized)
+                { 
                     MouseLeftDown = true;
                 }                
             }
@@ -74,48 +72,51 @@ namespace JRGSlideShowWPF
         Point lastMovePosition;
         private void OnMouseMove(object sender, MouseEventArgs e)
         {            
-            var l = e.GetPosition((IInputElement)sender);
-            Boolean mouseStartTimer = false;
-            if (l != lastMovePosition)
-            {                
-                if (MouseHidden == true)
-                {
-                    dispatcherTimerMouse.Stop();
-                    this.Cursor = System.Windows.Input.Cursors.Arrow;
-                    MouseHidden = false;
-                    mouseStartTimer = true;
-                }
-                lastMovePosition = l;                
-            }
+            var l = e.GetPosition((IInputElement)sender);            
+            
             if (mRestoreForDragMove)
             {
                 mRestoreForDragMove = false;
-                var point = PointToScreen(e.MouseDevice.GetPosition(this));
-                
-                LeaveFullScreen();
-                
-                Left = point.X - (RestoreBounds.Width * 0.5);
-                Top = point.Y - (RestoreBounds.Height * 0.5);
+                var point = System.Windows.Forms.Cursor.Position;
+                LeaveFullScreen();                
+                MoveWindow(point);                
                 DragMove();
             }
             else if (MouseLeftDown == true)
             {
                 MouseLeftDown = false;
-                var point = PointToScreen(e.MouseDevice.GetPosition(this));
-                
-                LeaveFullScreen();
-
-                Left = point.X - (RestoreBounds.Width * 0.5);
-                Top = point.Y - (RestoreBounds.Height * 0.5);
+                var point = System.Windows.Forms.Cursor.Position;
+                LeaveFullScreen();                
+                MoveWindow(point);                
                 DragMove();                
             }
-            if (mouseStartTimer && isMaximized)
+            if (l != lastMovePosition)
+            {
+                if (MouseHidden == true)
+                {
+                    this.Cursor = System.Windows.Input.Cursors.Arrow;
+                    MouseHidden = false;   
+                }
+                lastMovePosition = l;
+            }
+            if (isMaximized && !MouseHidden)
             {
                 dispatcherTimerMouse.Start();
             }
         }
-
         
+        private void MoveWindow(System.Drawing.Point point)
+        {
+            Matrix matrix;            
+            if (PSource != null)
+            {
+                int unitX = (int)(point.X);
+                int unitY = (int)(point.Y);
+                matrix = PSource.CompositionTarget.TransformToDevice;
+                Left = (int)((unitX / matrix.M11) - (RestoreBounds.Width / 2));
+                Top = (int)((unitY / matrix.M22) - (RestoreBounds.Height / 2));              
+            }            
+        }
         Boolean MouseHidden = false;
         private void MouseHide(object sender, EventArgs e)
         {
@@ -128,6 +129,7 @@ namespace JRGSlideShowWPF
                 MouseHidden = true;
                 this.Cursor = System.Windows.Input.Cursors.None;
             }
+            dispatcherTimerMouse.Stop();
         }
     
         
@@ -135,9 +137,6 @@ namespace JRGSlideShowWPF
         {
             mRestoreForDragMove = false;
             MouseLeftDown = false;
-        }
-
-        private bool mRestoreForDragMove;
-
+        }        
     }
 }
