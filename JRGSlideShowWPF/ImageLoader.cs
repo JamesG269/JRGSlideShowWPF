@@ -12,6 +12,8 @@ namespace JRGSlideShowWPF
     public partial class MainWindow : Window
     {
         List<string> ImageList = new List<string>();
+        List<string> NewImageList = new List<string>();
+
         List<int> ImageIdxList = new List<int>();
 
         Boolean ImageListReady = false;

@@ -29,7 +29,7 @@ namespace JRGSlideShowWPF
                     GoFullScreen();                                 
                     return;
                 case WindowState.Normal:                    
-                    LeaveFullScreen();                   
+                    LeaveFullScreen(true);                    
                     return;
             }                    
         }
@@ -70,18 +70,21 @@ namespace JRGSlideShowWPF
             Interlocked.Exchange(ref inScreenChange, 0);
         }
 
-        private void LeaveFullScreen()
+        private void LeaveFullScreen(Boolean move)
         {
             if (0 != Interlocked.Exchange(ref inScreenChange, 1))
             {
                 return;
             }
             if (isMaximized == true)
-            {
+            {                
                 Height = oldHeight;
-                Width = oldWidth;
-                Top = oldTop;
-                Left = oldLeft;
+                Width = oldWidth;                
+                if (move == true)
+                {
+                    Top = oldTop;
+                    Left = oldLeft;
+                }
                 isMaximized = false;
                 Activate();
                 dispatcherTimerMouse.Stop();
@@ -98,7 +101,7 @@ namespace JRGSlideShowWPF
             }
             if (isMaximized)
             {
-                LeaveFullScreen();
+                LeaveFullScreen(true);
             }
             else
             {

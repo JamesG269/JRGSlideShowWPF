@@ -56,23 +56,17 @@ namespace JRGSlideShowWPF
         IntPtr thisHandle = IntPtr.Zero;
 
         PresentationSource PSource = null;
-
-
+        
         public MainWindow()
         {
-            InitializeComponent();
-            
-            
+            InitializeComponent();            
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            PSource = PresentationSource.FromVisual(this);
-            if (PSource == null)
-            {
-                MessageBox.Show("NULL-2");
-            }
+            PSource = PresentationSource.FromVisual(this);            
             thisHandle = new WindowInteropHelper(this).Handle;
+            
             LoadSettings();            
             NotifyStart();
 
@@ -96,13 +90,14 @@ namespace JRGSlideShowWPF
         }
 
         private void displayPrevImage()
-        {
-            if (ImageWhenReady == true)
+        {            
+            if (0 != Interlocked.Exchange(ref OneInt, 1))
             {
                 return;
             }
-            if (0 != Interlocked.Exchange(ref OneInt, 1))
+            if (ImageWhenReady == true)
             {
+                Interlocked.Exchange(ref OneInt, 0);
                 return;
             }
             GetMaxPicSize();
@@ -110,13 +105,14 @@ namespace JRGSlideShowWPF
             ChangeIdxPtrBW.RunWorkerAsync();
         }
         private void displayNextImage()
-        {
-            if (ImageWhenReady == true)
+        {            
+            if (0 != Interlocked.Exchange(ref OneInt, 1))
             {
                 return;
             }
-            if (0 != Interlocked.Exchange(ref OneInt, 1))
+            if (ImageWhenReady == true)
             {
+                Interlocked.Exchange(ref OneInt, 0);
                 return;
             }
             GetMaxPicSize();
@@ -161,7 +157,7 @@ namespace JRGSlideShowWPF
             Interlocked.Exchange(ref OneInt, 0);
         }
 
-        private async void DisplayImageTimer(object sender, EventArgs e)
+        private void DisplayImageTimer(object sender, EventArgs e)
         {
             if (0 != Interlocked.Exchange(ref OneInt, 1))
             {
@@ -178,8 +174,7 @@ namespace JRGSlideShowWPF
                     {
                         dispatcherTimerSlow.Stop();
                         dispatcherTimerSlow.Start();
-                    }
-                    
+                    }                    
                     if (DisplayPicInfoDpiX != DisplayPicInfoDpiY)
                     {
                         DisplayFileInfo(true);
@@ -187,23 +182,15 @@ namespace JRGSlideShowWPF
                 }
                 else
                 {
-                    await DisplayError();
+                    PauseSave();
+                    MessageBox.Show(ErrorMessage);
+                    PauseRestore();
                 }
                 ImageWhenReady = false;
             }
             Interlocked.Exchange(ref OneInt, 0);
         }
-        private async Task<Boolean> DisplayError()
-        {
-            CustMessageBox custMessageBox = new CustMessageBox
-            {
-                Owner = this,
-                ResizeMode = ResizeMode.NoResize,
-            };
-            await custMessageBox.ShowTimeOut(30, ErrorMessage);
-            return true;
-        }
-
+        
         private void DisplayNextImageTimer(object sender, EventArgs e)
         {            
             displayNextImage();
@@ -213,8 +200,7 @@ namespace JRGSlideShowWPF
         {
             StartGetFilesCode();
         }
-        public List<string> NewImageList = new List<string>();
-
+        
         private void StartGetFilesCode()
         {
             Stop();
@@ -240,7 +226,7 @@ namespace JRGSlideShowWPF
         
         private void GetMaxPicSize()
         {            
-            var bounds = Screen.FromHandle(thisHandle).Bounds;
+            var bounds = Screen.FromHandle(thisHandle).Bounds;      // check this on multi monitor
             ResizeMaxHeight = bounds.Height;
             ResizeMaxWidth = bounds.Width;
         }

@@ -35,7 +35,7 @@ namespace JRGSlideShowWPF
             {                
                 bitmapImage.BeginInit();                
                 bitmapImage.StreamSource = new FileStream(imageFileName, FileMode.Open, FileAccess.Read);
-                bitmapImage.CreateOptions = BitmapCreateOptions.IgnoreColorProfile;
+                bitmapImage.CreateOptions = BitmapCreateOptions.PreservePixelFormat;
                 bitmapImage.DecodePixelHeight = ResizeMaxHeight;
                 bitmapImage.EndInit();
                 bitmapImage.Freeze();
@@ -56,8 +56,7 @@ namespace JRGSlideShowWPF
                 }
                 bitmapImage = null;
                 
-                
-                string destName = @"c:\users\jgentile\desktop\" + Path.GetFileName(imageFileName);                
+                string destName = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + Path.GetFileName(imageFileName);                
                 try
                 {
                     File.Copy(imageFileName, destName);
