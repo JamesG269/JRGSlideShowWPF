@@ -90,46 +90,36 @@ namespace JRGSlideShowWPF
         }
 
         private void displayPrevImage()
-        {            
+        {
+            if (ImageWhenReady == true || ImageListReady == false)
+            {
+                return;
+            }
             if (0 != Interlocked.Exchange(ref OneInt, 1))
             {
                 return;
-            }
-            if (ImageWhenReady == true)
-            {
-                Interlocked.Exchange(ref OneInt, 0);
-                return;
-            }
+            }            
             GetMaxPicSize();
             ChangeIdxPtrDirection = -1;
             ChangeIdxPtrBW.RunWorkerAsync();
         }
         private void displayNextImage()
-        {            
+        {
+            if (ImageWhenReady == true || ImageListReady == false)
+            {                
+                return;
+            }
             if (0 != Interlocked.Exchange(ref OneInt, 1))
             {
                 return;
-            }
-            if (ImageWhenReady == true)
-            {
-                Interlocked.Exchange(ref OneInt, 0);
-                return;
-            }
+            }            
             GetMaxPicSize();
             ChangeIdxPtrDirection = 1;
             ChangeIdxPtrBW.RunWorkerAsync();
         }
 
         private void ChangeIdxPtrBW_DoWork(object sender, DoWorkEventArgs e)
-        {
-            if (ImageListReady == false)
-            {
-                return;
-            }
-            ChangeIdxPtrCode();
-        }
-        private void ChangeIdxPtrCode()
-        {
+        {            
             do
             {
                 if (Randomize == true)
@@ -148,13 +138,13 @@ namespace JRGSlideShowWPF
 
             } while (ImageList[ImageIdxList[ImageIdxListPtr]] == null);
 
-            ResizeImageCode();
-            ImageWhenReady = true;
+            ResizeImageCode();            
         }
 
         private void ChangeIdxPtr_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             Interlocked.Exchange(ref OneInt, 0);
+            ImageWhenReady = true;
         }
 
         private void DisplayImageTimer(object sender, EventArgs e)
@@ -197,12 +187,7 @@ namespace JRGSlideShowWPF
         }
 
         private void StartGetFilesBW_DoWork(object sender, DoWorkEventArgs e)
-        {
-            StartGetFilesCode();
-        }
-        
-        private void StartGetFilesCode()
-        {
+        {            
             Stop();
             GetFilesCode();
             if (NewImageList != null && NewImageList.Count > 0)
@@ -261,6 +246,11 @@ namespace JRGSlideShowWPF
             if (isMaximized)
             {
                 SetThreadExecutionState(EXECUTION_STATE.ES_DISPLAY_REQUIRED | EXECUTION_STATE.ES_CONTINUOUS);
+                if (!MouseHidden)
+                {
+                    dispatcherTimerMouse.Stop();
+                    dispatcherTimerMouse.Start();
+                }
             }
         }
 

@@ -10,9 +10,9 @@ using MessageBox = System.Windows.MessageBox;
 using MouseEventArgs = System.Windows.Input.MouseEventArgs;
 
 namespace JRGSlideShowWPF
-{   
+{
     public partial class MainWindow : Window
-    {        
+    {
         Point mouseStartPoint = new Point(0, 0);
 
         int MouseWheelCount = 0;
@@ -28,7 +28,7 @@ namespace JRGSlideShowWPF
                 if (OneInt == 1)
                 {
                     MouseOneIntCount++;
-                }                
+                }
                 displayNextImage();
             }
             else if (e.Delta < 0)
@@ -50,52 +50,59 @@ namespace JRGSlideShowWPF
                 if (isMaximized == true)
                 {
                     var point = System.Windows.Forms.Cursor.Position;            // have to get cursor position before leavefullscreen() I think...
-                    LeaveFullScreen(false);                    
+                    LeaveFullScreen(false);
                     WindowToCursor(point);
                 }
                 else
                 {
                     GoFullScreen();
-                }                
+                }
             }
             else
             {
                 mRestoreForDragMove = isMaximized;
-                
+
                 if (!isMaximized)
-                { 
+                {
                     MouseLeftDown = true;
-                }                
+                }
+                StartMouseMove = System.Windows.Forms.Cursor.Position;
             }
         }
+        System.Drawing.Point StartMouseMove;
 
         Point lastMovePosition;
         private void OnMouseMove(object sender, MouseEventArgs e)
-        {            
-            var l = e.GetPosition((IInputElement)sender);            
-            
+        {
+            var l = e.GetPosition((IInputElement)sender);
+
             if (mRestoreForDragMove)
             {
-                mRestoreForDragMove = false;
                 var point = System.Windows.Forms.Cursor.Position;
-                LeaveFullScreen(false);                
-                WindowToCursor(point);                
-                DragMove();
+                if (Math.Abs(point.X - StartMouseMove.X) >= SystemParameters.MinimumHorizontalDragDistance*3 ||
+                    Math.Abs(point.Y - StartMouseMove.Y) >= SystemParameters.MinimumVerticalDragDistance*3)
+                {
+                    mRestoreForDragMove = false;
+                    LeaveFullScreen(false);
+                    WindowToCursor(point);
+                    DragMove();
+                }
+
             }
             else if (MouseLeftDown == true)
             {
-                MouseLeftDown = false;
                 var point = System.Windows.Forms.Cursor.Position;
-                LeaveFullScreen(false);                
-                WindowToCursor(point);                
-                DragMove();                
+                MouseLeftDown = false;
+                LeaveFullScreen(false);
+                WindowToCursor(point);
+                DragMove();
             }
             if (l != lastMovePosition)
             {
                 if (MouseHidden == true)
                 {
                     this.Cursor = System.Windows.Input.Cursors.Arrow;
-                    MouseHidden = false;   
+                    MouseHidden = false;
                 }
                 lastMovePosition = l;
             }
@@ -104,16 +111,16 @@ namespace JRGSlideShowWPF
                 dispatcherTimerMouse.Start();
             }
         }
-        
+
         private void WindowToCursor(System.Drawing.Point point)
         {
-            Matrix matrix;            
+            Matrix matrix;
             if (PSource != null)
-            {                
+            {
                 matrix = PSource.CompositionTarget.TransformToDevice;                       // Have to check if this works when moving to a second monitor.
                 Left = (int)((point.X / matrix.M11) - (RestoreBounds.Width / 2));
-                Top = (int)((point.Y / matrix.M22) - (RestoreBounds.Height / 2));              
-            }            
+                Top = (int)((point.Y / matrix.M22) - (RestoreBounds.Height / 2));
+            }
         }
         Boolean MouseHidden = false;
         private void MouseHide(object sender, EventArgs e)
@@ -129,11 +136,11 @@ namespace JRGSlideShowWPF
             }
             dispatcherTimerMouse.Stop();
         }
-           
+
         private void OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             mRestoreForDragMove = false;
             MouseLeftDown = false;
-        }        
+        }
     }
 }

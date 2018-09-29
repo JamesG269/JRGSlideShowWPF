@@ -9,7 +9,7 @@ using MessageBox = System.Windows.MessageBox;
 namespace JRGSlideShowWPF
 {
     public partial class MainWindow : Window
-    {
+    {        
         protected override void OnStateChanged(EventArgs e)
         {
             base.OnStateChanged(e);
@@ -33,7 +33,7 @@ namespace JRGSlideShowWPF
                     return;
             }                    
         }
-
+        
         int oldHeight = 0;
         int oldWidth = 0;
         int oldTop = 0;
