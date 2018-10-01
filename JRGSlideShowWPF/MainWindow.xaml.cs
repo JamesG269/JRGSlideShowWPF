@@ -48,8 +48,8 @@ namespace JRGSlideShowWPF
         int OneInt = 0;
 
         public static BitmapImage bitmapImage = null;
-
-        PictureBox pictureBox = new PictureBox();
+        
+        TextBox textBox = new TextBox();
 
         FolderBrowserDialog dialog = new FolderBrowserDialog();
 
@@ -80,12 +80,11 @@ namespace JRGSlideShowWPF
             ChangeIdxPtrBW.RunWorkerCompleted += ChangeIdxPtr_RunWorkerCompleted;
             StartGetFilesBW.DoWork += StartGetFilesBW_DoWork;
             RandomizeBW.DoWork += RandomizeBW_DoWork;
-
+            GetMaxPicSize();
             if (0 != Interlocked.Exchange(ref OneInt, 1))
             {
                 return;
             }
-            GetMaxPicSize();
             StartGetFilesBW.RunWorkerAsync();
         }
 
@@ -185,7 +184,7 @@ namespace JRGSlideShowWPF
         {            
             displayNextImage();
         }
-
+        
         private void StartGetFilesBW_DoWork(object sender, DoWorkEventArgs e)
         {            
             Stop();

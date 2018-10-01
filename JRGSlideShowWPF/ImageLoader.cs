@@ -60,12 +60,7 @@ namespace JRGSlideShowWPF
                 //Focus();
                 return;
             }
-        }
-        private void GetFilesBW_DoWork(object sender, DoWorkEventArgs e)
-        {
-            GetFilesCode();
-        }
-        
+        }        
         private void GetFilesCode()
         {
             NewImageList.Clear();
@@ -73,7 +68,16 @@ namespace JRGSlideShowWPF
             {
                 return;
             }
+            Application.Current.Dispatcher.Invoke(new Action(() => {
+                TextBlockControl.Visibility = Visibility.Visible;
+                TextBlockControl.Text = "Finding images...";
+            }));
+            
             GetFiles(SlideShowDirectory, "*.jpg;*.jpeg;*.png;*.bmp;*.gif;*.tif;*.tiff");
+
+            Application.Current.Dispatcher.Invoke(new Action(() => {
+                TextBlockControl.Visibility = Visibility.Hidden;
+            }));
         }
         
         public void GetFiles(string path, string searchPattern)
@@ -106,12 +110,9 @@ namespace JRGSlideShowWPF
                         NewImageList.AddRange(fs);
                         if (fs.Length > 0)
                         {
-                            //FilesLoaded = files.Count;
-                            /*BeginInvoke(new Action(() =>
-                            {
-                                SetTitle(true);
-                            }));
-                            */
+                            Application.Current.Dispatcher.Invoke(new Action(() => {
+                                TextBlockControl.Text = NewImageList.Count + " Images found...";
+                            }));                            
                         }
                     }
                 }
