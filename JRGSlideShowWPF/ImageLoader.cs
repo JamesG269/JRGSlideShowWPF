@@ -19,16 +19,7 @@ namespace JRGSlideShowWPF
         Boolean ImageListReady = false;
 
         int ImageIdxListPtr = 0;
-        int ImageListDeletePtr = -1;
-
-        private void OpenImageDirectory()
-        {
-            dialog.SelectedPath = SlideShowDirectory;
-            if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            {
-                SlideShowDirectory = dialog.SelectedPath;
-            }
-        }
+        int ImageListDeletePtr = -1;       
 
         public void CreateIdxListBW_DoWork(object sender, DoWorkEventArgs e)
         {

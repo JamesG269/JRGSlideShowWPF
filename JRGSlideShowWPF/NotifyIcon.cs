@@ -37,7 +37,7 @@ namespace JRGSlideShowWPF
         }
         private void NotifyOpenCode(object sender, EventArgs e)
         {
-            OpenDir();            
+            OpenDirCheckCancel();           
         }
         private void NotifyTimerCode(object sender, EventArgs e)
         {

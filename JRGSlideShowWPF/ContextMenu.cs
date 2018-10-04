@@ -15,31 +15,31 @@ namespace JRGSlideShowWPF
         public static Shell shell = new Shell();
 
         public static Folder RecyclingBin = shell.NameSpace(10);
-
-        private Boolean CancelGetFiles()
+        
+        private void ContextMenuOpenFolder(object sender, RoutedEventArgs e)
+        {
+            OpenDirCheckCancel();
+        }
+        private void OpenDirCheckCancel()
         {
             if (StartGetFilesBW.IsBusy)
             {
                 StartGetFilesBW.CancelAsync();
-                return true;
-            }
-            return false;
-        }
-        private void ContextMenuOpenFolder(object sender, RoutedEventArgs e)
-        {            
+                return;
+            }            
             OpenDir();
         }
         private void OpenDir()
-        {
-            if (CancelGetFiles() == true)
-            {
-                return;
-            }
+        {           
             if (0 != Interlocked.Exchange(ref OneInt, 1))
             {
                 return;
             }
-            OpenImageDirectory();            
+            dialog.SelectedPath = SlideShowDirectory;
+            if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                SlideShowDirectory = dialog.SelectedPath;
+            }
             GetMaxPicSize();
             StartGetFilesBW.RunWorkerAsync();
         }
