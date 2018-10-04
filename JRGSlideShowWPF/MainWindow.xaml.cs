@@ -81,6 +81,7 @@ namespace JRGSlideShowWPF
             StartGetFilesBW.WorkerSupportsCancellation = true;
             StartGetFilesBW.RunWorkerCompleted += StartGetFilesBW_RunWorkerCompleted;
             RandomizeBW.DoWork += RandomizeBW_DoWork;
+            RandomizeBW.RunWorkerCompleted += RandomizeBW_RunWorkerCompleted;
 
             if (SlideShowDirectory == null || !Directory.Exists(SlideShowDirectory))
             {
@@ -96,7 +97,7 @@ namespace JRGSlideShowWPF
                 StartGetFilesBW.RunWorkerAsync();
             }
         }
-
+        
         private void displayPrevImage()
         {
             if (ImageWhenReady == true || ImageListReady == false)
@@ -168,11 +169,7 @@ namespace JRGSlideShowWPF
                     ImageControl.Source = bitmapImage;
                     ImageListDeletePtr = ImageIdxList[ImageIdxListPtr];
 
-                    if (dispatcherTimerSlow.IsEnabled)
-                    {
-                        dispatcherTimerSlow.Stop();
-                        dispatcherTimerSlow.Start();
-                    }
+                    
                     if (DisplayPicInfoDpiX != DisplayPicInfoDpiY)
                     {
                         DisplayFileInfo(true);
@@ -187,6 +184,11 @@ namespace JRGSlideShowWPF
                 ImageWhenReady = false;
             }
             Interlocked.Exchange(ref OneInt, 0);
+            if (dispatcherTimerSlow.IsEnabled)
+            {
+                dispatcherTimerSlow.Stop();
+                dispatcherTimerSlow.Start();
+            }
         }
 
         private void DisplayNextImageTimer(object sender, EventArgs e)
@@ -218,14 +220,18 @@ namespace JRGSlideShowWPF
                 ImageListReady = false;
                 ImageWhenReady = false;
             }                        
-            Interlocked.Exchange(ref OneInt, 0);
-            Play();
+            
         }
         private void StartGetFilesBW_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
+            Interlocked.Exchange(ref OneInt, 0);            
             if (e.Cancelled)
             {
                 OpenDir();
+            }
+            else
+            {
+                Play();
             }
         }
 

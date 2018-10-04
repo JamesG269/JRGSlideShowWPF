@@ -20,12 +20,7 @@ namespace JRGSlideShowWPF
 
         int ImageIdxListPtr = 0;
         int ImageListDeletePtr = -1;       
-
-        public void CreateIdxListBW_DoWork(object sender, DoWorkEventArgs e)
-        {
-            CreateIdxListCode();
-            Interlocked.Exchange(ref OneInt, 0);
-        }
+        
         private void CreateIdxListCode()
         {
             if (ImageList != null && ImageList.Count > 0)
