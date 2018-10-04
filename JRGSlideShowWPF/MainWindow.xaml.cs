@@ -182,13 +182,13 @@ namespace JRGSlideShowWPF
                     PauseRestore();
                 }
                 ImageWhenReady = false;
+                if (dispatcherTimerSlow.IsEnabled)
+                {
+                    dispatcherTimerSlow.Stop();
+                    dispatcherTimerSlow.Start();
+                }
             }
-            Interlocked.Exchange(ref OneInt, 0);
-            if (dispatcherTimerSlow.IsEnabled)
-            {
-                dispatcherTimerSlow.Stop();
-                dispatcherTimerSlow.Start();
-            }
+            Interlocked.Exchange(ref OneInt, 0);            
         }
 
         private void DisplayNextImageTimer(object sender, EventArgs e)
@@ -217,10 +217,7 @@ namespace JRGSlideShowWPF
             if (bgw != null && bgw.CancellationPending)
             {
                 e.Cancel = true;
-                ImageListReady = false;
-                ImageWhenReady = false;
-            }                        
-            
+            }                                    
         }
         private void StartGetFilesBW_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {

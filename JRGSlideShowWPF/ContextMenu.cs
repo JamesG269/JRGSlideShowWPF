@@ -39,9 +39,14 @@ namespace JRGSlideShowWPF
             if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 SlideShowDirectory = dialog.SelectedPath;
+                GetMaxPicSize();
+                StartGetFilesBW.RunWorkerAsync();
             }
-            GetMaxPicSize();
-            StartGetFilesBW.RunWorkerAsync();
+            else
+            {
+                Interlocked.Exchange(ref OneInt, 0);
+                Play();
+            }
         }
         private void ContextMenuExit(object sender, RoutedEventArgs e)
         {
