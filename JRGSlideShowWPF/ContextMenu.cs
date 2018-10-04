@@ -5,6 +5,7 @@ using System.Threading;
 using System.Windows;
 using MessageBox = System.Windows.MessageBox;
 using Shell32;
+using System.Threading.Tasks;
 
 namespace JRGSlideShowWPF
 {
@@ -15,13 +16,30 @@ namespace JRGSlideShowWPF
 
         public static Folder RecyclingBin = shell.NameSpace(10);
 
-        private void ContextMenuOpenFolder(object sender, RoutedEventArgs e)
+        private Boolean CancelGetFiles()
         {
+            if (StartGetFilesBW.IsBusy)
+            {
+                StartGetFilesBW.CancelAsync();
+                return true;
+            }
+            return false;
+        }
+        private void ContextMenuOpenFolder(object sender, RoutedEventArgs e)
+        {            
+            OpenDir();
+        }
+        private void OpenDir()
+        {
+            if (CancelGetFiles() == true)
+            {
+                return;
+            }
             if (0 != Interlocked.Exchange(ref OneInt, 1))
             {
                 return;
             }
-            OpenImageDirectory();
+            OpenImageDirectory();            
             GetMaxPicSize();
             StartGetFilesBW.RunWorkerAsync();
         }
@@ -40,12 +58,12 @@ namespace JRGSlideShowWPF
         }
         private void ContextMenuPause(object sender, RoutedEventArgs e)
         {
-            Stop();
+            PauseSave();
         }
 
         private void ContextMenuPlay(object sender, RoutedEventArgs e)
         {
-            Play();
+            PauseRestore();
         }
 
         private void ContextMenuCopyDelete(object sender, RoutedEventArgs e)
@@ -90,13 +108,12 @@ namespace JRGSlideShowWPF
 
         }
         private void DeleteNoInterlock()
-        {
-            PauseSave();
+        {            
             if (ImageListDeletePtr == -1)
-            {
-                PauseRestore();
+            {                
                 return;
             }
+            PauseSave();
             var fileName = ImageList[ImageListDeletePtr];
             if (fileName != null)
             {
@@ -110,6 +127,7 @@ namespace JRGSlideShowWPF
                             bitmapImage.StreamSource.Dispose();
                         }
                         bitmapImage = null;
+                        ImageControl.Source = null;
                         RecyclingBin.MoveHere(fileName);
                         ImageList[ImageListDeletePtr] = null;
                         ImagesNotNull--;
@@ -161,8 +179,8 @@ namespace JRGSlideShowWPF
                 c++;
             }
             dispatcherTimerSlow.Interval = new TimeSpan(0, 0, 0, i, c);
-            
-            this.Focus();
+
+            Activate();
 
             Interlocked.Exchange(ref OneInt, 0);
             PauseRestore();

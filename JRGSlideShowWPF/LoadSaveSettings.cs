@@ -15,11 +15,7 @@ namespace JRGSlideShowWPF
 
             ContextMenuCheckBox.IsChecked = Randomize;
             dispatcherTimerSlow.Interval = new TimeSpan(0, 0, 0, i, 0);
-
-            if (SlideShowDirectory == null || !Directory.Exists(SlideShowDirectory))
-            {
-                OpenImageDirectory();
-            }            
+                       
             if (Properties.Settings.Default.isMaximized)
             {
                 GoFullScreen();                

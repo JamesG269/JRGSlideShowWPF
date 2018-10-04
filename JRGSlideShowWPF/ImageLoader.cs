@@ -61,7 +61,7 @@ namespace JRGSlideShowWPF
                 return;
             }
         }        
-        private void GetFilesCode()
+        private void GetFilesCode(BackgroundWorker bgw)
         {
             NewImageList.Clear();
             if (SlideShowDirectory == null || !Directory.Exists(SlideShowDirectory))
@@ -73,14 +73,14 @@ namespace JRGSlideShowWPF
                 TextBlockControl.Text = "Finding images...";
             }));
             
-            GetFiles(SlideShowDirectory, "*.jpg;*.jpeg;*.png;*.bmp;*.gif;*.tif;*.tiff");
+            GetFiles(SlideShowDirectory, bgw, "*.jpg;*.jpeg;*.png;*.bmp;*.gif;*.tif;*.tiff");
 
             Application.Current.Dispatcher.Invoke(new Action(() => {
                 TextBlockControl.Visibility = Visibility.Hidden;
             }));
         }
         
-        public void GetFiles(string path, string searchPattern)
+        public void GetFiles(string path, BackgroundWorker bgw, string searchPattern)
         {
             string[] patterns = searchPattern.Split(';');
             //List<string> files = new List<string>();
@@ -114,12 +114,15 @@ namespace JRGSlideShowWPF
                                 TextBlockControl.Text = NewImageList.Count + " Images found...";
                             }));                            
                         }
+                        if (bgw != null && bgw.CancellationPending)
+                        {
+                            NewImageList.Clear();                            
+                            return;
+                        }
                     }
                 }
                 catch { }
-            }
-            // MessageBox.Show("getfiles done");            
+            }           
         }
-
     }
 }

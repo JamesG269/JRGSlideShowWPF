@@ -22,7 +22,7 @@
     </WindowChrome.WindowChrome>
     <Grid Name="Grid1" Background="Black" >
         <Image Height="auto" Margin="0,0,0,0"  Width="auto" Name="ImageControl" RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform"/>
-        <TextBlock Name="TextBlockControl" Text="test" Width="auto" Height="auto" Margin="0,0,0,0" Foreground="Red" />
+        <TextBlock Name="TextBlockControl" Text="test" Width="auto" Height="auto" Margin="0,0,0,0" Foreground="Red" Visibility="Hidden" />
         <Grid.ContextMenu>
             <ContextMenu>
                 <MenuItem Header="Pause" Click="ContextMenuPause"/>

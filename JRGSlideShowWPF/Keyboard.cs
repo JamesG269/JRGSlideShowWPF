@@ -8,11 +8,11 @@ namespace JRGSlideShowWPF
 {
     public partial class MainWindow : Window
     {
-        private void Window_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        private void Window_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.F1)
             {
-                DisplayFileInfo();    
+                DisplayFileInfo();
             }
             if (e.Key == Key.Delete)
             {
@@ -27,29 +27,41 @@ namespace JRGSlideShowWPF
 
         private void DisplayFileInfo(Boolean DpiError = false)
         {
+            if (!ImageListReady)
+            {
+                return;
+            }
+            if (0 != Interlocked.Exchange(ref OneInt, 1))
+            {
+                return;
+            }
             PauseSave();
             FileInfo imageInfo = null;
             try
             {
-                imageInfo = new FileInfo(ImageList[ImageIdxList[ImageIdxListPtr]]);
+                imageInfo = new FileInfo(ImageList[ImageListDeletePtr]);
+                var imageName = imageInfo.Name;
+
+                MessageBox.Show((DpiError == true ? "DPI ERROR" + Environment.NewLine : "")
+                    + "                     Name: " + imageName + System.Environment.NewLine
+                    + "                   Length: " + imageInfo.Length + Environment.NewLine
+                    + "                   Height: " + DisplayPicInfoHeight + Environment.NewLine
+                    + "                    Width: " + DisplayPicInfoWidth + Environment.NewLine
+                    + "                     DpiX: " + DisplayPicInfoDpiX + Environment.NewLine
+                    + "                     DpiY: " + DisplayPicInfoDpiY + Environment.NewLine
+                    + "        Mouse Wheel Count: " + MouseWheelCount + Environment.NewLine
+                    + "Mouse Wheel missed OneInt: " + MouseOneIntCount + Environment.NewLine
+                    + "          ImageIdxListPtr: " + ImageIdxListPtr + Environment.NewLine
+                    + "             Total Images: " + ImageList.Count
+                    );
             }
-            catch {
+            catch
+            {
                 MessageBox.Show("Error: could not execute FileInfo on image.");
             }
-            var imageName = imageInfo.Name;
 
-            MessageBox.Show((DpiError == true ? "DPI ERROR" + Environment.NewLine : "") 
-                + "                     Name: " + imageName + System.Environment.NewLine
-                + "                   Length: " + imageInfo.Length + Environment.NewLine
-                + "                   Height: " + DisplayPicInfoHeight + Environment.NewLine
-                + "                    Width: " + DisplayPicInfoWidth + Environment.NewLine
-                + "                     DpiX: " + DisplayPicInfoDpiX + Environment.NewLine
-                + "                     DpiY: " + DisplayPicInfoDpiY + Environment.NewLine
-                + "        Mouse Wheel Count: " + MouseWheelCount + Environment.NewLine
-                + "Mouse Wheel missed OneInt: " + MouseOneIntCount + Environment.NewLine
-                + "          ImageIdxListPtr: " + ImageIdxListPtr
-                );
             PauseRestore();
+            Interlocked.Exchange(ref OneInt, 0);
         }
     }
 }

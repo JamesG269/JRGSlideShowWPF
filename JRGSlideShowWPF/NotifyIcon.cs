@@ -37,13 +37,7 @@ namespace JRGSlideShowWPF
         }
         private void NotifyOpenCode(object sender, EventArgs e)
         {
-            if (0 != Interlocked.Exchange(ref OneInt, 1))
-            {
-                return;
-            }
-            OpenImageDirectory();
-            GetMaxPicSize();
-            StartGetFilesBW.RunWorkerAsync();
+            OpenDir();            
         }
         private void NotifyTimerCode(object sender, EventArgs e)
         {

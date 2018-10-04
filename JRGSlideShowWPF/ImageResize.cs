@@ -32,7 +32,7 @@ namespace JRGSlideShowWPF
             bitmapImage = new BitmapImage();
             
             try
-            {                
+            {                               
                 bitmapImage.BeginInit();                
                 bitmapImage.StreamSource = new FileStream(imageFileName, FileMode.Open, FileAccess.Read);
                 bitmapImage.CreateOptions = BitmapCreateOptions.PreservePixelFormat;
