@@ -61,8 +61,7 @@ namespace JRGSlideShowWPF
             }
             (sender as MenuItem).Checked = !(sender as MenuItem).Checked;
             var s = (sender as MenuItem).Checked;
-            Randomize = s;
-            GetMaxPicSize();
+            Randomize = s;            
             RandomizeBW.RunWorkerAsync();
         }
         private void NotifyWipeCode(object sender, EventArgs e)
@@ -98,7 +97,11 @@ namespace JRGSlideShowWPF
             {
                 Show();                
                 isMinimized = false;                
-                Activate();                
+                Activate();
+                if (isMaximized && dispatcherTimerSlow.IsEnabled)
+                {
+                    SetThreadExecutionState(EXECUTION_STATE.ES_DISPLAY_REQUIRED | EXECUTION_STATE.ES_CONTINUOUS);
+                }
             }
             else
             {               

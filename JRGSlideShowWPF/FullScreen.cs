@@ -49,7 +49,7 @@ namespace JRGSlideShowWPF
             }
             if (isMaximized == false)
             {
-                GetMaxPicSize();
+                GetMaxSize();
                 WindowState = WindowState.Normal;
                 oldHeight = (int)Height;
                 oldWidth = (int)Width;

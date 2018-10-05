@@ -38,8 +38,7 @@ namespace JRGSlideShowWPF
             dialog.SelectedPath = SlideShowDirectory;
             if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                SlideShowDirectory = dialog.SelectedPath;
-                GetMaxPicSize();
+                SlideShowDirectory = dialog.SelectedPath;                
                 StartGetFilesBW.RunWorkerAsync();
             }
             else
@@ -131,13 +130,19 @@ namespace JRGSlideShowWPF
                         {
                             bitmapImage.StreamSource.Dispose();
                         }
-                        bitmapImage = null;
-                        ImageControl.Source = null;
+                        bitmapImage = null;                        
                         RecyclingBin.MoveHere(fileName);
-                        ImageList[ImageListDeletePtr] = null;
-                        ImagesNotNull--;
-                        ImageListDeletePtr = -1;
-                        MessageBox.Show("Image deleted.");
+                        if (!File.Exists(fileName))
+                        {
+                            ImageList[ImageListDeletePtr] = null;
+                            ImagesNotNull--;
+                            ImageListDeletePtr = -1;
+                            MessageBox.Show("Image deleted.");
+                        }
+                        else
+                        {
+                            MessageBox.Show("Error: Could not delete image.");
+                        }
                     }
                     catch
                     {
@@ -145,14 +150,11 @@ namespace JRGSlideShowWPF
                     }                    
                 }
             }
-            if (ImagesNotNull > 0)
-            {
-                PauseRestore();
-            }
-            else
-            {
+            if (ImagesNotNull <= 0)
+            {            
                 ImageListReady = false;
             }
+            PauseRestore();
         }
 
         private void ContextMenuChangeTimer(object sender, RoutedEventArgs e)
@@ -202,8 +204,7 @@ namespace JRGSlideShowWPF
             {
                 return;
             }
-            Randomize = ContextMenuCheckBox.IsChecked;
-            GetMaxPicSize();
+            Randomize = ContextMenuCheckBox.IsChecked;            
             RandomizeBW.RunWorkerAsync();
         }
 
@@ -212,10 +213,9 @@ namespace JRGSlideShowWPF
             PauseSave();
             ImageListReady = false;
             ImageWhenReady = false;
-            CreateIdxListCode();            
-            ResizeImageCode();
+            CreateIdxListCode();
             ImageListReady = true;
-            ImageWhenReady = true;            
+            ResizeImageCode();                     
         }
         private void RandomizeBW_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {

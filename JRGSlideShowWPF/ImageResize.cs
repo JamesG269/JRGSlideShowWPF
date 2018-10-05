@@ -30,7 +30,9 @@ namespace JRGSlideShowWPF
             string imageFileName = ImageList[ImageIdxList[ImageIdxListPtr]];
 
             bitmapImage = new BitmapImage();
-            
+
+            GetMaxSize();
+
             try
             {                               
                 bitmapImage.BeginInit();                
@@ -45,7 +47,8 @@ namespace JRGSlideShowWPF
                 DisplayPicInfoDpiX = (int)bitmapImage.DpiX;
                 DisplayPicInfoDpiY = (int)bitmapImage.DpiY;
                 GC.Collect();
-                ImageError = false;                
+                ImageError = false;
+                ImageWhenReady = true;
             }
             catch
             {

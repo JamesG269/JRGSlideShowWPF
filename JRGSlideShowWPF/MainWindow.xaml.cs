@@ -92,8 +92,7 @@ namespace JRGSlideShowWPF
                 if (0 != Interlocked.Exchange(ref OneInt, 1))
                 {
                     return;
-                }
-                GetMaxPicSize();
+                }                
                 StartGetFilesBW.RunWorkerAsync();
             }
         }
@@ -107,8 +106,7 @@ namespace JRGSlideShowWPF
             if (0 != Interlocked.Exchange(ref OneInt, 1))
             {
                 return;
-            }
-            GetMaxPicSize();
+            }            
             ChangeIdxPtrDirection = -1;
             ChangeIdxPtrBW.RunWorkerAsync();
         }
@@ -121,8 +119,7 @@ namespace JRGSlideShowWPF
             if (0 != Interlocked.Exchange(ref OneInt, 1))
             {
                 return;
-            }
-            GetMaxPicSize();
+            }            
             ChangeIdxPtrDirection = 1;
             ChangeIdxPtrBW.RunWorkerAsync();
         }
@@ -152,8 +149,7 @@ namespace JRGSlideShowWPF
 
         private void ChangeIdxPtr_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            Interlocked.Exchange(ref OneInt, 0);
-            ImageWhenReady = true;
+            Interlocked.Exchange(ref OneInt, 0);            
         }
 
         private void DisplayImageTimer(object sender, EventArgs e)
@@ -164,11 +160,11 @@ namespace JRGSlideShowWPF
             }
             if (ImageWhenReady == true)
             {
+                ImageWhenReady = false;
                 if (ImageError == false)
                 {
                     ImageControl.Source = bitmapImage;
                     ImageListDeletePtr = ImageIdxList[ImageIdxListPtr];
-
                     
                     if (DisplayPicInfoDpiX != DisplayPicInfoDpiY)
                     {
@@ -180,8 +176,7 @@ namespace JRGSlideShowWPF
                     PauseSave();
                     MessageBox.Show(ErrorMessage);
                     PauseRestore();
-                }
-                ImageWhenReady = false;
+                }                
                 if (dispatcherTimerSlow.IsEnabled)
                 {
                     dispatcherTimerSlow.Stop();
@@ -210,8 +205,7 @@ namespace JRGSlideShowWPF
                 ImagesNotNull = ImageList.Count();
                 CreateIdxListCode();
                 ResizeImageCode();
-                ImageListReady = true;
-                ImageWhenReady = true;
+                ImageListReady = true;                
                 dispatcherTimerFast.Start();
             }
             if (bgw != null && bgw.CancellationPending)
@@ -232,9 +226,9 @@ namespace JRGSlideShowWPF
             }
         }
 
-        private void GetMaxPicSize()
+        private void GetMaxSize()
         {
-            var bounds = Screen.FromHandle(thisHandle).Bounds;      // check this on multi monitor
+            var bounds = Screen.FromHandle(thisHandle).Bounds;
             ResizeMaxHeight = bounds.Height;
             ResizeMaxWidth = bounds.Width;
         }
