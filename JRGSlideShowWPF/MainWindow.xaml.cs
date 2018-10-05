@@ -166,10 +166,6 @@ namespace JRGSlideShowWPF
                     ImageControl.Source = bitmapImage;
                     ImageListDeletePtr = ImageIdxList[ImageIdxListPtr];
                     
-                    if (DisplayPicInfoDpiX != DisplayPicInfoDpiY)
-                    {
-                        DisplayFileInfo(true);
-                    }
                 }
                 else
                 {

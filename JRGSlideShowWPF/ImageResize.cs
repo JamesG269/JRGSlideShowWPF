@@ -28,13 +28,12 @@ namespace JRGSlideShowWPF
         public void ResizeImageCode()
         {
             string imageFileName = ImageList[ImageIdxList[ImageIdxListPtr]];
-
             bitmapImage = new BitmapImage();
-
             GetMaxSize();
-
             try
-            {                               
+            {                
+                ImageWhenReady = true;
+                ImageError = false;
                 bitmapImage.BeginInit();                
                 bitmapImage.StreamSource = new FileStream(imageFileName, FileMode.Open, FileAccess.Read);
                 bitmapImage.CreateOptions = BitmapCreateOptions.PreservePixelFormat;
@@ -47,30 +46,33 @@ namespace JRGSlideShowWPF
                 DisplayPicInfoDpiX = (int)bitmapImage.DpiX;
                 DisplayPicInfoDpiY = (int)bitmapImage.DpiY;
                 GC.Collect();
-                ImageError = false;
-                ImageWhenReady = true;
+                if (DisplayPicInfoDpiX == DisplayPicInfoDpiY)
+                {
+                    return;
+                }
+                ImageError = true;
+                ErrorMessage = " DPI Error.";                
             }
             catch
             {
                 ImageError = true;
-                if (bitmapImage != null && bitmapImage.StreamSource != null)
-                {
-                    bitmapImage.StreamSource.Dispose();
-                }
-                bitmapImage = null;
-                
-                string destName = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + Path.GetFileName(imageFileName);                
-                try
-                {
-                    File.Copy(imageFileName, destName);
-                    ErrorMessage = destName + " is broken, copied successfully";                                     
-                }
-                catch
-                {
-                    ErrorMessage = destName + " is broken, FAILED to copy.";                                      
-                }                
+                ErrorMessage = " Resize Error.";                
+            }                                    
+            if (bitmapImage != null && bitmapImage.StreamSource != null)
+            {
+                bitmapImage.StreamSource.Dispose();
             }
-        }
-
+            bitmapImage = null;
+            string destName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), Path.GetFileName(imageFileName));
+            try
+            {
+                File.Copy(imageFileName, destName);
+                ErrorMessage = destName + ErrorMessage + " Copied successfully.";
+            }
+            catch
+            {
+                ErrorMessage = destName + ErrorMessage + " Copy error.";
+            }
+        }        
     }
 }
