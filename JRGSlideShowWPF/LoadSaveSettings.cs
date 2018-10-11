@@ -14,7 +14,13 @@ namespace JRGSlideShowWPF
             SlideShowDirectory = Properties.Settings.Default.SlideShowFolder;
 
             ContextMenuCheckBox.IsChecked = Randomize;
-            dispatcherTimerSlow.Interval = new TimeSpan(0, 0, 0, i, 0);
+
+            int c = 0;
+            if (i == 0)
+            {
+                c++;
+            }
+            dispatcherTimerSlow.Interval = new TimeSpan(0, 0, 0, i, c);
                        
             if (Properties.Settings.Default.isMaximized)
             {

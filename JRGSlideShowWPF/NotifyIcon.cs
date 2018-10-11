@@ -198,8 +198,6 @@ namespace JRGSlideShowWPF
             NotifyMenu.MenuItems.Add(NotifyExit);
 
             NIcon.ContextMenu = NotifyMenu;
-        }
-        
-
+        }        
     }
 }

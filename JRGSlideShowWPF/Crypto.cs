@@ -34,7 +34,8 @@ namespace JRGSlideShowWPF
                 temp = ImageIdxList[i];
                 ImageIdxList[i] = ImageIdxList[second];
                 ImageIdxList[second] = temp;
-            }           
+            }
+            ImageListDeletePtr = -1;
         }        
         
         private void DecryptIdxListCode()
@@ -48,7 +49,8 @@ namespace JRGSlideShowWPF
                 temp = ImageIdxList[i];
                 ImageIdxList[i] = ImageIdxList[second];
                 ImageIdxList[second] = temp;
-            }            
+            }
+            ImageListDeletePtr = -1;
         }
         
         public int GetRNGIndex()

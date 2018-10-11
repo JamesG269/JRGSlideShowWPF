@@ -212,10 +212,9 @@ namespace JRGSlideShowWPF
         {
             PauseSave();
             ImageListReady = false;
-            ImageWhenReady = false;
             CreateIdxListCode();
             ImageListReady = true;
-            ResizeImageCode();                     
+            ResizeImageCode();
         }
         private void RandomizeBW_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {

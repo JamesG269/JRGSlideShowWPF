@@ -4,6 +4,7 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Interop;
+using System.Windows.Media;
 using MessageBox = System.Windows.MessageBox;
 
 namespace JRGSlideShowWPF
@@ -55,9 +56,14 @@ namespace JRGSlideShowWPF
                 oldWidth = (int)Width;
                 oldTop = (int)Top;
                 oldLeft = (int)Left;
-                
-                Height = ResizeMaxHeight;
-                Width = ResizeMaxWidth;
+
+                Matrix matrix;
+                if (PSource != null)
+                {
+                    matrix = PSource.CompositionTarget.TransformToDevice;                       // Have to check if this works when moving to a second monitor.
+                    Height = (int)(ResizeMaxHeight / matrix.M11);
+                    Width = (int)(ResizeMaxWidth / matrix.M22);
+                }                                
                 Top = Left = 0;                
                 isMaximized = true;
                 Activate();
