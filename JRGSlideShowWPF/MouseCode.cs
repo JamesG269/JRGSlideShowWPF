@@ -28,12 +28,23 @@ namespace JRGSlideShowWPF
                 if (OneInt == 1)
                 {
                     MouseOneIntCount++;
+                    Outstanding++;
                 }
-                displayNextImage();
+                else
+                {
+                    displayNextImage();
+                }
             }
             else if (e.Delta < 0)
             {
-                displayPrevImage();
+                if (OneInt == 1)
+                {
+                    Outstanding--;
+                }
+                else
+                {
+                    displayPrevImage();
+                }
             }
         }
 
@@ -85,7 +96,11 @@ namespace JRGSlideShowWPF
                     mRestoreForDragMove = false;
                     LeaveFullScreen(false);
                     WindowToCursor(point);
-                    DragMove();
+                    try
+                    {
+                        DragMove();
+                    }
+                    catch { }
                 }
 
             }
@@ -95,7 +110,11 @@ namespace JRGSlideShowWPF
                 MouseLeftDown = false;
                 LeaveFullScreen(false);
                 WindowToCursor(point);
-                DragMove();
+                try
+                {
+                    DragMove();
+                }
+                catch { }
             }
             if (l != lastMovePosition)
             {

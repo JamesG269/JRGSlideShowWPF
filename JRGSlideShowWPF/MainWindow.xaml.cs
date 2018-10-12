@@ -96,17 +96,19 @@ namespace JRGSlideShowWPF
                 StartGetFilesBW.RunWorkerAsync();
             }
         }
-        
+        int Outstanding = 0;
         private void displayPrevImage()
         {
             if (ImageWhenReady == true || ImageListReady == false)
             {
+                Outstanding--;
                 return;
             }
             if (0 != Interlocked.Exchange(ref OneInt, 1))
             {
+                Outstanding--;
                 return;
-            }            
+            }               
             ChangeIdxPtrDirection = -1;
             ChangeIdxPtrBW.RunWorkerAsync();
         }
@@ -114,10 +116,12 @@ namespace JRGSlideShowWPF
         {
             if (ImageWhenReady == true || ImageListReady == false)
             {
+                Outstanding++;
                 return;
             }
             if (0 != Interlocked.Exchange(ref OneInt, 1))
             {
+                Outstanding++;
                 return;
             }            
             ChangeIdxPtrDirection = 1;
@@ -176,7 +180,17 @@ namespace JRGSlideShowWPF
                     dispatcherTimerSlow.Start();
                 }
             }
-            Interlocked.Exchange(ref OneInt, 0);            
+            Interlocked.Exchange(ref OneInt, 0);
+            if (Outstanding > 0)
+            {
+                Outstanding--;
+                displayNextImage();
+            }
+            else if (Outstanding < 0)
+            {
+                Outstanding++;
+                displayPrevImage();
+            }
         }
 
         private void DisplayNextImageTimer(object sender, EventArgs e)

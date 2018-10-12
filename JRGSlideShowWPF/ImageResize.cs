@@ -37,7 +37,8 @@ namespace JRGSlideShowWPF
                 bitmapImage.BeginInit();                
                 bitmapImage.StreamSource = new FileStream(imageFileName, FileMode.Open, FileAccess.Read);
                 bitmapImage.CreateOptions = BitmapCreateOptions.PreservePixelFormat;
-                bitmapImage.DecodePixelHeight = ResizeMaxHeight;
+                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+                bitmapImage.DecodePixelHeight = ResizeMaxHeight;                
                 bitmapImage.EndInit();
                 bitmapImage.Freeze();
 
@@ -46,6 +47,7 @@ namespace JRGSlideShowWPF
                 DisplayPicInfoDpiX = (int)bitmapImage.DpiX;
                 DisplayPicInfoDpiY = (int)bitmapImage.DpiY;
                 GC.Collect();
+                
                 if (DisplayPicInfoDpiX == DisplayPicInfoDpiY)
                 {
                     return;
