@@ -161,12 +161,7 @@ namespace JRGSlideShowWPF
             ChangeTimerCode();
         }
         private void ChangeTimerCode()
-        {
-            if (0 != Interlocked.Exchange(ref OneInt, 1))
-            {
-                return;
-            }
-
+        {            
             PauseSave();
 
             SlideShowTimer SlideShowTimerWindow = new SlideShowTimer
@@ -185,10 +180,9 @@ namespace JRGSlideShowWPF
                 c++;
             }
             dispatcherTimerSlow.Interval = new TimeSpan(0, 0, 0, i, c);
-
+            
             Activate();
-
-            Interlocked.Exchange(ref OneInt, 0);
+            
             PauseRestore();
         }
 

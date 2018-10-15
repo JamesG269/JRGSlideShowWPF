@@ -290,8 +290,9 @@ namespace JRGSlideShowWPF
                     dispatcherTimerMouse.Stop();
                     dispatcherTimerMouse.Start();
                 }
-            }
+            }            
             dispatcherTimerSlow.Stop();
+            Outstanding = 0;
             dispatcherTimerSlow.Start();
         }
 
