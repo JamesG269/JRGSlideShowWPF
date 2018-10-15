@@ -25,6 +25,7 @@ namespace JRGSlideShowWPF
      
         private void EncryptIdxListCode()
         {
+            ImageIdxListDeletePtr = -1;
             int second, temp;
             for (int i = 0; i < ImageIdxList.Count; i++)
             {
@@ -35,12 +36,12 @@ namespace JRGSlideShowWPF
                 ImageIdxList[i] = ImageIdxList[second];
                 ImageIdxList[second] = temp;
             }
-            ImageListDeletePtr = -1;
         }        
         
         private void DecryptIdxListCode()
         {
-            int second, temp;
+            ImageIdxListDeletePtr = -1;
+            int second, temp;            
             for (int i = ImageIdxList.Count - 1; i >= 0; i--)
             {
                 second = GetRNGIndex();
@@ -49,8 +50,7 @@ namespace JRGSlideShowWPF
                 temp = ImageIdxList[i];
                 ImageIdxList[i] = ImageIdxList[second];
                 ImageIdxList[second] = temp;
-            }
-            ImageListDeletePtr = -1;
+            }            
         }
         
         public int GetRNGIndex()

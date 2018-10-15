@@ -15,7 +15,7 @@ namespace JRGSlideShowWPF
         public static Shell shell = new Shell();
 
         public static Folder RecyclingBin = shell.NameSpace(10);
-        
+
         private void ContextMenuOpenFolder(object sender, RoutedEventArgs e)
         {
             OpenDirCheckCancel();
@@ -26,11 +26,11 @@ namespace JRGSlideShowWPF
             {
                 StartGetFilesBW.CancelAsync();
                 return;
-            }            
+            }
             OpenDir();
         }
         private void OpenDir()
-        {           
+        {
             if (0 != Interlocked.Exchange(ref OneInt, 1))
             {
                 return;
@@ -38,7 +38,7 @@ namespace JRGSlideShowWPF
             dialog.SelectedPath = SlideShowDirectory;
             if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                SlideShowDirectory = dialog.SelectedPath;                
+                SlideShowDirectory = dialog.SelectedPath;
                 StartGetFilesBW.RunWorkerAsync();
             }
             else
@@ -71,8 +71,8 @@ namespace JRGSlideShowWPF
         }
 
         private void ContextMenuCopyDelete(object sender, RoutedEventArgs e)
-        {            
-            CopyDeleteCode();            
+        {
+            CopyDeleteCode();
         }
         private void CopyDeleteCode()
         {
@@ -80,15 +80,16 @@ namespace JRGSlideShowWPF
             {
                 return;
             }
-            if (ImageListDeletePtr != -1)
+            if (ImageIdxListDeletePtr != -1 && ImageIdxList[ImageIdxListDeletePtr] == -1)
             {
                 PauseSave();
                 string destPath = "";
+                string sourcePath = ImageList[ImageIdxList[ImageIdxListDeletePtr]];
                 try
                 {
                     destPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
-                    destPath = Path.Combine(destPath, Path.GetFileName(ImageList[ImageListDeletePtr]));
-                    File.Copy(ImageList[ImageListDeletePtr], destPath);
+                    destPath = Path.Combine(destPath, Path.GetFileName(sourcePath));
+                    File.Copy(sourcePath, destPath);
                     MessageBox.Show("Image copied to " + destPath);
                     DeleteNoInterlock();
                 }
@@ -112,46 +113,44 @@ namespace JRGSlideShowWPF
 
         }
         private void DeleteNoInterlock()
-        {            
-            if (ImageListDeletePtr == -1)
-            {                
+        {
+            if (ImageIdxListDeletePtr == -1 || ImageIdxList[ImageIdxListDeletePtr] == -1)
+            {
                 return;
             }
             PauseSave();
-            var fileName = ImageList[ImageListDeletePtr];
-            if (fileName != null)
+            var fileName = ImageList[ImageIdxList[ImageIdxListDeletePtr]];
+            var result = MessageBox.Show("Confirm delete: " + fileName, "Confirm delete image.", MessageBoxButton.YesNo);
+            if (result == MessageBoxResult.Yes)
             {
-                var result = MessageBox.Show("Confirm delete: " + fileName, "Confirm delete image.", MessageBoxButton.YesNo);
-                if (result == MessageBoxResult.Yes)
+                try
                 {
-                    try
+                    if (bitmapImage != null && bitmapImage.StreamSource != null)
                     {
-                        if (bitmapImage != null && bitmapImage.StreamSource != null)
-                        {
-                            bitmapImage.StreamSource.Dispose();
-                        }
-                        bitmapImage = null;                        
-                        RecyclingBin.MoveHere(fileName);
-                        if (!File.Exists(fileName))
-                        {
-                            ImageList[ImageListDeletePtr] = null;
-                            ImagesNotNull--;
-                            ImageListDeletePtr = -1;
-                            MessageBox.Show("Image deleted.");
-                        }
-                        else
-                        {
-                            MessageBox.Show("Error: Could not delete image.");
-                        }
+                        bitmapImage.StreamSource.Dispose();
                     }
-                    catch
+                    bitmapImage = null;
+                    RecyclingBin.MoveHere(fileName);
+                    if (!File.Exists(fileName))
+                    {
+                        ImageIdxList[ImageIdxListDeletePtr] = -1;
+                        ImagesNotNull--;
+                        ImageIdxListDeletePtr = -1;
+                        MessageBox.Show("Image deleted.");
+                    }
+                    else
                     {
                         MessageBox.Show("Error: Could not delete image.");
-                    }                    
+                    }
+                }
+                catch
+                {
+                    MessageBox.Show("Error: Could not delete image.");
                 }
             }
+
             if (ImagesNotNull <= 0)
-            {            
+            {
                 ImageListReady = false;
             }
             PauseRestore();
@@ -169,17 +168,17 @@ namespace JRGSlideShowWPF
             }
 
             PauseSave();
-            
+
             SlideShowTimer SlideShowTimerWindow = new SlideShowTimer
             {
                 Owner = this,
                 ResizeMode = ResizeMode.NoResize,
             };
-            
+
             SlideShowTimerWindow.TimerTextBox.Text = dispatcherTimerSlow.Interval.Seconds.ToString();
-            SlideShowTimerWindow.ShowDialog();  
-            
-            int i = int.Parse(SlideShowTimerWindow.TimerTextBox.Text);            
+            SlideShowTimerWindow.ShowDialog();
+
+            int i = int.Parse(SlideShowTimerWindow.TimerTextBox.Text);
             int c = 0;
             if (i == 0)
             {
@@ -204,7 +203,7 @@ namespace JRGSlideShowWPF
             {
                 return;
             }
-            Randomize = ContextMenuCheckBox.IsChecked;            
+            Randomize = ContextMenuCheckBox.IsChecked;
             RandomizeBW.RunWorkerAsync();
         }
 

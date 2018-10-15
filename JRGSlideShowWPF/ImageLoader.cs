@@ -19,7 +19,7 @@ namespace JRGSlideShowWPF
         Boolean ImageListReady = false;
 
         int ImageIdxListPtr = 0;
-        int ImageListDeletePtr = -1;       
+        int ImageIdxListDeletePtr = -1;       
         
         private void CreateIdxListCode()
         {
@@ -90,6 +90,11 @@ namespace JRGSlideShowWPF
                 {
                     foreach (string filter in patterns)
                     {
+                        if (StartGetFilesBW.CancellationPending)
+                        {
+                            NewImageList.Clear();
+                            return;
+                        }
                         var fs = Directory.GetFiles(currentDir, filter);
                         NewImageList.AddRange(fs);
                         if (fs.Length > 0)
@@ -97,12 +102,7 @@ namespace JRGSlideShowWPF
                             Application.Current.Dispatcher.Invoke(new Action(() => {
                                 TextBlockControl.Text = NewImageList.Count + " Images found...";
                             }));                            
-                        }
-                        if (StartGetFilesBW.CancellationPending)
-                        {
-                            NewImageList.Clear();                            
-                            return;
-                        }
+                        }                        
                     }
                 }
                 catch { }

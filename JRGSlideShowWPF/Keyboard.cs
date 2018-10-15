@@ -35,32 +35,35 @@ namespace JRGSlideShowWPF
             {
                 return;
             }
-            PauseSave();
-            FileInfo imageInfo = null;
-            try
+            if (ImageIdxListDeletePtr != -1 && ImageIdxList[ImageIdxListDeletePtr] != -1)
             {
-                imageInfo = new FileInfo(ImageList[ImageListDeletePtr]);
-                var imageName = imageInfo.Name;
+                PauseSave();
+                FileInfo imageInfo = null;
 
-                MessageBox.Show((DpiError == true ? "DPI ERROR" + Environment.NewLine : "")
-                    + "                     Name: " + imageName + System.Environment.NewLine
-                    + "                   Length: " + imageInfo.Length + Environment.NewLine
-                    + "                   Height: " + DisplayPicInfoHeight + Environment.NewLine
-                    + "                    Width: " + DisplayPicInfoWidth + Environment.NewLine
-                    + "                     DpiX: " + DisplayPicInfoDpiX + Environment.NewLine
-                    + "                     DpiY: " + DisplayPicInfoDpiY + Environment.NewLine
-                    + "        Mouse Wheel Count: " + MouseWheelCount + Environment.NewLine
-                    + "Mouse Wheel missed OneInt: " + MouseOneIntCount + Environment.NewLine
-                    + "          ImageIdxListPtr: " + ImageIdxListPtr + Environment.NewLine
-                    + "             Total Images: " + ImageList.Count
-                    );
-            }
-            catch
-            {
-                MessageBox.Show("Error: could not execute FileInfo on image.");
-            }
+                try
+                {
+                    imageInfo = new FileInfo(ImageList[ImageIdxList[ImageIdxListDeletePtr]]);
+                    var imageName = imageInfo.Name;
 
-            PauseRestore();
+                    MessageBox.Show((DpiError == true ? "DPI ERROR" + Environment.NewLine : "")
+                        + "                     Name: " + imageName + System.Environment.NewLine
+                        + "                   Length: " + imageInfo.Length + Environment.NewLine
+                        + "                   Height: " + DisplayPicInfoHeight + Environment.NewLine
+                        + "                    Width: " + DisplayPicInfoWidth + Environment.NewLine
+                        + "                     DpiX: " + DisplayPicInfoDpiX + Environment.NewLine
+                        + "                     DpiY: " + DisplayPicInfoDpiY + Environment.NewLine
+                        + "        Mouse Wheel Count: " + MouseWheelCount + Environment.NewLine
+                        + "Mouse Wheel missed OneInt: " + MouseOneIntCount + Environment.NewLine
+                        + "          ImageIdxListPtr: " + ImageIdxListPtr + Environment.NewLine
+                        + "             Total Images: " + ImageList.Count
+                        );
+                }
+                catch
+                {
+                    MessageBox.Show("Error: could not execute FileInfo on image.");
+                }
+                PauseRestore();
+            }
             Interlocked.Exchange(ref OneInt, 0);
         }
     }

@@ -34,13 +34,15 @@ namespace JRGSlideShowWPF
             {                
                 ImageWhenReady = true;
                 ImageError = false;
-                bitmapImage.BeginInit();                
-                bitmapImage.StreamSource = new FileStream(imageFileName, FileMode.Open, FileAccess.Read);
+                bitmapImage.BeginInit(); 
+                var fileStream = new FileStream(imageFileName, FileMode.Open, FileAccess.Read);
+                bitmapImage.StreamSource = fileStream;
                 bitmapImage.CreateOptions = BitmapCreateOptions.PreservePixelFormat;
                 bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
                 bitmapImage.DecodePixelHeight = ResizeMaxHeight;                
                 bitmapImage.EndInit();
                 bitmapImage.Freeze();
+                fileStream.Dispose();
 
                 DisplayPicInfoHeight = bitmapImage.PixelHeight;
                 DisplayPicInfoWidth = bitmapImage.PixelWidth;

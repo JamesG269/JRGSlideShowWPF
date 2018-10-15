@@ -99,7 +99,11 @@ namespace JRGSlideShowWPF
         int Outstanding = 0;
         private void displayPrevImage()
         {
-            if (ImageWhenReady == true || ImageListReady == false)
+            if (ImageListReady == false)
+            {
+                return;
+            }
+            if (ImageWhenReady == true)
             {
                 Outstanding--;
                 return;
@@ -114,7 +118,11 @@ namespace JRGSlideShowWPF
         }
         private void displayNextImage()
         {
-            if (ImageWhenReady == true || ImageListReady == false)
+            if (ImageListReady == false)
+            {
+                return;
+            }
+            if (ImageWhenReady == true)
             {
                 Outstanding++;
                 return;
@@ -146,7 +154,7 @@ namespace JRGSlideShowWPF
                 ImageIdxListPtr += ChangeIdxPtrDirection;
                 ImageIdxListPtr = ((ImageIdxListPtr % ImageIdxList.Count) + ImageIdxList.Count) % ImageIdxList.Count;
 
-            } while (ImageList[ImageIdxList[ImageIdxListPtr]] == null);
+            } while (ImageIdxList[ImageIdxListPtr] == -1);
 
             ResizeImageCode();
         }
@@ -168,7 +176,7 @@ namespace JRGSlideShowWPF
                 if (ImageError == false)
                 {
                     ImageControl.Source = bitmapImage;
-                    ImageListDeletePtr = ImageIdxList[ImageIdxListPtr];                    
+                    ImageIdxListDeletePtr = ImageIdxListPtr;                    
                 }
                 else
                 {                    
