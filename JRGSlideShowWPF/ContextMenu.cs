@@ -76,40 +76,40 @@ namespace JRGSlideShowWPF
         }
         private void CopyDeleteCode()
         {
-            if (0 != Interlocked.Exchange(ref OneInt, 1))
+            PauseSave();
+            if (0 == Interlocked.Exchange(ref OneInt, 1))
             {
-                return;
-            }
-            if (ImageIdxListDeletePtr != -1 && ImageIdxList[ImageIdxListDeletePtr] == -1)
-            {
-                PauseSave();
-                string destPath = "";
-                string sourcePath = ImageList[ImageIdxList[ImageIdxListDeletePtr]];
-                try
+                if (ImageIdxListDeletePtr != -1 && ImageIdxList[ImageIdxListDeletePtr] == -1)
                 {
-                    destPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
-                    destPath = Path.Combine(destPath, Path.GetFileName(sourcePath));
-                    File.Copy(sourcePath, destPath);
-                    MessageBox.Show("Image copied to " + destPath);
-                    DeleteNoInterlock();
+                    string destPath = "";
+                    string sourcePath = ImageList[ImageIdxList[ImageIdxListDeletePtr]];
+                    try
+                    {
+                        destPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+                        destPath = Path.Combine(destPath, Path.GetFileName(sourcePath));
+                        File.Copy(sourcePath, destPath);
+                        MessageBox.Show("Image copied to " + destPath);
+                        DeleteNoInterlock();
+                    }
+                    catch
+                    {
+                        MessageBox.Show("Error: image not copied to " + destPath);
+                    }
                 }
-                catch
-                {
-                    MessageBox.Show("Error: image not copied to " + destPath);
-                }
-                PauseRestore();
+                Interlocked.Exchange(ref OneInt, 0);
             }
-            Interlocked.Exchange(ref OneInt, 0);
+            PauseRestore();
         }
 
         private void ContextMenuDelete(object sender, RoutedEventArgs e)
         {
-            if (0 != Interlocked.Exchange(ref OneInt, 1))
+            PauseSave();
+            if (0 == Interlocked.Exchange(ref OneInt, 1))
             {
-                return;
+                DeleteNoInterlock();
+                Interlocked.Exchange(ref OneInt, 0);
             }
-            DeleteNoInterlock();
-            Interlocked.Exchange(ref OneInt, 0);
+            PauseRestore();
 
         }
         private void DeleteNoInterlock()
@@ -118,7 +118,7 @@ namespace JRGSlideShowWPF
             {
                 return;
             }
-            PauseSave();
+
             var fileName = ImageList[ImageIdxList[ImageIdxListDeletePtr]];
             var result = MessageBox.Show("Confirm delete: " + fileName, "Confirm delete image.", MessageBoxButton.YesNo);
             if (result == MessageBoxResult.Yes)
@@ -148,12 +148,10 @@ namespace JRGSlideShowWPF
                     MessageBox.Show("Error: Could not delete image.");
                 }
             }
-
             if (ImagesNotNull <= 0)
             {
                 ImageListReady = false;
             }
-            PauseRestore();
         }
 
         private void ContextMenuChangeTimer(object sender, RoutedEventArgs e)
@@ -161,7 +159,7 @@ namespace JRGSlideShowWPF
             ChangeTimerCode();
         }
         private void ChangeTimerCode()
-        {            
+        {
             PauseSave();
 
             SlideShowTimer SlideShowTimerWindow = new SlideShowTimer
@@ -180,9 +178,9 @@ namespace JRGSlideShowWPF
                 c++;
             }
             dispatcherTimerSlow.Interval = new TimeSpan(0, 0, 0, i, c);
-            
+
             Activate();
-            
+
             PauseRestore();
         }
 

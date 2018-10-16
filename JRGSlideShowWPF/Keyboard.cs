@@ -16,12 +16,13 @@ namespace JRGSlideShowWPF
             }
             if (e.Key == Key.Delete)
             {
-                if (0 != Interlocked.Exchange(ref OneInt, 1))
+                PauseSave();
+                if (0 == Interlocked.Exchange(ref OneInt, 1))
                 {
-                    return;
+                    DeleteNoInterlock();
+                    Interlocked.Exchange(ref OneInt, 0);
                 }
-                DeleteNoInterlock();
-                Interlocked.Exchange(ref OneInt, 0);
+                PauseRestore();
             }
         }
 
@@ -31,13 +32,9 @@ namespace JRGSlideShowWPF
             {
                 return;
             }
-            if (0 != Interlocked.Exchange(ref OneInt, 1))
-            {
-                return;
-            }
+            PauseSave();
             if (ImageIdxListDeletePtr != -1 && ImageIdxList[ImageIdxListDeletePtr] != -1)
-            {
-                PauseSave();
+            {                
                 FileInfo imageInfo = null;
 
                 try
@@ -61,10 +58,9 @@ namespace JRGSlideShowWPF
                 catch
                 {
                     MessageBox.Show("Error: could not execute FileInfo on image.");
-                }
-                PauseRestore();
-            }
-            Interlocked.Exchange(ref OneInt, 0);
+                }                
+            }            
+            PauseRestore();            
         }
     }
 }
