@@ -32,7 +32,7 @@ namespace JRGSlideShowWPF
             GetMaxSize();
             try
             {                
-                ImageWhenReady = true;
+                ImageReady = true;
                 ImageError = false;
                 bitmapImage.BeginInit(); 
                 var fileStream = new FileStream(imageFileName, FileMode.Open, FileAccess.Read);

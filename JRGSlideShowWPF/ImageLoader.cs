@@ -90,7 +90,7 @@ namespace JRGSlideShowWPF
                 {
                     foreach (string filter in patterns)
                     {
-                        if (StartGetFilesBW.CancellationPending)
+                        if (StartGetFilesBW_Cancel)
                         {
                             NewImageList.Clear();
                             return;

@@ -20,7 +20,7 @@ namespace JRGSlideShowWPF
 
         private bool mRestoreForDragMove;
 
-        private void mouseWheel(object sender, MouseWheelEventArgs e)
+        private async void mouseWheel(object sender, MouseWheelEventArgs e)
         {
             if (e.Delta > 0)
             {
@@ -32,7 +32,7 @@ namespace JRGSlideShowWPF
                 }
                 else
                 {
-                    displayNextImage();
+                    await displayNextImage();
                 }
             }
             else if (e.Delta < 0)
@@ -43,7 +43,7 @@ namespace JRGSlideShowWPF
                 }
                 else
                 {
-                    displayPrevImage();
+                    await displayPrevImage();
                 }
             }
         }

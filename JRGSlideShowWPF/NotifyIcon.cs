@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 using MessageBox = System.Windows.MessageBox;
@@ -14,13 +15,13 @@ namespace JRGSlideShowWPF
 
         public NotifyIcon NIcon;
 
-        private void NotifyNextCode(object sender, EventArgs e)
+        private async void NotifyNextCode(object sender, EventArgs e)
         {
-            displayNextImage();
+            await displayNextImage();
         }
-        private void NotifyPrevCode(object sender, EventArgs e)
+        private async void NotifyPrevCode(object sender, EventArgs e)
         {
-            displayPrevImage();
+            await displayPrevImage();
         }
         private void NotifyDeleteCode(object sender, EventArgs e)
         {
@@ -54,7 +55,7 @@ namespace JRGSlideShowWPF
         private void NotifyNormalPickCode(object sender, EventArgs e)
         {
         }
-        private void NotifyRandomizeCode(object sender, EventArgs e)
+        private async void NotifyRandomizeCode(object sender, EventArgs e)
         {
             if (0 != Interlocked.Exchange(ref OneInt, 1))
             {
@@ -62,8 +63,10 @@ namespace JRGSlideShowWPF
             }
             (sender as MenuItem).Checked = !(sender as MenuItem).Checked;
             var s = (sender as MenuItem).Checked;
-            Randomize = s;            
-            RandomizeBW.RunWorkerAsync();
+            Randomize = s;
+            await Task.Run(() => RandomizeBW_DoWork());
+            DisplayCurrentImage();
+            Interlocked.Exchange(ref OneInt, 0);
         }
         private void NotifyWipeCode(object sender, EventArgs e)
         {

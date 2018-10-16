@@ -16,49 +16,54 @@ namespace JRGSlideShowWPF
 
         public static Folder RecyclingBin = shell.NameSpace(10);
 
-        private void ContextMenuOpenFolder(object sender, RoutedEventArgs e)
+        private async void ContextMenuOpenFolder(object sender, RoutedEventArgs e)
         {
-            OpenDirCheckCancel();
+            await OpenDirCheckCancel();
         }
-        private void OpenDirCheckCancel()
+
+        Boolean StartGetFilesBW_IsBusy = false;
+        Boolean StartGetFilesBW_Cancel = false;
+        private async Task<Boolean> OpenDirCheckCancel()
         {
-            if (StartGetFilesBW.IsBusy)
+            if (StartGetFilesBW_IsBusy == true)
             {
-                StartGetFilesBW.CancelAsync();
-                return;
-            }
-            OpenDir();
+                StartGetFilesBW_Cancel = true;
+                while (StartGetFilesBW_IsBusy == true)
+                {
+                    await Task.Delay(1);
+                }
+            }                       
+            await OpenDir();            
+            return true;
         }
-        private void OpenDir()
+        private async Task<Boolean> OpenDir()
         {
             if (0 != Interlocked.Exchange(ref OneInt, 1))
             {
-                return;
+                return false;
             }
             dialog.SelectedPath = SlideShowDirectory;
             if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 SlideShowDirectory = dialog.SelectedPath;
-                StartGetFilesBW.RunWorkerAsync();
-            }
-            else
-            {
-                Interlocked.Exchange(ref OneInt, 0);
-                Play();
-            }
+                await Task.Run(() => StartGetFiles());
+                DisplayCurrentImage();
+            }            
+            Interlocked.Exchange(ref OneInt, 0);
+            return true;
         }
         private void ContextMenuExit(object sender, RoutedEventArgs e)
         {
             Close();
         }
-        private void ContextMenuNext(object sender, RoutedEventArgs e)
+        private async void ContextMenuNext(object sender, RoutedEventArgs e)
         {
-            displayNextImage();
+            await displayNextImage();
         }
 
-        private void ContextMenuPrev(object sender, RoutedEventArgs e)
+        private async void ContextMenuPrev(object sender, RoutedEventArgs e)
         {
-            displayPrevImage();
+            await displayPrevImage();
         }
         private void ContextMenuPause(object sender, RoutedEventArgs e)
         {
@@ -189,23 +194,26 @@ namespace JRGSlideShowWPF
             ToggleMaximize();
         }
 
-        private void CheckedRandomize(object sender, RoutedEventArgs e)
+        private async void CheckedRandomize(object sender, RoutedEventArgs e)
         {
             if (0 != Interlocked.Exchange(ref OneInt, 1))
             {
                 return;
             }
             Randomize = ContextMenuCheckBox.IsChecked;
-            RandomizeBW.RunWorkerAsync();
+            await Task.Run(() => RandomizeBW_DoWork());
+            DisplayCurrentImage();
+            Interlocked.Exchange(ref OneInt, 0);
         }
 
-        private void RandomizeBW_DoWork(object sender, DoWorkEventArgs e)
+        private void RandomizeBW_DoWork()
         {
             PauseSave();
             ImageListReady = false;
             CreateIdxListCode();
             ImageListReady = true;
             ResizeImageCode();
+            PauseRestore();
         }
         private void RandomizeBW_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
