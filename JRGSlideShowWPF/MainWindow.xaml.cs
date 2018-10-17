@@ -86,15 +86,15 @@ namespace JRGSlideShowWPF
         int Outstanding = 0;
         private async Task<Boolean> displayPrevImage()
         {
-            await displayNextImage2(-1);
+            await displayGetNextImage(-1);
             return true;
         }
         private async Task<Boolean> displayNextImage()
         {
-            await displayNextImage2(1);
+            await displayGetNextImage(1);
             return true;
         }
-        private async Task<Boolean> displayNextImage2(int i)
+        private async Task<Boolean> displayGetNextImage(int i)
         { 
             if (ImageListReady == false)
             {
@@ -169,24 +169,19 @@ namespace JRGSlideShowWPF
         
         private void StartGetFiles()
         {
-            StartGetFilesBW_Cancel = false;
-            StartGetFilesBW_IsBusy = true;                       
+            StartGetFilesBW_Cancel = false;                                  
             GetFilesCode();
-            if (NewImageList != null && NewImageList.Count > 0)
+            if (StartGetFilesBW_Cancel == false && NewImageList != null && NewImageList.Count > 0)
             {
                 ImageListReady = false;
                 ImageList.Clear();
                 ImageList.AddRange(NewImageList);
                 ImagesNotNull = ImageList.Count();
-                CreateIdxListCode();
+                CreateIdxListCode();                                
                 ImageListReady = true;
-                if (StartGetFilesBW_Cancel == false)
-                {
-                    ResizeImageCode();
-                    Play();
-                }                                                               
-            }            
-            StartGetFilesBW_IsBusy = false;
+                ResizeImageCode();
+                Play();                                                                              
+            }                        
         }
         
         private void GetMaxSize()

@@ -37,9 +37,9 @@ namespace JRGSlideShowWPF
         {            
             CopyDeleteCode();            
         }
-        private void NotifyOpenCode(object sender, EventArgs e)
+        private async void NotifyOpenCode(object sender, EventArgs e)
         {
-            OpenDirCheckCancel();           
+            await OpenDirCheckCancel();           
         }
         private void NotifyTimerCode(object sender, EventArgs e)
         {

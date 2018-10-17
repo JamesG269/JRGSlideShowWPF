@@ -21,35 +21,35 @@ namespace JRGSlideShowWPF
             await OpenDirCheckCancel();
         }
 
-        Boolean StartGetFilesBW_IsBusy = false;
+        int StartGetFilesBW_IsBusy = 0;
         Boolean StartGetFilesBW_Cancel = false;
         private async Task<Boolean> OpenDirCheckCancel()
-        {
-            if (StartGetFilesBW_IsBusy == true)
+        {            
+            StartGetFilesBW_Cancel = true;
+            while (0 != Interlocked.Exchange(ref StartGetFilesBW_IsBusy, 1))
             {
-                StartGetFilesBW_Cancel = true;
-                while (StartGetFilesBW_IsBusy == true)
-                {
-                    await Task.Delay(1);
-                }
-            }                       
-            await OpenDir();            
+                await Task.Delay(1);
+            }
+            if (0 == Interlocked.Exchange(ref OneInt, 1))
+            {
+                await OpenDir();
+                Interlocked.Exchange(ref OneInt, 0);
+            }
+            Interlocked.Exchange(ref StartGetFilesBW_IsBusy, 0);            
             return true;
         }
         private async Task<Boolean> OpenDir()
         {
-            if (0 != Interlocked.Exchange(ref OneInt, 1))
+            if (SlideShowDirectory != null && SlideShowDirectory != "" && Directory.Exists(SlideShowDirectory))
             {
-                return false;
-            }
-            dialog.SelectedPath = SlideShowDirectory;
+                dialog.SelectedPath = SlideShowDirectory;
+            }            
             if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 SlideShowDirectory = dialog.SelectedPath;
                 await Task.Run(() => StartGetFiles());
                 DisplayCurrentImage();
-            }            
-            Interlocked.Exchange(ref OneInt, 0);
+            }
             return true;
         }
         private void ContextMenuExit(object sender, RoutedEventArgs e)
@@ -81,41 +81,44 @@ namespace JRGSlideShowWPF
         }
         private void CopyDeleteCode()
         {
-            PauseSave();
-            if (0 == Interlocked.Exchange(ref OneInt, 1))
+
+            if (0 != Interlocked.Exchange(ref OneInt, 1))
             {
-                if (ImageIdxListDeletePtr != -1 && ImageIdxList[ImageIdxListDeletePtr] == -1)
+                return;
+            }
+            PauseSave();
+            if (ImageIdxListDeletePtr != -1 && ImageIdxList[ImageIdxListDeletePtr] == -1)
+            {
+                string destPath = "";
+                string sourcePath = ImageList[ImageIdxList[ImageIdxListDeletePtr]];
+                try
                 {
-                    string destPath = "";
-                    string sourcePath = ImageList[ImageIdxList[ImageIdxListDeletePtr]];
-                    try
-                    {
-                        destPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
-                        destPath = Path.Combine(destPath, Path.GetFileName(sourcePath));
-                        File.Copy(sourcePath, destPath);
-                        MessageBox.Show("Image copied to " + destPath);
-                        DeleteNoInterlock();
-                    }
-                    catch
-                    {
-                        MessageBox.Show("Error: image not copied to " + destPath);
-                    }
+                    destPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+                    destPath = Path.Combine(destPath, Path.GetFileName(sourcePath));
+                    File.Copy(sourcePath, destPath);
+                    MessageBox.Show("Image copied to " + destPath);
+                    DeleteNoInterlock();
                 }
-                Interlocked.Exchange(ref OneInt, 0);
+                catch
+                {
+                    MessageBox.Show("Error: image not copied to " + destPath);
+                }
             }
             PauseRestore();
+            Interlocked.Exchange(ref OneInt, 0);
         }
 
         private void ContextMenuDelete(object sender, RoutedEventArgs e)
         {
-            PauseSave();
-            if (0 == Interlocked.Exchange(ref OneInt, 1))
-            {
-                DeleteNoInterlock();
-                Interlocked.Exchange(ref OneInt, 0);
-            }
-            PauseRestore();
 
+            if (0 != Interlocked.Exchange(ref OneInt, 1))
+            {
+                return;
+            }
+            PauseSave();
+            DeleteNoInterlock();
+            PauseRestore();
+            Interlocked.Exchange(ref OneInt, 0);
         }
         private void DeleteNoInterlock()
         {
@@ -199,10 +202,10 @@ namespace JRGSlideShowWPF
             if (0 != Interlocked.Exchange(ref OneInt, 1))
             {
                 return;
-            }
+            }            
             Randomize = ContextMenuCheckBox.IsChecked;
             await Task.Run(() => RandomizeBW_DoWork());
-            DisplayCurrentImage();
+            DisplayCurrentImage();           
             Interlocked.Exchange(ref OneInt, 0);
         }
 
@@ -214,11 +217,6 @@ namespace JRGSlideShowWPF
             ImageListReady = true;
             ResizeImageCode();
             PauseRestore();
-        }
-        private void RandomizeBW_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-        {
-            Interlocked.Exchange(ref OneInt, 0);
-            PauseRestore();
-        }
+        }        
     }
 }
