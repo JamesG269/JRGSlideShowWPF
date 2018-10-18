@@ -1,6 +1,4 @@
 ﻿using System;
-using System.IO;
-using System.Threading;
 using System.Windows;
 
 namespace JRGSlideShowWPF
@@ -20,7 +18,7 @@ namespace JRGSlideShowWPF
             {
                 c++;
             }
-            dispatcherTimerSlow.Interval = new TimeSpan(0, 0, 0, i, c);
+            dispatcherImageTimer.Interval = new TimeSpan(0, 0, 0, i, c);
                        
             if (Properties.Settings.Default.isMaximized)
             {
@@ -32,7 +30,7 @@ namespace JRGSlideShowWPF
             Properties.Settings.Default.isMaximized = isMaximized;
             Properties.Settings.Default.Randomize = Randomize;            
             Properties.Settings.Default.SlideShowFolder = SlideShowDirectory;
-            Properties.Settings.Default.TimerSeconds = dispatcherTimerSlow.Interval.Seconds;
+            Properties.Settings.Default.TimerSeconds = dispatcherImageTimer.Interval.Seconds;
             Properties.Settings.Default.Save();            
         }
     }

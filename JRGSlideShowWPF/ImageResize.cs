@@ -1,13 +1,6 @@
 ﻿using System;
-using System.ComponentModel;
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
 using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace JRGSlideShowWPF
@@ -23,6 +16,8 @@ namespace JRGSlideShowWPF
 
         Boolean ImageError = false;
 
+        FileStream fileStream;
+
         public string ErrorMessage = "";
 
         public void ResizeImageCode()
@@ -35,15 +30,18 @@ namespace JRGSlideShowWPF
                 ImageReady = true;
                 ImageError = false;
                 bitmapImage.BeginInit(); 
-                var fileStream = new FileStream(imageFileName, FileMode.Open, FileAccess.Read);
+                fileStream = new FileStream(imageFileName, FileMode.Open, FileAccess.Read);
+                
                 bitmapImage.StreamSource = fileStream;
                 bitmapImage.CreateOptions = BitmapCreateOptions.PreservePixelFormat;
-                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-                bitmapImage.DecodePixelHeight = ResizeMaxHeight;                
+                if (fileStream.Length > 20000000)
+                {
+                    bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+                }
+                
                 bitmapImage.EndInit();
                 bitmapImage.Freeze();
-                fileStream.Dispose();
-
+                
                 DisplayPicInfoHeight = bitmapImage.PixelHeight;
                 DisplayPicInfoWidth = bitmapImage.PixelWidth;
                 DisplayPicInfoDpiX = (int)bitmapImage.DpiX;

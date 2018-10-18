@@ -28,7 +28,7 @@ namespace JRGSlideShowWPF
             StartGetFilesBW_Cancel = true;
             while (0 != Interlocked.Exchange(ref StartGetFilesBW_IsBusy, 1))
             {
-                await Task.Delay(1);
+                await Task.Delay(25);
             }
             if (0 == Interlocked.Exchange(ref OneInt, 1))
             {
@@ -58,12 +58,12 @@ namespace JRGSlideShowWPF
         }
         private async void ContextMenuNext(object sender, RoutedEventArgs e)
         {
-            await displayNextImage();
+            await DisplayNextImage();
         }
 
         private async void ContextMenuPrev(object sender, RoutedEventArgs e)
         {
-            await displayPrevImage();
+            await DisplayPrevImage();
         }
         private void ContextMenuPause(object sender, RoutedEventArgs e)
         {
@@ -89,6 +89,14 @@ namespace JRGSlideShowWPF
             PauseSave();
             if (ImageIdxListDeletePtr != -1 && ImageIdxList[ImageIdxListDeletePtr] == -1)
             {
+                if (fileStream != null)
+                {
+                    fileStream.Dispose();
+                }
+                if (bitmapImage != null && bitmapImage.StreamSource != null)
+                {
+                    bitmapImage.StreamSource.Dispose();
+                }
                 string destPath = "";
                 string sourcePath = ImageList[ImageIdxList[ImageIdxListDeletePtr]];
                 try
@@ -110,7 +118,6 @@ namespace JRGSlideShowWPF
 
         private void ContextMenuDelete(object sender, RoutedEventArgs e)
         {
-
             if (0 != Interlocked.Exchange(ref OneInt, 1))
             {
                 return;
@@ -133,6 +140,10 @@ namespace JRGSlideShowWPF
             {
                 try
                 {
+                    if (fileStream != null)
+                    {
+                        fileStream.Dispose();
+                    }
                     if (bitmapImage != null && bitmapImage.StreamSource != null)
                     {
                         bitmapImage.StreamSource.Dispose();
@@ -176,7 +187,7 @@ namespace JRGSlideShowWPF
                 ResizeMode = ResizeMode.NoResize,
             };
 
-            SlideShowTimerWindow.TimerTextBox.Text = dispatcherTimerSlow.Interval.Seconds.ToString();
+            SlideShowTimerWindow.TimerTextBox.Text = dispatcherImageTimer.Interval.Seconds.ToString();
             SlideShowTimerWindow.ShowDialog();
 
             int i = int.Parse(SlideShowTimerWindow.TimerTextBox.Text);
@@ -185,7 +196,7 @@ namespace JRGSlideShowWPF
             {
                 c++;
             }
-            dispatcherTimerSlow.Interval = new TimeSpan(0, 0, 0, i, c);
+            dispatcherImageTimer.Interval = new TimeSpan(0, 0, 0, i, c);
 
             Activate();
 

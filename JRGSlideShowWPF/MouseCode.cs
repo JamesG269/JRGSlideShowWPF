@@ -27,24 +27,13 @@ namespace JRGSlideShowWPF
                 MouseWheelCount++;
                 if (OneInt == 1)
                 {
-                    MouseOneIntCount++;
-                    Outstanding++;
+                    MouseOneIntCount++;                    
                 }
-                else
-                {
-                    await displayNextImage();
-                }
+                await DisplayNextImage();                              
             }
             else if (e.Delta < 0)
             {
-                if (OneInt == 1)
-                {
-                    Outstanding--;
-                }
-                else
-                {
-                    await displayPrevImage();
-                }
+                await DisplayPrevImage();
             }
         }
 
@@ -53,8 +42,8 @@ namespace JRGSlideShowWPF
         {
             if (MouseHidden == false)
             {
-                dispatcherTimerMouse.Stop();
-                dispatcherTimerMouse.Start();
+                dispatcherMouseTimer.Stop();
+                dispatcherMouseTimer.Start();
             }
             if (e.ClickCount == 2)
             {
@@ -127,7 +116,7 @@ namespace JRGSlideShowWPF
             }
             if (isMaximized && !MouseHidden)
             {
-                dispatcherTimerMouse.Start();
+                dispatcherMouseTimer.Start();
             }
         }
 
@@ -153,7 +142,7 @@ namespace JRGSlideShowWPF
                 MouseHidden = true;
                 this.Cursor = System.Windows.Input.Cursors.None;
             }
-            dispatcherTimerMouse.Stop();
+            dispatcherMouseTimer.Stop();
         }
 
         private void OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)

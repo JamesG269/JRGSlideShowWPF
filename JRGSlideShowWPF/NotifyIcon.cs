@@ -17,11 +17,11 @@ namespace JRGSlideShowWPF
 
         private async void NotifyNextCode(object sender, EventArgs e)
         {
-            await displayNextImage();
+            await DisplayNextImage();
         }
         private async void NotifyPrevCode(object sender, EventArgs e)
         {
-            await displayPrevImage();
+            await DisplayPrevImage();
         }
         private void NotifyDeleteCode(object sender, EventArgs e)
         {
@@ -102,7 +102,7 @@ namespace JRGSlideShowWPF
                 Show();                
                 isMinimized = false;                
                 Activate();
-                if (isMaximized && dispatcherTimerSlow.IsEnabled)
+                if (isMaximized && dispatcherImageTimer.IsEnabled)
                 {
                     SetThreadExecutionState(EXECUTION_STATE.ES_DISPLAY_REQUIRED | EXECUTION_STATE.ES_CONTINUOUS);
                 }

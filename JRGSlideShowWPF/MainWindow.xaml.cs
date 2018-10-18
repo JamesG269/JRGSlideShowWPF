@@ -29,8 +29,8 @@ namespace JRGSlideShowWPF
             ES_SYSTEM_REQUIRED = 0x00000001
         }
 
-        System.Windows.Threading.DispatcherTimer dispatcherTimerSlow = new System.Windows.Threading.DispatcherTimer();        
-        System.Windows.Threading.DispatcherTimer dispatcherTimerMouse = new System.Windows.Threading.DispatcherTimer();
+        System.Windows.Threading.DispatcherTimer dispatcherImageTimer = new System.Windows.Threading.DispatcherTimer();
+        System.Windows.Threading.DispatcherTimer dispatcherMouseTimer = new System.Windows.Threading.DispatcherTimer();
 
         string SlideShowDirectory;
 
@@ -60,20 +60,20 @@ namespace JRGSlideShowWPF
             PSource = PresentationSource.FromVisual(this);
             thisHandle = new WindowInteropHelper(this).Handle;
 
-            dispatcherTimerSlow.Tick += DisplayNextImageTimer;            
-            dispatcherTimerMouse.Tick += MouseHide;
-            dispatcherTimerMouse.Interval = new TimeSpan(0, 0, 0, 5, 0);
+            dispatcherImageTimer.Tick += DisplayNextImageTimer;
+            dispatcherMouseTimer.Tick += MouseHide;
+            dispatcherMouseTimer.Interval = new TimeSpan(0, 0, 0, 5, 0);
 
             LoadSettings();
             StartUp = false;
             NotifyStart();
-            
+
             if (SlideShowDirectory == null || !Directory.Exists(SlideShowDirectory))
             {
                 await OpenDirCheckCancel();
-            }  
+            }
             else
-            {           
+            {
                 if (0 != Interlocked.Exchange(ref OneInt, 1))
                 {
                     return;
@@ -82,36 +82,29 @@ namespace JRGSlideShowWPF
                 DisplayCurrentImage();
                 Interlocked.Exchange(ref OneInt, 0);
             }
-        }
-        int Outstanding = 0;
-        private async Task<Boolean> displayPrevImage()
+        }        
+        private async Task<Boolean> DisplayPrevImage()
         {
-            await displayGetNextImage(-1);
+            await DisplayGetNextImage(-1);
             return true;
         }
-        private async Task<Boolean> displayNextImage()
+        private async Task<Boolean> DisplayNextImage()
         {
-            await displayGetNextImage(1);
+            await DisplayGetNextImage(1);
             return true;
-        }
-        private async Task<Boolean> displayGetNextImage(int i)
-        { 
+        }        
+        private async Task<Boolean> DisplayGetNextImage(int i)
+        {
             if (ImageListReady == false)
             {
                 return false;
             }
-            if (ImageReady == true)
+            while (0 != Interlocked.Exchange(ref OneInt, 1))
             {
-                Outstanding += i;
-                return false;
-            }
-            if (0 != Interlocked.Exchange(ref OneInt, 1))
-            {
-                Outstanding += i;
-                return false;
-            }            
+                await Task.Delay(1);
+            }                    
             ChangeIdxPtrDirection = i;
-            await Task.Run(() => LoadNextImage());
+            await Task.Run(() => LoadNextImage());            
             DisplayCurrentImage();
             Interlocked.Exchange(ref OneInt, 0);
             return true;
@@ -139,56 +132,57 @@ namespace JRGSlideShowWPF
 
             ResizeImageCode();
         }
-        
+
         private void DisplayCurrentImage()
-        {            
+        {
             if (ImageReady == true)
             {
                 ImageReady = false;
                 if (ImageError == false)
                 {
                     ImageControl.Source = bitmapImage;
-                    ImageIdxListDeletePtr = ImageIdxListPtr;                    
+                    ImageIdxListDeletePtr = ImageIdxListPtr;
                 }
                 else
-                {                    
-                    MessageBox.Show(ErrorMessage);                    
-                }                
-                if (dispatcherTimerSlow.IsEnabled)
                 {
-                    dispatcherTimerSlow.Stop();
-                    dispatcherTimerSlow.Start();
+                    MessageBox.Show(ErrorMessage);
                 }
-            }                
+                if (dispatcherImageTimer.IsEnabled)
+                {
+                    dispatcherImageTimer.Stop();
+                    dispatcherImageTimer.Start();
+                }
+            }
         }
 
         private async void DisplayNextImageTimer(object sender, EventArgs e)
         {
-            await displayNextImage();
+            await DisplayGetNextImage(1);
         }
-        
+
         private void StartGetFiles()
         {
-            StartGetFilesBW_Cancel = false;                                  
+            StartGetFilesBW_Cancel = false;
             GetFilesCode();
-            if (StartGetFilesBW_Cancel == false && NewImageList != null && NewImageList.Count > 0)
+            if (StartGetFilesBW_Cancel == true || NewImageList == null || NewImageList.Count == 0)
             {
-                ImageListReady = false;
-                ImageList.Clear();
-                ImageList.AddRange(NewImageList);
-                ImagesNotNull = ImageList.Count();
-                CreateIdxListCode();                                
-                ImageListReady = true;
-                ResizeImageCode();
-                Play();                                                                              
-            }                        
+                return;
+            }
+            ImageListReady = false;
+            ImageList.Clear();
+            ImageList.AddRange(NewImageList);
+            ImagesNotNull = ImageList.Count();
+            CreateIdxListCode();
+            ImageListReady = true;
+            ResizeImageCode();
+            Play();
         }
-        
+
         private void GetMaxSize()
         {
             var bounds = Screen.FromHandle(thisHandle).Bounds;
             ResizeMaxHeight = bounds.Height;
-            ResizeMaxWidth = bounds.Width;            
+            ResizeMaxWidth = bounds.Width;
         }
 
         Boolean OldSlow;
@@ -200,7 +194,7 @@ namespace JRGSlideShowWPF
             {
                 return;
             }
-            OldSlow = dispatcherTimerSlow.IsEnabled;
+            OldSlow = dispatcherImageTimer.IsEnabled;
             Stop();
         }
         private void PauseRestore()
@@ -218,7 +212,7 @@ namespace JRGSlideShowWPF
         }
         private void Stop()
         {
-            dispatcherTimerSlow.Stop();
+            dispatcherImageTimer.Stop();
             SetThreadExecutionState(EXECUTION_STATE.ES_CONTINUOUS);
         }
         private void Play()
@@ -226,19 +220,18 @@ namespace JRGSlideShowWPF
             if (ImageListReady == false)
             {
                 return;
-            }            
+            }
             if (isMaximized)
             {
                 SetThreadExecutionState(EXECUTION_STATE.ES_DISPLAY_REQUIRED | EXECUTION_STATE.ES_CONTINUOUS);
                 if (!MouseHidden)
                 {
-                    dispatcherTimerMouse.Stop();
-                    dispatcherTimerMouse.Start();
+                    dispatcherMouseTimer.Stop();
+                    dispatcherMouseTimer.Start();
                 }
-            }            
-            dispatcherTimerSlow.Stop();
-            Outstanding = 0;
-            dispatcherTimerSlow.Start();
+            }
+            dispatcherImageTimer.Stop();            
+            dispatcherImageTimer.Start();
         }
 
         protected override void OnClosing(CancelEventArgs e)
