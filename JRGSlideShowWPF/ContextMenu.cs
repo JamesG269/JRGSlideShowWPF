@@ -28,13 +28,14 @@ namespace JRGSlideShowWPF
             StartGetFilesBW_Cancel = true;
             while (0 != Interlocked.Exchange(ref StartGetFilesBW_IsBusy, 1))
             {
-                await Task.Delay(25);
+                await Task.Delay(1);
             }
-            if (0 == Interlocked.Exchange(ref OneInt, 1))
+            while (0 != Interlocked.Exchange(ref OneInt, 1))
             {
-                await OpenDir();
-                Interlocked.Exchange(ref OneInt, 0);
+                await Task.Delay(1);
             }
+            await OpenDir();
+            Interlocked.Exchange(ref OneInt, 0);
             Interlocked.Exchange(ref StartGetFilesBW_IsBusy, 0);            
             return true;
         }
@@ -75,18 +76,17 @@ namespace JRGSlideShowWPF
             PauseRestore();
         }
 
-        private void ContextMenuCopyDelete(object sender, RoutedEventArgs e)
+        private async void ContextMenuCopyDelete(object sender, RoutedEventArgs e)
         {
-            CopyDeleteCode();
+            await CopyDeleteCode();
         }
-        private void CopyDeleteCode()
+        private async Task<Boolean> CopyDeleteCode()
         {
-
-            if (0 != Interlocked.Exchange(ref OneInt, 1))
-            {
-                return;
-            }
             PauseSave();
+            while (0 != Interlocked.Exchange(ref OneInt, 1))
+            {
+                await Task.Delay(1);
+            }            
             if (ImageIdxListDeletePtr != -1 && ImageIdxList[ImageIdxListDeletePtr] == -1)
             {
                 if (fileStream != null)
@@ -114,15 +114,16 @@ namespace JRGSlideShowWPF
             }
             PauseRestore();
             Interlocked.Exchange(ref OneInt, 0);
+            return true;
         }
 
-        private void ContextMenuDelete(object sender, RoutedEventArgs e)
+        private async void ContextMenuDelete(object sender, RoutedEventArgs e)
         {
-            if (0 != Interlocked.Exchange(ref OneInt, 1))
-            {
-                return;
-            }
             PauseSave();
+            while (0 != Interlocked.Exchange(ref OneInt, 1))
+            {
+                await Task.Delay(1);
+            }            
             DeleteNoInterlock();
             PauseRestore();
             Interlocked.Exchange(ref OneInt, 0);
@@ -177,10 +178,13 @@ namespace JRGSlideShowWPF
         {
             ChangeTimerCode();
         }
-        private void ChangeTimerCode()
+        private async void ChangeTimerCode()
         {
             PauseSave();
-
+            while (0 != Interlocked.Exchange(ref OneInt, 1))
+            {
+                await Task.Delay(1);
+            }
             SlideShowTimer SlideShowTimerWindow = new SlideShowTimer
             {
                 Owner = this,
@@ -201,6 +205,7 @@ namespace JRGSlideShowWPF
             Activate();
 
             PauseRestore();
+            Interlocked.Exchange(ref OneInt, 0);
         }
 
         private void ContextMenuFullScreen(object sender, RoutedEventArgs e)
@@ -210,9 +215,9 @@ namespace JRGSlideShowWPF
 
         private async void CheckedRandomize(object sender, RoutedEventArgs e)
         {
-            if (0 != Interlocked.Exchange(ref OneInt, 1))
+            while (0 != Interlocked.Exchange(ref OneInt, 1))
             {
-                return;
+                await Task.Delay(1);
             }            
             Randomize = ContextMenuCheckBox.IsChecked;
             await Task.Run(() => RandomizeBW_DoWork());

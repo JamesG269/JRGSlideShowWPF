@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
@@ -8,7 +9,7 @@ namespace JRGSlideShowWPF
 {
     public partial class MainWindow : Window
     {
-        private void Window_KeyDown(object sender, KeyEventArgs e)
+        private async void Window_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.F1)
             {
@@ -16,15 +17,15 @@ namespace JRGSlideShowWPF
             }
             if (e.Key == Key.Delete)
             {
-
-                if (0 != Interlocked.Exchange(ref OneInt, 1))
-                {
-                    return;
-                }
                 PauseSave();
+                while (0 != Interlocked.Exchange(ref OneInt, 1))
+                {
+                    await Task.Delay(1);
+                }                
                 DeleteNoInterlock();
                 PauseRestore();
                 Interlocked.Exchange(ref OneInt, 0);
+                
             }
         }
 
@@ -33,11 +34,7 @@ namespace JRGSlideShowWPF
             if (!ImageListReady)
             {
                 return;
-            }
-            if (0 != Interlocked.Exchange(ref OneInt, 1))
-            {
-                return;
-            }
+            }            
             PauseSave();
             if (ImageIdxListDeletePtr != -1 && ImageIdxList[ImageIdxListDeletePtr] != -1)
             {                
@@ -66,8 +63,7 @@ namespace JRGSlideShowWPF
                     MessageBox.Show("Error: could not execute FileInfo on image.");
                 }                
             }            
-            PauseRestore();
-            Interlocked.Exchange(ref OneInt, 0);
+            PauseRestore();            
         }
     }
 }

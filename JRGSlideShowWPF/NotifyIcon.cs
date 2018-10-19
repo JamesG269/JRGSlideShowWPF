@@ -23,19 +23,20 @@ namespace JRGSlideShowWPF
         {
             await DisplayPrevImage();
         }
-        private void NotifyDeleteCode(object sender, EventArgs e)
+        private async void NotifyDeleteCode(object sender, EventArgs e)
         {
             PauseSave();
-            if (0 == Interlocked.Exchange(ref OneInt, 1))
+            while (0 != Interlocked.Exchange(ref OneInt, 1))
             {
-                DeleteNoInterlock();
-                Interlocked.Exchange(ref OneInt, 0);
-            }
+                await Task.Delay(1);
+            }            
+            DeleteNoInterlock();
             PauseRestore();
+            Interlocked.Exchange(ref OneInt, 0);            
         }
-        private void NotifyCopyDeleteCode(object sender, EventArgs e)
+        private async void NotifyCopyDeleteCode(object sender, EventArgs e)
         {            
-            CopyDeleteCode();            
+            await CopyDeleteCode();            
         }
         private async void NotifyOpenCode(object sender, EventArgs e)
         {
@@ -57,9 +58,9 @@ namespace JRGSlideShowWPF
         }
         private async void NotifyRandomizeCode(object sender, EventArgs e)
         {
-            if (0 != Interlocked.Exchange(ref OneInt, 1))
+            while (0 != Interlocked.Exchange(ref OneInt, 1))
             {
-                return;
+                await Task.Delay(1);
             }
             (sender as MenuItem).Checked = !(sender as MenuItem).Checked;
             var s = (sender as MenuItem).Checked;

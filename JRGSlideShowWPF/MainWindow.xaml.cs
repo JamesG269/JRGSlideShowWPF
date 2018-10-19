@@ -74,9 +74,9 @@ namespace JRGSlideShowWPF
             }
             else
             {
-                if (0 != Interlocked.Exchange(ref OneInt, 1))
+                while (0 != Interlocked.Exchange(ref OneInt, 1))
                 {
-                    return;
+                    await Task.Delay(1);
                 }
                 await Task.Run(() => StartGetFiles());
                 DisplayCurrentImage();
@@ -234,7 +234,7 @@ namespace JRGSlideShowWPF
             dispatcherImageTimer.Start();
         }
 
-        protected override void OnClosing(CancelEventArgs e)
+        protected override async void OnClosing(CancelEventArgs e)
         {
             Stop();
             if (NIcon != null)
@@ -242,14 +242,15 @@ namespace JRGSlideShowWPF
                 NIcon.Dispose();
                 NIcon = null;
             }
-            if (0 == Interlocked.Exchange(ref OneInt, 1))
+            while (0 == Interlocked.Exchange(ref OneInt, 1))
             {
-                if (StartUp == false)
-                {
-                    SaveSettings();
-                }
+                await Task.Delay(25);
             }
-            Interlocked.Exchange(ref OneInt, 0);
+            if (StartUp == false)
+            {
+                SaveSettings();
+            }            
+            
             base.OnClosing(e);
         }
     }
