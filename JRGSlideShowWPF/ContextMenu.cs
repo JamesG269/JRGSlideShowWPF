@@ -229,9 +229,9 @@ namespace JRGSlideShowWPF
         {
             PauseSave();
             ImageListReady = false;
-            CreateIdxListCode();
-            ImageListReady = true;
+            CreateIdxListCode();            
             ResizeImageCode();
+            ImageListReady = true;
             PauseRestore();
         }        
     }

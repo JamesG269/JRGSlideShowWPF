@@ -71,10 +71,10 @@ namespace JRGSlideShowWPF
             Stack<string> dirs = new Stack<string>();
             if (!Directory.Exists(path))
             {
-                throw new ArgumentException();
+                return;
             }
             dirs.Push(path);
-            while (dirs.Count > 0)
+            do
             {
                 string currentDir = dirs.Pop();
                 try
@@ -99,14 +99,15 @@ namespace JRGSlideShowWPF
                         NewImageList.AddRange(fs);
                         if (fs.Length > 0)
                         {
-                            Application.Current.Dispatcher.Invoke(new Action(() => {
+                            Application.Current.Dispatcher.Invoke(new Action(() =>
+                            {
                                 TextBlockControl.Text = NewImageList.Count + " Images found...";
-                            }));                            
-                        }                        
+                            }));
+                        }
                     }
                 }
                 catch { }
-            }           
+            } while (dirs.Count > 0);
         }
     }
 }

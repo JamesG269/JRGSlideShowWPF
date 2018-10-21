@@ -95,13 +95,17 @@ namespace JRGSlideShowWPF
         }        
         private async Task<Boolean> DisplayGetNextImage(int i)
         {
-            if (ImageListReady == false)
+            if (ImageListReady == false || Paused > 0)
             {
                 return false;
             }
             while (0 != Interlocked.Exchange(ref OneInt, 1))
             {
                 await Task.Delay(1);
+                if (ImageListReady == false || Paused > 0)
+                {
+                    return false;
+                }
             }                    
             ChangeIdxPtrDirection = i;
             await Task.Run(() => LoadNextImage());            
@@ -162,20 +166,24 @@ namespace JRGSlideShowWPF
 
         private void StartGetFiles()
         {
+            Boolean ImageListReadyBackup = ImageListReady;
+            ImageListReady = false;
             StartGetFilesBW_Cancel = false;
             GetFilesCode();
-            if (StartGetFilesBW_Cancel == true || NewImageList == null || NewImageList.Count == 0)
+            if (StartGetFilesBW_Cancel != true && NewImageList != null && NewImageList.Count > 0)
             {
-                return;
+                ImageList.Clear();
+                ImageList.AddRange(NewImageList);
+                ImagesNotNull = ImageList.Count();
+                CreateIdxListCode();                
+                ResizeImageCode();
+                ImageListReady = true;
+                Play();                
             }
-            ImageListReady = false;
-            ImageList.Clear();
-            ImageList.AddRange(NewImageList);
-            ImagesNotNull = ImageList.Count();
-            CreateIdxListCode();
-            ImageListReady = true;
-            ResizeImageCode();
-            Play();
+            else
+            {
+                ImageListReady = ImageListReadyBackup;
+            }            
         }
 
         private void GetMaxSize()
@@ -242,9 +250,9 @@ namespace JRGSlideShowWPF
                 NIcon.Dispose();
                 NIcon = null;
             }
-            while (0 == Interlocked.Exchange(ref OneInt, 1))
+            while (0 != Interlocked.Exchange(ref OneInt, 1))
             {
-                await Task.Delay(25);
+                await Task.Delay(1);
             }
             if (StartUp == false)
             {
