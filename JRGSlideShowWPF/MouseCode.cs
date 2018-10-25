@@ -12,15 +12,13 @@ using MouseEventArgs = System.Windows.Input.MouseEventArgs;
 namespace JRGSlideShowWPF
 {
     public partial class MainWindow : Window
-    {
-        Point mouseStartPoint = new Point(0, 0);
-
+    {        
         int MouseWheelCount = 0;
         int MouseOneIntCount = 0;
 
         private bool mRestoreForDragMove;
 
-        private async void mouseWheel(object sender, MouseWheelEventArgs e)
+        private async void MouseWheel2(object sender, MouseWheelEventArgs e)
         {
             if (e.Delta > 0)
             {
@@ -74,7 +72,7 @@ namespace JRGSlideShowWPF
         Point lastMovePosition;
         private void OnMouseMove(object sender, MouseEventArgs e)
         {
-            var l = e.GetPosition((IInputElement)sender);
+            var currentPosition = e.GetPosition((IInputElement)sender);
 
             if (mRestoreForDragMove)
             {
@@ -91,7 +89,6 @@ namespace JRGSlideShowWPF
                     }
                     catch { }
                 }
-
             }
             else if (MouseLeftDown == true)
             {
@@ -105,14 +102,14 @@ namespace JRGSlideShowWPF
                 }
                 catch { }
             }
-            if (l != lastMovePosition)
+            if (currentPosition != lastMovePosition)
             {
                 if (MouseHidden == true)
                 {
                     this.Cursor = System.Windows.Input.Cursors.Arrow;
                     MouseHidden = false;
                 }
-                lastMovePosition = l;
+                lastMovePosition = currentPosition;
             }
             if (isMaximized && !MouseHidden)
             {

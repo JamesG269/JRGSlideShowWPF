@@ -2,16 +2,13 @@
 using System.Linq;
 using System.Windows;
 using System.Windows.Forms;
-using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using System.ComponentModel;
 using System.Windows.Interop;
 using System.Threading;
 using System.IO;
 using MessageBox = System.Windows.MessageBox;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using System.Windows.Media;
 using System.Threading.Tasks;
 
 namespace JRGSlideShowWPF
@@ -38,7 +35,6 @@ namespace JRGSlideShowWPF
         Boolean ImageReady = false;
         Boolean StartUp = true;
 
-        int ChangeIdxPtrDirection = 1;
         int ImagesNotNull = 0;
         int OneInt = 0;
 
@@ -106,30 +102,29 @@ namespace JRGSlideShowWPF
                 {
                     return false;
                 }
-            }                    
-            ChangeIdxPtrDirection = i;
-            await Task.Run(() => LoadNextImage());            
+            }                                
+            await Task.Run(() => LoadNextImage(i));            
             DisplayCurrentImage();
             Interlocked.Exchange(ref OneInt, 0);
             return true;
         }
 
-        private void LoadNextImage()
+        private void LoadNextImage(int i)
         {
             do
             {
                 if (Randomize == true)
                 {
-                    if (ImageIdxListPtr == 0 && ChangeIdxPtrDirection == -1)
+                    if (ImageIdxListPtr == 0 && i == -1)
                     {
                         DecryptIdxListCode();
                     }
-                    else if (ImageIdxListPtr == (ImageIdxList.Count - 1) && ChangeIdxPtrDirection == 1)
+                    else if (ImageIdxListPtr == (ImageIdxList.Count - 1) && i == 1)
                     {
                         EncryptIdxListCode();
                     }
                 }
-                ImageIdxListPtr += ChangeIdxPtrDirection;
+                ImageIdxListPtr += i;
                 ImageIdxListPtr = ((ImageIdxListPtr % ImageIdxList.Count) + ImageIdxList.Count) % ImageIdxList.Count;
 
             } while (ImageIdxList[ImageIdxListPtr] == -1);
@@ -257,8 +252,7 @@ namespace JRGSlideShowWPF
             if (StartUp == false)
             {
                 SaveSettings();
-            }            
-            
+            }                        
             base.OnClosing(e);
         }
     }

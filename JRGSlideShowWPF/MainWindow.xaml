@@ -7,7 +7,7 @@
         xmlns:integration="clr-namespace:System.Windows.Forms.Integration;assembly=WindowsFormsIntegration"
         mc:Ignorable="d"
         AllowsTransparency="True"                
-        Title="JRG's SlideShow WPF v1.0" Height="360" Width="640" MouseWheel="mouseWheel" Background="Black" 
+        Title="JRG's SlideShow WPF v1.0" Height="360" Width="640" MouseWheel="MouseWheel2" Background="Black" 
         Icon="cd.ico" Loaded="Window_Loaded" ShowInTaskbar="False" WindowStyle="None" KeyDown="Window_KeyDown"
         MouseLeftButtonUp="OnMouseLeftButtonUp" MouseLeftButtonDown="OnMouseLeftButtonDown" MouseMove="OnMouseMove" WindowStartupLocation="Manual"
         
