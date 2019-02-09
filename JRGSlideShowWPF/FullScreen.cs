@@ -71,7 +71,7 @@ namespace JRGSlideShowWPF
                 if (dispatcherImageTimer.IsEnabled == true)
                 {
                     SetThreadExecutionState(EXECUTION_STATE.ES_DISPLAY_REQUIRED | EXECUTION_STATE.ES_CONTINUOUS);
-                }
+                }                
             }
             Interlocked.Exchange(ref inScreenChange, 0);
         }

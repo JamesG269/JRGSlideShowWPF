@@ -25,6 +25,7 @@ namespace JRGSlideShowWPF
         {
             if (ImageList != null && ImageList.Count > 0)
             {
+                ImageIdxListDeletePtr = -1;
                 ImageIdxList.Clear();                
                 for (int i = 0; i < ImageList.Count; i++)
                 {
@@ -90,7 +91,7 @@ namespace JRGSlideShowWPF
                 {
                     foreach (string filter in patterns)
                     {
-                        if (StartGetFilesBW_Cancel)
+                        if (StartGetFiles_Cancel)
                         {
                             NewImageList.Clear();
                             return;

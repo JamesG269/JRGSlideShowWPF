@@ -78,17 +78,7 @@ namespace JRGSlideShowWPF
                 DisplayCurrentImage();
                 Interlocked.Exchange(ref OneInt, 0);
             }
-        }        
-        private async Task<Boolean> DisplayPrevImage()
-        {
-            await DisplayGetNextImage(-1);
-            return true;
-        }
-        private async Task<Boolean> DisplayNextImage()
-        {
-            await DisplayGetNextImage(1);
-            return true;
-        }        
+        }                 
         private async Task<Boolean> DisplayGetNextImage(int i)
         {
             if (ImageListReady == false || Paused > 0)
@@ -97,20 +87,19 @@ namespace JRGSlideShowWPF
             }
             while (0 != Interlocked.Exchange(ref OneInt, 1))
             {
-                await Task.Delay(1);
-                if (ImageListReady == false || Paused > 0)
-                {
-                    return false;
-                }
-            }                                
-            await Task.Run(() => LoadNextImage(i));            
-            DisplayCurrentImage();
+                await Task.Delay(1);                
+            }
+            if (ImageListReady == true && Paused == 0)
+            {
+                await Task.Run(() => LoadNextImage(i));
+                DisplayCurrentImage();
+            }
             Interlocked.Exchange(ref OneInt, 0);
             return true;
         }
 
         private void LoadNextImage(int i)
-        {
+        {            
             do
             {
                 if (Randomize == true)
@@ -139,6 +128,7 @@ namespace JRGSlideShowWPF
                 ImageReady = false;
                 if (ImageError == false)
                 {
+                    ImageIdxListDeletePtr = -1;
                     ImageControl.Source = bitmapImage;
                     ImageIdxListDeletePtr = ImageIdxListPtr;
                 }
@@ -163,9 +153,9 @@ namespace JRGSlideShowWPF
         {
             Boolean ImageListReadyBackup = ImageListReady;
             ImageListReady = false;
-            StartGetFilesBW_Cancel = false;
+            StartGetFiles_Cancel = false;
             GetFilesCode();
-            if (StartGetFilesBW_Cancel != true && NewImageList != null && NewImageList.Count > 0)
+            if (StartGetFiles_Cancel != true && NewImageList != null && NewImageList.Count > 0)
             {
                 ImageList.Clear();
                 ImageList.AddRange(NewImageList);
@@ -233,6 +223,7 @@ namespace JRGSlideShowWPF
                     dispatcherMouseTimer.Start();
                 }
             }
+            
             dispatcherImageTimer.Stop();            
             dispatcherImageTimer.Start();
         }

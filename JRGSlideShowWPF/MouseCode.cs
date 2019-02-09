@@ -27,11 +27,11 @@ namespace JRGSlideShowWPF
                 {
                     MouseOneIntCount++;                    
                 }
-                await DisplayNextImage();                              
+                await DisplayGetNextImage(1);                             
             }
             else if (e.Delta < 0)
             {
-                await DisplayPrevImage();
+                await DisplayGetNextImage(-1);
             }
         }
 

@@ -38,8 +38,7 @@ namespace JRGSlideShowWPF
             if (e.Key < Key.D0 || e.Key > Key.D9)
             {
                 e.Handled = true;
-            }
-                
+            }                
         }
     }
 }

@@ -26,7 +26,7 @@ namespace JRGSlideShowWPF
             bitmapImage = new BitmapImage();
             GetMaxSize();
             try
-            {                
+            {
                 ImageReady = true;
                 ImageError = false;
                 bitmapImage.BeginInit(); 
@@ -46,6 +46,7 @@ namespace JRGSlideShowWPF
                 DisplayPicInfoWidth = bitmapImage.PixelWidth;
                 DisplayPicInfoDpiX = (int)bitmapImage.DpiX;
                 DisplayPicInfoDpiY = (int)bitmapImage.DpiY;
+                
                 GC.Collect();
                 
                 if (DisplayPicInfoDpiX == DisplayPicInfoDpiY)

@@ -22,10 +22,10 @@ namespace JRGSlideShowWPF
         }
 
         int StartGetFilesBW_IsBusy = 0;
-        Boolean StartGetFilesBW_Cancel = false;
+        Boolean StartGetFiles_Cancel = false;
         private async Task<Boolean> OpenDirCheckCancel()
         {            
-            StartGetFilesBW_Cancel = true;
+            StartGetFiles_Cancel = true;
             while (0 != Interlocked.Exchange(ref StartGetFilesBW_IsBusy, 1))
             {
                 await Task.Delay(1);
@@ -59,12 +59,12 @@ namespace JRGSlideShowWPF
         }
         private async void ContextMenuNext(object sender, RoutedEventArgs e)
         {
-            await DisplayNextImage();
+            await DisplayGetNextImage(1);
         }
 
         private async void ContextMenuPrev(object sender, RoutedEventArgs e)
         {
-            await DisplayPrevImage();
+            await DisplayGetNextImage(-1);
         }
         private void ContextMenuPause(object sender, RoutedEventArgs e)
         {
@@ -87,16 +87,8 @@ namespace JRGSlideShowWPF
             {
                 await Task.Delay(1);
             }            
-            if (ImageIdxListDeletePtr != -1 && ImageIdxList[ImageIdxListDeletePtr] == -1)
-            {
-                if (fileStream != null)
-                {
-                    fileStream.Dispose();
-                }
-                if (bitmapImage != null && bitmapImage.StreamSource != null)
-                {
-                    bitmapImage.StreamSource.Dispose();
-                }
+            if (ImageIdxListDeletePtr != -1 && ImageIdxList[ImageIdxListDeletePtr] != -1)
+            {                
                 string destPath = "";
                 string sourcePath = ImageList[ImageIdxList[ImageIdxListDeletePtr]];
                 try

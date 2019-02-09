@@ -7,7 +7,6 @@ namespace JRGSlideShowWPF
 {
     public partial class MainWindow : Window
     {
-
         public byte[] EncryptedBytes = new byte[32];
         public byte[] EncryptKey = new byte[32];
         public byte[] IV = new byte[32];
@@ -24,8 +23,7 @@ namespace JRGSlideShowWPF
         public ICryptoTransform decryptor;
      
         private void EncryptIdxListCode()
-        {
-            ImageIdxListDeletePtr = -1;
+        {            
             int second, temp;
             for (int i = 0; i < ImageIdxList.Count; i++)
             {
@@ -39,8 +37,7 @@ namespace JRGSlideShowWPF
         }        
         
         private void DecryptIdxListCode()
-        {
-            ImageIdxListDeletePtr = -1;
+        {            
             int second, temp;            
             for (int i = ImageIdxList.Count - 1; i >= 0; i--)
             {
@@ -117,5 +114,5 @@ namespace JRGSlideShowWPF
             encryptor.TransformBlock(EncryptThis, 0, EncryptThis.Length, EncryptThis, 0);
         }
     
-}
+    }
 }

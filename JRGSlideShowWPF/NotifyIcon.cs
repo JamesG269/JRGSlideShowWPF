@@ -17,11 +17,11 @@ namespace JRGSlideShowWPF
 
         private async void NotifyNextCode(object sender, EventArgs e)
         {
-            await DisplayNextImage();
+            await DisplayGetNextImage(1);
         }
         private async void NotifyPrevCode(object sender, EventArgs e)
         {
-            await DisplayPrevImage();
+            await DisplayGetNextImage(1);
         }
         private async void NotifyDeleteCode(object sender, EventArgs e)
         {
