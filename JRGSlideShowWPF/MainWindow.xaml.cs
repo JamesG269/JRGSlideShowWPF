@@ -87,13 +87,14 @@ namespace JRGSlideShowWPF
             }
             while (0 != Interlocked.Exchange(ref OneInt, 1))
             {
-                await Task.Delay(1);                
-            }
+                await Task.Delay(1);
+            }            
             if (ImageListReady == true && Paused == 0)
-            {
+            {                
                 await Task.Run(() => LoadNextImage(i));
-                DisplayCurrentImage();
+                DisplayCurrentImage();                
             }
+            
             Interlocked.Exchange(ref OneInt, 0);
             return true;
         }
@@ -125,6 +126,8 @@ namespace JRGSlideShowWPF
         {
             if (ImageReady == true)
             {
+                Boolean timerenabled = dispatcherImageTimer.IsEnabled;
+                dispatcherImageTimer.Stop();
                 ImageReady = false;
                 if (ImageError == false)
                 {
@@ -133,12 +136,11 @@ namespace JRGSlideShowWPF
                     ImageIdxListDeletePtr = ImageIdxListPtr;
                 }
                 else
-                {
-                    MessageBox.Show(ErrorMessage);
+                {                    
+                    MessageBox.Show(ErrorMessage);                                       
                 }
-                if (dispatcherImageTimer.IsEnabled)
+                if (timerenabled)
                 {
-                    dispatcherImageTimer.Stop();
                     dispatcherImageTimer.Start();
                 }
             }
@@ -181,12 +183,12 @@ namespace JRGSlideShowWPF
         Boolean OldSlow;
         int Paused = 0;
         private void PauseSave()
-        {
-            Paused++;
-            if (Paused > 1)
+        {            
+            if (Paused > 0)
             {
                 return;
             }
+            Paused++;
             OldSlow = dispatcherImageTimer.IsEnabled;
             Stop();
         }
@@ -207,6 +209,11 @@ namespace JRGSlideShowWPF
         {
             dispatcherImageTimer.Stop();
             SetThreadExecutionState(EXECUTION_STATE.ES_CONTINUOUS);
+            System.Windows.Application.Current.Dispatcher.Invoke(new Action(() => {
+                TextBlockControl.Visibility = Visibility.Visible;
+                TextBlockControl.Text = "Paused.";
+            }));
+
         }
         private void Play()
         {
@@ -226,6 +233,10 @@ namespace JRGSlideShowWPF
             
             dispatcherImageTimer.Stop();            
             dispatcherImageTimer.Start();
+
+            System.Windows.Application.Current.Dispatcher.Invoke(new Action(() => {
+                TextBlockControl.Visibility = Visibility.Hidden;
+            }));
         }
 
         protected override async void OnClosing(CancelEventArgs e)

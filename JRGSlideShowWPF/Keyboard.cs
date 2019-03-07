@@ -15,7 +15,7 @@ namespace JRGSlideShowWPF
             {
                 DisplayFileInfo();
             }
-            else if (e.Key == Key.Delete)
+            else if (e.Key == Key.Delete || e.Key == Key.D)
             {
                 PauseSave();
                 while (0 != Interlocked.Exchange(ref OneInt, 1))

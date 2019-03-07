@@ -59,7 +59,7 @@ namespace JRGSlideShowWPF
                 TextBlockControl.Text = "Finding images...";
             }));
             
-            GetFiles(SlideShowDirectory, "*.jpg;*.jpeg;*.png;*.bmp;*.gif;*.tif;*.tiff");
+            GetFiles(SlideShowDirectory, "*.jpg;*.jpeg;*.png;*.bmp;*.gif;*.tif;*.tiff;*.webp");
             
             Application.Current.Dispatcher.Invoke(new Action(() => {
                 TextBlockControl.Visibility = Visibility.Hidden;
