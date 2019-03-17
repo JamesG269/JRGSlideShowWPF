@@ -93,8 +93,7 @@ namespace JRGSlideShowWPF
             {                
                 await Task.Run(() => LoadNextImage(i));
                 DisplayCurrentImage();                
-            }
-            
+            }            
             Interlocked.Exchange(ref OneInt, 0);
             return true;
         }
@@ -213,7 +212,6 @@ namespace JRGSlideShowWPF
                 TextBlockControl.Visibility = Visibility.Visible;
                 TextBlockControl.Text = "Paused.";
             }));
-
         }
         private void Play()
         {
