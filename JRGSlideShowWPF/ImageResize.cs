@@ -29,16 +29,14 @@ namespace JRGSlideShowWPF
             {
                 ImageReady = true;
                 ImageError = false;
-                bitmapImage.BeginInit(); 
+                bitmapImage.BeginInit();
                 fileStream = new FileStream(imageFileName, FileMode.Open, FileAccess.Read);
-                
+
                 bitmapImage.StreamSource = fileStream;
-                bitmapImage.CreateOptions = BitmapCreateOptions.PreservePixelFormat;
                 if (fileStream.Length > 20000000)
                 {
                     bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
                 }
-                
                 bitmapImage.EndInit();
                 bitmapImage.Freeze();
                 

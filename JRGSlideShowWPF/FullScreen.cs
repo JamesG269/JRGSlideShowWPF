@@ -67,11 +67,7 @@ namespace JRGSlideShowWPF
                 Top = Left = 0;                
                 isMaximized = true;
                 Activate();
-                dispatcherMouseTimer.Start();
-                if (dispatcherImageTimer.IsEnabled == true)
-                {
-                    SetThreadExecutionState(EXECUTION_STATE.ES_DISPLAY_REQUIRED | EXECUTION_STATE.ES_CONTINUOUS);
-                }                
+                DisplayRequired();
             }
             Interlocked.Exchange(ref inScreenChange, 0);
         }
@@ -94,7 +90,7 @@ namespace JRGSlideShowWPF
                 isMaximized = false;
                 Activate();
                 dispatcherMouseTimer.Stop();
-                SetThreadExecutionState(EXECUTION_STATE.ES_CONTINUOUS);
+                DisplayNotRequired();
             }
             Interlocked.Exchange(ref inScreenChange, 0);
         }

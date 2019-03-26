@@ -103,16 +103,13 @@ namespace JRGSlideShowWPF
                 Show();                
                 isMinimized = false;                
                 Activate();
-                if (isMaximized && dispatcherImageTimer.IsEnabled)
-                {
-                    SetThreadExecutionState(EXECUTION_STATE.ES_DISPLAY_REQUIRED | EXECUTION_STATE.ES_CONTINUOUS);
-                }
+                DisplayRequired();
             }
             else
             {               
                 Hide();
-                isMinimized = true;                
-                SetThreadExecutionState(EXECUTION_STATE.ES_CONTINUOUS);
+                isMinimized = true;
+                DisplayNotRequired();
             }
         }
         public void BuildNotify()

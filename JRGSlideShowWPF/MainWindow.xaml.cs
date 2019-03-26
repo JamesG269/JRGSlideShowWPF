@@ -80,11 +80,7 @@ namespace JRGSlideShowWPF
             }
         }                 
         private async Task<Boolean> DisplayGetNextImage(int i)
-        {
-            if (ImageListReady == false || Paused > 0)
-            {
-                return false;
-            }
+        {            
             while (0 != Interlocked.Exchange(ref OneInt, 1))
             {
                 await Task.Delay(1);
@@ -207,19 +203,31 @@ namespace JRGSlideShowWPF
         private void Stop()
         {
             dispatcherImageTimer.Stop();
-            SetThreadExecutionState(EXECUTION_STATE.ES_CONTINUOUS);
-            System.Windows.Application.Current.Dispatcher.Invoke(new Action(() => {
+            DisplayNotRequired();
+            System.Windows.Application.Current.Dispatcher.Invoke(new Action(() =>
+            {
                 TextBlockControl.Visibility = Visibility.Visible;
                 TextBlockControl.Text = "Paused.";
             }));
         }
+        
         private void Play()
         {
             if (ImageListReady == false)
             {
+                Stop();
                 return;
             }
-            if (isMaximized)
+            dispatcherImageTimer.Stop();
+            dispatcherImageTimer.Start();
+            DisplayRequired();   
+            System.Windows.Application.Current.Dispatcher.Invoke(new Action(() => {
+                TextBlockControl.Visibility = Visibility.Hidden;
+            }));
+        }
+        private void DisplayRequired()
+        {
+            if (isMaximized && dispatcherImageTimer.IsEnabled)
             {
                 SetThreadExecutionState(EXECUTION_STATE.ES_DISPLAY_REQUIRED | EXECUTION_STATE.ES_CONTINUOUS);
                 if (!MouseHidden)
@@ -228,13 +236,10 @@ namespace JRGSlideShowWPF
                     dispatcherMouseTimer.Start();
                 }
             }
-            
-            dispatcherImageTimer.Stop();            
-            dispatcherImageTimer.Start();
-
-            System.Windows.Application.Current.Dispatcher.Invoke(new Action(() => {
-                TextBlockControl.Visibility = Visibility.Hidden;
-            }));
+        }
+        private void DisplayNotRequired()
+        {
+            SetThreadExecutionState(EXECUTION_STATE.ES_CONTINUOUS);
         }
 
         protected override async void OnClosing(CancelEventArgs e)
