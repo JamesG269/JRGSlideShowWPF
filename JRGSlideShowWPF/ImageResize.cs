@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.IO;
 using System.Windows;
 using System.Windows.Media.Imaging;
@@ -17,38 +18,29 @@ namespace JRGSlideShowWPF
         Boolean ImageError = false;
 
         FileStream fileStream;
-
+        
         public string ErrorMessage = "";
 
         public void ResizeImageCode()
         {
-            string imageFileName = ImageList[ImageIdxList[ImageIdxListPtr]];
+            ImageReady = true;
+            ImageError = false;            
             bitmapImage = new BitmapImage();
-            GetMaxSize();
             try
-            {
-                ImageReady = true;
-                ImageError = false;
-                ErrorMessage = " Resize Error.";
+            {                
+                ErrorMessage = "Resize Error.";
                 bitmapImage.BeginInit();
-                fileStream = new FileStream(imageFileName, FileMode.Open, FileAccess.Read);
-
-                bitmapImage.StreamSource = fileStream;
+                fileStream = new FileStream(ImageList[ImageIdxList[ImageIdxListPtr]], FileMode.Open, FileAccess.Read);
+                bitmapImage.StreamSource = fileStream;                
                 if (fileStream.Length > 20000000)
                 {
                     bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-                }
+                }                
                 bitmapImage.EndInit();
-                bitmapImage.Freeze();
-                GC.Collect();
-                DisplayPicInfoHeight = bitmapImage.PixelHeight;
-                DisplayPicInfoWidth = bitmapImage.PixelWidth;
-                DisplayPicInfoDpiX = (int)bitmapImage.DpiX;
-                DisplayPicInfoDpiY = (int)bitmapImage.DpiY;
-                
-                if (DisplayPicInfoDpiX != DisplayPicInfoDpiY)
+                bitmapImage.Freeze();                
+                if (bitmapImage.DpiX != bitmapImage.DpiY)
                 {
-                    ErrorMessage = " DPI Error.";
+                    ErrorMessage = "DPI Error.";
                     throw new Exception();
                 }                
             }
@@ -61,17 +53,17 @@ namespace JRGSlideShowWPF
                 }
                 bitmapImage = null;
 
-                string destName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), Path.GetFileName(imageFileName));
+                string destName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), Path.GetFileName(ImageList[ImageIdxList[ImageIdxListPtr]]));
                 try
                 {                    
-                    File.Copy(imageFileName, destName);
-                    ErrorMessage = destName + ErrorMessage + " Copied successfully.";
+                    File.Copy(ImageList[ImageIdxList[ImageIdxListPtr]], destName);
+                    ErrorMessage = destName + " " + ErrorMessage + " Copied successfully.";
                 }
                 catch
                 {
-                    ErrorMessage = destName + ErrorMessage + " Copy error.";
+                    ErrorMessage = destName + " " + ErrorMessage + " Copy error.";
                 }
-            }                                    
+            } 
             
         }        
     }

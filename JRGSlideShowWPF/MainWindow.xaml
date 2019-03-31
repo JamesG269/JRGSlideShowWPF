@@ -12,6 +12,7 @@
         MouseLeftButtonUp="OnMouseLeftButtonUp" MouseLeftButtonDown="OnMouseLeftButtonDown" MouseMove="OnMouseMove" WindowStartupLocation="Manual"
         
         >
+    
     <WindowChrome.WindowChrome>
         <WindowChrome     
         CaptionHeight="1"  

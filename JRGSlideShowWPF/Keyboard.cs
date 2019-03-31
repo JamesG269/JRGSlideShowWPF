@@ -43,6 +43,10 @@ namespace JRGSlideShowWPF
                 {
                     imageInfo = new FileInfo(ImageList[ImageIdxList[ImageIdxListDeletePtr]]);
                     var imageName = imageInfo.Name;
+                    DisplayPicInfoDpiX = (int)bitmapImage.DpiX;
+                    DisplayPicInfoDpiY = (int)bitmapImage.DpiY;
+                    DisplayPicInfoHeight = bitmapImage.PixelHeight;
+                    DisplayPicInfoWidth = bitmapImage.PixelWidth;
 
                     MessageBox.Show((DpiError == true ? "DPI ERROR" + Environment.NewLine : "")
                         + "                     Name: " + imageName + System.Environment.NewLine

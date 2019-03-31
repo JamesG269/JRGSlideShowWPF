@@ -10,6 +10,7 @@ using System.IO;
 using MessageBox = System.Windows.MessageBox;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using System.Windows.Media;
 
 namespace JRGSlideShowWPF
 {
@@ -25,6 +26,7 @@ namespace JRGSlideShowWPF
             ES_DISPLAY_REQUIRED = 0x00000002,
             ES_SYSTEM_REQUIRED = 0x00000001
         }
+        
 
         System.Windows.Threading.DispatcherTimer dispatcherImageTimer = new System.Windows.Threading.DispatcherTimer();
         System.Windows.Threading.DispatcherTimer dispatcherMouseTimer = new System.Windows.Threading.DispatcherTimer();
@@ -52,7 +54,7 @@ namespace JRGSlideShowWPF
         }
 
         private async void Window_Loaded(object sender, RoutedEventArgs e)
-        {
+        {            
             PSource = PresentationSource.FromVisual(this);
             thisHandle = new WindowInteropHelper(this).Handle;
 
@@ -78,7 +80,9 @@ namespace JRGSlideShowWPF
                 DisplayCurrentImage();
                 Interlocked.Exchange(ref OneInt, 0);
             }
-        }                 
+        }
+
+        
         private async Task<Boolean> DisplayGetNextImage(int i)
         {            
             while (0 != Interlocked.Exchange(ref OneInt, 1))
@@ -143,6 +147,7 @@ namespace JRGSlideShowWPF
 
         private async void DisplayNextImageTimer(object sender, EventArgs e)
         {
+            GC.Collect();
             await DisplayGetNextImage(1);
         }
 
