@@ -11,10 +11,11 @@ namespace JRGSlideShowWPF
 {
     public partial class MainWindow : Window
     {
-        List<string> ImageList = new List<string>();
+        String[] ImageList;
+
         List<string> NewImageList = new List<string>();
 
-        List<int> ImageIdxList = new List<int>();
+        int[] ImageIdxList;
 
         Boolean ImageListReady = false;
 
@@ -23,13 +24,14 @@ namespace JRGSlideShowWPF
         
         private void CreateIdxListCode()
         {
-            if (ImageList != null && ImageList.Count > 0)
+            if (ImageList != null && ImageList.Length > 0)
             {
                 ImageIdxListDeletePtr = -1;
-                ImageIdxList.Clear();                
-                for (int i = 0; i < ImageList.Count; i++)
+                ImageIdxList = null;
+                ImageIdxList = new int[ImageList.Length];
+                for (int i = 0; i < ImageList.Length; i++)
                 {
-                    ImageIdxList.Add(i);
+                    ImageIdxList[i] = i;
                 }
                 ImageIdxListPtr = 0;
                 if (Randomize == true)
@@ -93,7 +95,7 @@ namespace JRGSlideShowWPF
                     {
                         if (StartGetFiles_Cancel)
                         {
-                            NewImageList.Clear();
+                            NewImageList = null;
                             return;
                         }
                         var fs = Directory.GetFiles(currentDir, filter);

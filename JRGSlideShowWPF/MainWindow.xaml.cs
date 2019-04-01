@@ -27,7 +27,6 @@ namespace JRGSlideShowWPF
             ES_SYSTEM_REQUIRED = 0x00000001
         }
         
-
         System.Windows.Threading.DispatcherTimer dispatcherImageTimer = new System.Windows.Threading.DispatcherTimer();
         System.Windows.Threading.DispatcherTimer dispatcherMouseTimer = new System.Windows.Threading.DispatcherTimer();
 
@@ -80,8 +79,8 @@ namespace JRGSlideShowWPF
                 DisplayCurrentImage();
                 Interlocked.Exchange(ref OneInt, 0);
             }
+            Play();
         }
-
         
         private async Task<Boolean> DisplayGetNextImage(int i)
         {            
@@ -108,13 +107,13 @@ namespace JRGSlideShowWPF
                     {
                         DecryptIdxListCode();
                     }
-                    else if (ImageIdxListPtr == (ImageIdxList.Count - 1) && i == 1)
+                    else if (ImageIdxListPtr == (ImageIdxList.Length - 1) && i == 1)
                     {
                         EncryptIdxListCode();
                     }
                 }
                 ImageIdxListPtr += i;
-                ImageIdxListPtr = ((ImageIdxListPtr % ImageIdxList.Count) + ImageIdxList.Count) % ImageIdxList.Count;
+                ImageIdxListPtr = ((ImageIdxListPtr % ImageIdxList.Length) + ImageIdxList.Length) % ImageIdxList.Length;
 
             } while (ImageIdxList[ImageIdxListPtr] == -1);
 
@@ -125,9 +124,9 @@ namespace JRGSlideShowWPF
         {
             if (ImageReady == true)
             {
-                Boolean timerenabled = dispatcherImageTimer.IsEnabled;
-                dispatcherImageTimer.Stop();
                 ImageReady = false;
+                Boolean timerenabled = dispatcherImageTimer.IsEnabled;
+                dispatcherImageTimer.Stop();                
                 if (ImageError == false)
                 {
                     ImageIdxListDeletePtr = -1;
@@ -159,13 +158,18 @@ namespace JRGSlideShowWPF
             GetFilesCode();
             if (StartGetFiles_Cancel != true && NewImageList != null && NewImageList.Count > 0)
             {
-                ImageList.Clear();
-                ImageList.AddRange(NewImageList);
-                ImagesNotNull = ImageList.Count();
+                ImageList = null;
+                ImageList = new string[NewImageList.Count];
+                int i = 0;
+                foreach (var n in NewImageList)
+                {
+                    ImageList[i] = n;
+                    i++;
+                }
+                ImagesNotNull = ImageList.Length;
                 CreateIdxListCode();                
                 ResizeImageCode();
-                ImageListReady = true;
-                Play();                
+                ImageListReady = true;                                
             }
             else
             {
@@ -209,11 +213,8 @@ namespace JRGSlideShowWPF
         {
             dispatcherImageTimer.Stop();
             DisplayNotRequired();
-            System.Windows.Application.Current.Dispatcher.Invoke(new Action(() =>
-            {
-                TextBlockControl.Visibility = Visibility.Visible;
-                TextBlockControl.Text = "Paused.";
-            }));
+            TextBlockControl.Visibility = Visibility.Visible;
+            TextBlockControl.Text = "Paused.";            
         }
         
         private void Play()
@@ -225,10 +226,8 @@ namespace JRGSlideShowWPF
             }
             dispatcherImageTimer.Stop();
             dispatcherImageTimer.Start();
-            DisplayRequired();   
-            System.Windows.Application.Current.Dispatcher.Invoke(new Action(() => {
-                TextBlockControl.Visibility = Visibility.Hidden;
-            }));
+            DisplayRequired();               
+            TextBlockControl.Visibility = Visibility.Hidden;
         }
         private void DisplayRequired()
         {

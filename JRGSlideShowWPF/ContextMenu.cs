@@ -212,19 +212,19 @@ namespace JRGSlideShowWPF
                 await Task.Delay(1);
             }            
             Randomize = ContextMenuCheckBox.IsChecked;
+            PauseSave();
             await Task.Run(() => RandomizeBW_DoWork());
+            PauseRestore();
             DisplayCurrentImage();           
             Interlocked.Exchange(ref OneInt, 0);
         }
 
         private void RandomizeBW_DoWork()
-        {
-            PauseSave();
+        {            
             ImageListReady = false;
             CreateIdxListCode();            
             ResizeImageCode();
-            ImageListReady = true;
-            PauseRestore();
+            ImageListReady = true;            
         }        
     }
 }

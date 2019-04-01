@@ -58,7 +58,7 @@ namespace JRGSlideShowWPF
                         + "        Mouse Wheel Count: " + MouseWheelCount + Environment.NewLine
                         + "Mouse Wheel missed OneInt: " + MouseOneIntCount + Environment.NewLine
                         + "          ImageIdxListPtr: " + ImageIdxListPtr + Environment.NewLine
-                        + "             Total Images: " + ImageList.Count
+                        + "             Total Images: " + ImageList.Length
                         );
                 }
                 catch
