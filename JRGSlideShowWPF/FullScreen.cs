@@ -61,8 +61,8 @@ namespace JRGSlideShowWPF
                 if (PSource != null)
                 {
                     matrix = PSource.CompositionTarget.TransformToDevice;                       // Have to check if this works when moving to a second monitor.
-                    Height = (int)(ResizeMaxHeight / matrix.M11);
-                    Width = (int)(ResizeMaxWidth / matrix.M22);
+                    Height = (int)(ScreenMaxHeight / matrix.M11);
+                    Width = (int)(ScreenMaxWidth / matrix.M22);
                 }                                
                 Top = Left = 0;                
                 isMaximized = true;

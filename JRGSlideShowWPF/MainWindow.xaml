@@ -36,6 +36,7 @@
                 <MenuItem Header="Change Timer" Click="ContextMenuChangeTimer"/>
                 <MenuItem Header="Full Screen Toggle" Click="ContextMenuFullScreen"/>
                 <MenuItem Header="Randomize" Click="CheckedRandomize" IsCheckable="true" Name="ContextMenuCheckBox"/>
+                <MenuItem Header="Image Info" Click="ImageInfo_Click"/>
                 <MenuItem Header="Exit" Click="ContextMenuExit"/>
             </ContextMenu>
         </Grid.ContextMenu>

@@ -13,7 +13,14 @@ namespace JRGSlideShowWPF
         {
             if (e.Key == Key.F1)
             {
+                PauseSave();
+                while (0 != Interlocked.Exchange(ref OneInt, 1))
+                {
+                    await Task.Delay(1);
+                }
                 DisplayFileInfo();
+                PauseRestore();
+                Interlocked.Exchange(ref OneInt, 0);
             }
             else if (e.Key == Key.Delete || e.Key == Key.D)
             {
@@ -49,10 +56,13 @@ namespace JRGSlideShowWPF
                     DisplayPicInfoWidth = bitmapImage.PixelWidth;
 
                     MessageBox.Show((DpiError == true ? "DPI ERROR" + Environment.NewLine : "")
+                        + "      JRGSlideShowWPF Ver: " + version + System.Environment.NewLine
                         + "                     Name: " + imageName + System.Environment.NewLine
                         + "                   Length: " + imageInfo.Length + Environment.NewLine
-                        + "                   Height: " + DisplayPicInfoHeight + Environment.NewLine
-                        + "                    Width: " + DisplayPicInfoWidth + Environment.NewLine
+                        + "           Current Height: " + DisplayPicInfoHeight + Environment.NewLine
+                        + "            Current Width: " + DisplayPicInfoWidth + Environment.NewLine
+                        + "          Original Height: " + imageOriginalHeight + Environment.NewLine
+                        +"            Original Width: " + imageOriginalWidth + Environment.NewLine
                         + "                     DpiX: " + DisplayPicInfoDpiX + Environment.NewLine
                         + "                     DpiY: " + DisplayPicInfoDpiY + Environment.NewLine
                         + "        Mouse Wheel Count: " + MouseWheelCount + Environment.NewLine

@@ -53,6 +53,17 @@ namespace JRGSlideShowWPF
             }
             return true;
         }
+        private async void ImageInfo_Click(object sender, RoutedEventArgs e)
+        {
+            PauseSave();
+            while (0 != Interlocked.Exchange(ref OneInt, 1))
+            {
+                await Task.Delay(1);
+            }
+            DisplayFileInfo();
+            PauseRestore();
+            Interlocked.Exchange(ref OneInt, 0);
+        }
         private void ContextMenuExit(object sender, RoutedEventArgs e)
         {
             Close();

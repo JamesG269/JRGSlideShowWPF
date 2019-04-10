@@ -12,8 +12,11 @@ namespace JRGSlideShowWPF
         int DisplayPicInfoWidth = 0;
         int DisplayPicInfoDpiX = 0;
         int DisplayPicInfoDpiY = 0;
-        int ResizeMaxWidth = 0;
-        int ResizeMaxHeight = 0;
+
+        double ScreenMaxWidth = 0;
+        double ScreenMaxHeight = 0;
+        int imageOriginalWidth = 0;
+        int imageOriginalHeight = 0;
 
         Boolean ImageError = false;
 
@@ -26,12 +29,36 @@ namespace JRGSlideShowWPF
             ImageReady = true;
             ImageError = false;            
             bitmapImage = new BitmapImage();
+            GetMaxSize();
             try
-            {                
+            {
                 ErrorMessage = "Resize Error.";
-                bitmapImage.BeginInit();
                 fileStream = new FileStream(ImageList[ImageIdxList[ImageIdxListPtr]], FileMode.Open, FileAccess.Read);
-                bitmapImage.StreamSource = fileStream;                
+                var decoder = BitmapDecoder.Create(fileStream, BitmapCreateOptions.IgnoreColorProfile, BitmapCacheOption.Default);
+                double iHeight = decoder.Frames[0].PixelHeight;
+                double iWidth = decoder.Frames[0].PixelWidth;
+                imageOriginalHeight = (int)iHeight;
+                imageOriginalWidth = (int)iWidth;
+                fileStream.Position = 0;
+                bitmapImage.BeginInit();
+                bitmapImage.StreamSource = fileStream;
+                if (iWidth > ScreenMaxWidth || iHeight > ScreenMaxHeight)
+                {
+                    double aspect = iWidth / iHeight;                    
+                    if (iWidth > ScreenMaxWidth)
+                    {
+                        iWidth = ScreenMaxWidth;
+                        iHeight = iWidth / aspect;
+                    }
+                    if (iHeight > ScreenMaxHeight)
+                    {
+                        aspect = iWidth / iHeight;
+                        iHeight = ScreenMaxHeight;
+                        iWidth = iHeight * aspect;
+                    }
+                    bitmapImage.DecodePixelHeight = (int)iHeight;
+                    bitmapImage.DecodePixelWidth = (int)iWidth;
+                }
                 if (fileStream.Length > 20000000)
                 {
                     bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
@@ -42,7 +69,7 @@ namespace JRGSlideShowWPF
                 {
                     ErrorMessage = "DPI Error.";
                     throw new Exception();
-                }                
+                } 
             }
             catch
             {
@@ -63,7 +90,7 @@ namespace JRGSlideShowWPF
                 {
                     ErrorMessage = destName + " " + ErrorMessage + " Copy error.";
                 }
-            } 
+            }
             
         }        
     }

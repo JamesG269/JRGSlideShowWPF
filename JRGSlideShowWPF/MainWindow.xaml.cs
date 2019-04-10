@@ -26,7 +26,9 @@ namespace JRGSlideShowWPF
             ES_DISPLAY_REQUIRED = 0x00000002,
             ES_SYSTEM_REQUIRED = 0x00000001
         }
-        
+
+        const string version = "1.1";
+
         System.Windows.Threading.DispatcherTimer dispatcherImageTimer = new System.Windows.Threading.DispatcherTimer();
         System.Windows.Threading.DispatcherTimer dispatcherMouseTimer = new System.Windows.Threading.DispatcherTimer();
 
@@ -83,15 +85,18 @@ namespace JRGSlideShowWPF
         }
         
         private async Task<Boolean> DisplayGetNextImage(int i)
-        {            
+        {
             while (0 != Interlocked.Exchange(ref OneInt, 1))
-            {
+            {                
                 await Task.Delay(1);
             }            
             if (ImageListReady == true && Paused == 0)
-            {                
-                await Task.Run(() => LoadNextImage(i));
-                DisplayCurrentImage();                
+            {
+                dispatcherImageTimer.Stop();
+                await Task.Run(() => LoadNextImage(i));                
+                DisplayCurrentImage();
+                GC.Collect();
+                dispatcherImageTimer.Start();
             }            
             Interlocked.Exchange(ref OneInt, 0);
             return true;
@@ -146,7 +151,6 @@ namespace JRGSlideShowWPF
 
         private async void DisplayNextImageTimer(object sender, EventArgs e)
         {
-            GC.Collect();
             await DisplayGetNextImage(1);
         }
 
@@ -180,8 +184,8 @@ namespace JRGSlideShowWPF
         private void GetMaxSize()
         {
             var bounds = Screen.FromHandle(thisHandle).Bounds;
-            ResizeMaxHeight = bounds.Height;
-            ResizeMaxWidth = bounds.Width;
+            ScreenMaxHeight = bounds.Height;
+            ScreenMaxWidth = bounds.Width;
         }
 
         Boolean OldSlow;
@@ -264,5 +268,6 @@ namespace JRGSlideShowWPF
             }                        
             base.OnClosing(e);
         }
+
     }
 }
