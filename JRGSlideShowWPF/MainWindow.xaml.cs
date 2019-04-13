@@ -250,7 +250,7 @@ namespace JRGSlideShowWPF
         }
 
         protected override async void OnClosing(CancelEventArgs e)
-        {
+        {            
             Stop();
             if (NIcon != null)
             {

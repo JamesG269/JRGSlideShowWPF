@@ -176,9 +176,9 @@ namespace JRGSlideShowWPF
             {
                 try
                 {
-                    if (fileStream != null)
+                    if (memStream != null)
                     {
-                        fileStream.Dispose();
+                        memStream.Dispose();
                     }
                     if (bitmapImage != null && bitmapImage.StreamSource != null)
                     {

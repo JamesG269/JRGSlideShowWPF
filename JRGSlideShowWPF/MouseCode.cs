@@ -20,13 +20,15 @@ namespace JRGSlideShowWPF
 
         private async void MouseWheel2(object sender, MouseWheelEventArgs e)
         {
+            MouseWheelCount++;
+            if (OneInt == 1)
+            {
+                MouseOneIntCount++;
+                return;
+            }
             if (e.Delta > 0)
             {
-                MouseWheelCount++;
-                if (OneInt == 1)
-                {
-                    MouseOneIntCount++;                    
-                }
+                
                 await DisplayGetNextImage(1);                             
             }
             else if (e.Delta < 0)

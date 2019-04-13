@@ -22,8 +22,7 @@ namespace JRGSlideShowWPF
 
         Boolean ImageError = false;
 
-        FileStream fileStream;
-
+        MemoryStream memStream;
         public string ErrorMessage = "";
 
         double widthAspect;
@@ -32,6 +31,7 @@ namespace JRGSlideShowWPF
         Stopwatch imageTimeToDecode = new Stopwatch();
         
         BitmapFrame displayPhoto;
+        
 
         public void ResizeImageCode()
         {
@@ -41,9 +41,12 @@ namespace JRGSlideShowWPF
             GetMaxSize();
             try
             {
-                ErrorMessage = "Resize Error.";
-                fileStream = new FileStream(ImageList[ImageIdxList[ImageIdxListPtr]].FullName, FileMode.Open, FileAccess.Read);
-                var decoder = BitmapDecoder.Create(fileStream, BitmapCreateOptions.IgnoreColorProfile, BitmapCacheOption.OnDemand);
+                ErrorMessage = "Resize Error.";                
+
+                memStream = new MemoryStream(File.ReadAllBytes(ImageList[ImageIdxList[ImageIdxListPtr]].FullName));
+                memStream.Position = 0;
+
+                var decoder = BitmapDecoder.Create(memStream, BitmapCreateOptions.IgnoreColorProfile, BitmapCacheOption.OnDemand);
                 
                 var photo = decoder.Frames[0];
                 imageOriginalHeight = photo.PixelHeight;
@@ -72,7 +75,7 @@ namespace JRGSlideShowWPF
                     throw new Exception();
                 }
             }
-            catch
+            catch (Exception e)
             {
                 ImageError = true;
                 if (bitmapImage != null && bitmapImage.StreamSource != null)
@@ -85,14 +88,29 @@ namespace JRGSlideShowWPF
                 try
                 {
                     File.Copy(ImageList[ImageIdxList[ImageIdxListPtr]].FullName, destName);
-                    ErrorMessage = destName + " " + ErrorMessage + " Copied successfully.";
+                    ErrorMessage = destName + " " + ErrorMessage + " Copied successfully. Exception details: " + e.Message;
                 }
                 catch
                 {
-                    ErrorMessage = destName + " " + ErrorMessage + " Copy error.";
+                    ErrorMessage = destName + " " + ErrorMessage + " Copy error. Exception details: " + e.Message;
                 }
             }
             //GC.Collect();
+            /*
+                bitmapImage = new BitmapImage();
+                bitmapImage.BeginInit();
+                bitmapImage.DecodePixelHeight = 1080;
+                bitmapImage.StreamSource = memStream;
+                bitmapImage.CacheOption = BitmapCacheOption.None;
+                bitmapImage.CreateOptions = BitmapCreateOptions.IgnoreColorProfile;
+                bitmapImage.EndInit();
+                bitmapImage.Freeze();
+                DisplayPicInfoDpiX = (int)bitmapImage.DpiX;
+                DisplayPicInfoDpiY = (int)bitmapImage.DpiY;
+                DisplayPicInfoHeight = bitmapImage.PixelHeight;
+                DisplayPicInfoWidth = bitmapImage.PixelWidth;
+                return;*/
         }
     }
 }
+ 
