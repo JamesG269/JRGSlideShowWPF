@@ -112,7 +112,6 @@ namespace JRGSlideShowWPF
             AES.IV = IV;
             encryptor = AES.CreateDecryptor(AES.Key, AES.IV);
             encryptor.TransformBlock(EncryptThis, 0, EncryptThis.Length, EncryptThis, 0);
-        }
-    
+        }    
     }
 }

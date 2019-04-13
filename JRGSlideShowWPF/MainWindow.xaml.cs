@@ -11,6 +11,7 @@ using MessageBox = System.Windows.MessageBox;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows.Media;
+using System.Diagnostics;
 
 namespace JRGSlideShowWPF
 {
@@ -40,6 +41,7 @@ namespace JRGSlideShowWPF
 
         int ImagesNotNull = 0;
         int OneInt = 0;
+        int imagesDisplayed = 0;
 
         public static BitmapImage bitmapImage = null;
 
@@ -76,30 +78,28 @@ namespace JRGSlideShowWPF
                 while (0 != Interlocked.Exchange(ref OneInt, 1))
                 {
                     await Task.Delay(1);
-                }
+                }                
                 await Task.Run(() => StartGetFiles());
                 DisplayCurrentImage();
                 Interlocked.Exchange(ref OneInt, 0);
-            }
+            }                        
             Play();
         }
         
-        private async Task<Boolean> DisplayGetNextImage(int i)
+        private async Task DisplayGetNextImage(int i)
         {
             while (0 != Interlocked.Exchange(ref OneInt, 1))
-            {                
+            {
                 await Task.Delay(1);
-            }            
+            }
             if (ImageListReady == true && Paused == 0)
             {
-                dispatcherImageTimer.Stop();
-                await Task.Run(() => LoadNextImage(i));                
+                PauseSave();
+                await Task.Run(() => LoadNextImage(i));
                 DisplayCurrentImage();
-                GC.Collect();
-                dispatcherImageTimer.Start();
-            }            
+                PauseRestore();
+            }
             Interlocked.Exchange(ref OneInt, 0);
-            return true;
         }
 
         private void LoadNextImage(int i)
@@ -121,10 +121,10 @@ namespace JRGSlideShowWPF
                 ImageIdxListPtr = ((ImageIdxListPtr % ImageIdxList.Length) + ImageIdxList.Length) % ImageIdxList.Length;
 
             } while (ImageIdxList[ImageIdxListPtr] == -1);
-
-            ResizeImageCode();
+            imageTimeToDecode.Restart();
+            ResizeImageCode();            
         }
-
+        
         private void DisplayCurrentImage()
         {
             if (ImageReady == true)
@@ -135,13 +135,15 @@ namespace JRGSlideShowWPF
                 if (ImageError == false)
                 {
                     ImageIdxListDeletePtr = -1;
-                    ImageControl.Source = bitmapImage;
+                    ImageControl.Source = displayPhoto;                   
                     ImageIdxListDeletePtr = ImageIdxListPtr;
+                    imageTimeToDecode.Stop();
+                    imagesDisplayed++;
                 }
                 else
                 {                    
                     MessageBox.Show(ErrorMessage);                                       
-                }
+                }                
                 if (timerenabled)
                 {
                     dispatcherImageTimer.Start();
@@ -163,7 +165,7 @@ namespace JRGSlideShowWPF
             if (StartGetFiles_Cancel != true && NewImageList != null && NewImageList.Count > 0)
             {
                 ImageList = null;
-                ImageList = new string[NewImageList.Count];
+                ImageList = new FileInfo[NewImageList.Count];
                 int i = 0;
                 foreach (var n in NewImageList)
                 {
@@ -216,9 +218,7 @@ namespace JRGSlideShowWPF
         private void Stop()
         {
             dispatcherImageTimer.Stop();
-            DisplayNotRequired();
-            TextBlockControl.Visibility = Visibility.Visible;
-            TextBlockControl.Text = "Paused.";            
+            DisplayNotRequired();                     
         }
         
         private void Play()
@@ -230,8 +230,7 @@ namespace JRGSlideShowWPF
             }
             dispatcherImageTimer.Stop();
             dispatcherImageTimer.Start();
-            DisplayRequired();               
-            TextBlockControl.Visibility = Visibility.Hidden;
+            DisplayRequired();                           
         }
         private void DisplayRequired()
         {

@@ -48,17 +48,17 @@ namespace JRGSlideShowWPF
 
                 try
                 {
-                    imageInfo = new FileInfo(ImageList[ImageIdxList[ImageIdxListDeletePtr]]);
+                    imageInfo = ImageList[ImageIdxList[ImageIdxListDeletePtr]];
                     var imageName = imageInfo.Name;
-                    DisplayPicInfoDpiX = (int)bitmapImage.DpiX;
+                    /*DisplayPicInfoDpiX = (int)bitmapImage.DpiX;
                     DisplayPicInfoDpiY = (int)bitmapImage.DpiY;
                     DisplayPicInfoHeight = bitmapImage.PixelHeight;
-                    DisplayPicInfoWidth = bitmapImage.PixelWidth;
+                    DisplayPicInfoWidth = bitmapImage.PixelWidth;*/
 
                     MessageBox.Show((DpiError == true ? "DPI ERROR" + Environment.NewLine : "")
                         + "      JRGSlideShowWPF Ver: " + version + System.Environment.NewLine
                         + "                     Name: " + imageName + System.Environment.NewLine
-                        + "                   Length: " + imageInfo.Length + Environment.NewLine
+                        + "                   Length: " + imageInfo.Length.ToString("N0") + " Bytes" + Environment.NewLine
                         + "           Current Height: " + DisplayPicInfoHeight + Environment.NewLine
                         + "            Current Width: " + DisplayPicInfoWidth + Environment.NewLine
                         + "          Original Height: " + imageOriginalHeight + Environment.NewLine
@@ -68,6 +68,7 @@ namespace JRGSlideShowWPF
                         + "        Mouse Wheel Count: " + MouseWheelCount + Environment.NewLine
                         + "Mouse Wheel missed OneInt: " + MouseOneIntCount + Environment.NewLine
                         + "          ImageIdxListPtr: " + ImageIdxListPtr + Environment.NewLine
+                        + "     Image time to decode: " + imageTimeToDecode.ElapsedTicks + Environment.NewLine   
                         + "             Total Images: " + ImageList.Length
                         );
                 }

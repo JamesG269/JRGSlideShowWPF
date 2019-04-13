@@ -11,9 +11,9 @@ namespace JRGSlideShowWPF
 {
     public partial class MainWindow : Window
     {
-        String[] ImageList;
+        FileInfo[] ImageList;
 
-        List<string> NewImageList = new List<string>();
+        List<FileInfo> NewImageList = new List<FileInfo>();
 
         int[] ImageIdxList;
 
@@ -97,8 +97,9 @@ namespace JRGSlideShowWPF
                         {
                             NewImageList = null;
                             return;
-                        }
-                        var fs = Directory.GetFiles(currentDir, filter);
+                        }                        
+                        DirectoryInfo dirInfo = new DirectoryInfo(currentDir);
+                        FileInfo[] fs = dirInfo.GetFiles(filter);
                         NewImageList.AddRange(fs);
                         if (fs.Length > 0)
                         {

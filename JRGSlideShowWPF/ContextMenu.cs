@@ -6,6 +6,7 @@ using System.Windows;
 using MessageBox = System.Windows.MessageBox;
 using Shell32;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace JRGSlideShowWPF
 {
@@ -64,6 +65,37 @@ namespace JRGSlideShowWPF
             PauseRestore();
             Interlocked.Exchange(ref OneInt, 0);
         }
+        private async void Benchmark_Click(object sender, RoutedEventArgs e)
+        {
+            int imagesLimit = 400;
+            if (ImageList.Length < imagesLimit)
+            {
+                imagesLimit = ImageList.Length;
+            }
+            Stopwatch benchmark = new Stopwatch();
+            ImageIdxListPtr = 0;
+            imagesDisplayed = 0;
+            Randomize = false;
+            
+            while (0 != Interlocked.Exchange(ref OneInt, 1))
+            {
+                await Task.Delay(1);
+            }
+            if (ImageListReady == true)
+            {
+                PauseSave();
+                benchmark.Start();
+                while (imagesDisplayed < imagesLimit)
+                {
+                    await Task.Run(() => LoadNextImage(1));
+                    DisplayCurrentImage();
+                }
+                benchmark.Stop();
+                PauseRestore();
+            }            
+            Interlocked.Exchange(ref OneInt, 0);
+            MessageBox.Show("Benchmark - Images displayed: " + imagesDisplayed + " Milliseconds: " + benchmark.ElapsedMilliseconds + " Ticks: " + benchmark.ElapsedTicks);
+        }
         private void ContextMenuExit(object sender, RoutedEventArgs e)
         {
             Close();
@@ -101,7 +133,7 @@ namespace JRGSlideShowWPF
             if (ImageIdxListDeletePtr != -1 && ImageIdxList[ImageIdxListDeletePtr] != -1)
             {                
                 string destPath = "";
-                string sourcePath = ImageList[ImageIdxList[ImageIdxListDeletePtr]];
+                string sourcePath = ImageList[ImageIdxList[ImageIdxListDeletePtr]].FullName;
                 try
                 {
                     destPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
@@ -154,7 +186,7 @@ namespace JRGSlideShowWPF
                     }
                     bitmapImage = null;
                     RecyclingBin.MoveHere(fileName);
-                    if (!File.Exists(fileName))
+                    if (!File.Exists(fileName.FullName))
                     {
                         ImageIdxList[ImageIdxListDeletePtr] = -1;
                         ImagesNotNull--;
