@@ -23,7 +23,9 @@
     </WindowChrome.WindowChrome>
     <Grid Name="Grid1" Background="Black" >
         <Image Height="auto" Margin="0,0,0,0"  Width="auto" Name="ImageControl" RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform"/>
-        <TextBlock Name="TextBlockControl" Text="test" Width="auto" Height="auto" Margin="0,0,0,0" Foreground="Red" Visibility="Hidden" />
+        <TextBlock Name="TextBlockControl" Text="test" Width="auto" Height="auto" Margin="10,0,0,0" Foreground="Red" Visibility="Visible" />
+        <ProgressBar Name="progressBar" HorizontalAlignment="Left" Height="10" Margin="10,20,0,0" VerticalAlignment="Top" Width="100" Minimum="0" Maximum="100" Visibility="Hidden"/>
+
         <Grid.ContextMenu>
             <ContextMenu>
                 <MenuItem Header="Pause" Click="ContextMenuPause"/>

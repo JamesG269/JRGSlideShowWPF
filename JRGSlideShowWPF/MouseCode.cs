@@ -27,8 +27,7 @@ namespace JRGSlideShowWPF
                 return;
             }
             if (e.Delta > 0)
-            {
-                
+            {                
                 await DisplayGetNextImage(1);                             
             }
             else if (e.Delta < 0)

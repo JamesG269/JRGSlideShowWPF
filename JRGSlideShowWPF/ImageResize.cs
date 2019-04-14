@@ -31,7 +31,8 @@ namespace JRGSlideShowWPF
         Stopwatch imageTimeToDecode = new Stopwatch();
         
         BitmapFrame displayPhoto;
-        
+
+        byte[] readBuf = new byte[1000000];
 
         public void ResizeImageCode()
         {
@@ -41,13 +42,20 @@ namespace JRGSlideShowWPF
             GetMaxSize();
             try
             {
-                ErrorMessage = "Resize Error.";                
+                ErrorMessage = "Resize Error.";
+                FileInfo fileInfo = ImageList[ImageIdxList[ImageIdxListPtr]];
+                BitmapDecoder decoder = null;
+                if (fileInfo.Length > 20000000)
+                {
+                    decoder = LoadLargeImage(fileInfo);
+                }
+                else
+                {
+                    memStream = new MemoryStream(File.ReadAllBytes(fileInfo.FullName));
+                    memStream.Seek(0,SeekOrigin.Begin);
 
-                memStream = new MemoryStream(File.ReadAllBytes(ImageList[ImageIdxList[ImageIdxListPtr]].FullName));
-                memStream.Position = 0;
-
-                var decoder = BitmapDecoder.Create(memStream, BitmapCreateOptions.IgnoreColorProfile, BitmapCacheOption.OnDemand);
-                
+                    decoder = BitmapDecoder.Create(memStream, BitmapCreateOptions.IgnoreColorProfile, BitmapCacheOption.OnDemand);
+                }                
                 var photo = decoder.Frames[0];
                 imageOriginalHeight = photo.PixelHeight;
                 imageOriginalWidth = photo.PixelWidth;
@@ -87,29 +95,58 @@ namespace JRGSlideShowWPF
                 string destName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), Path.GetFileName(ImageList[ImageIdxList[ImageIdxListPtr]].FullName));
                 try
                 {
-                    File.Copy(ImageList[ImageIdxList[ImageIdxListPtr]].FullName, destName);
+                    //File.Copy(ImageList[ImageIdxList[ImageIdxListPtr]].FullName, destName);
                     ErrorMessage = destName + " " + ErrorMessage + " Copied successfully. Exception details: " + e.Message;
                 }
                 catch
                 {
                     ErrorMessage = destName + " " + ErrorMessage + " Copy error. Exception details: " + e.Message;
                 }
+            }            
+        }
+
+        private BitmapDecoder LoadLargeImage(FileInfo fileInfo)
+        {
+            BitmapDecoder decoder;
+            Application.Current.Dispatcher.Invoke(new Action(() =>
+            {
+                progressBar.Value = 0;
+                TextBlockControl.Visibility = Visibility.Visible;
+                progressBar.Visibility = Visibility.Visible;
+                TextBlockControl.Text = "Loading large image : " + fileInfo.Name + " Length: " + fileInfo.Length.ToString("N0") + " Bytes";
+
+            }));
+            GC.Collect();
+            FileStream fileStream = new FileStream(fileInfo.FullName, FileMode.Open, FileAccess.Read);
+
+            memStream = new MemoryStream();
+            int readLen = 1000000;
+            int readTotal = 0;
+            while (readTotal < fileInfo.Length && readLen > 0)
+            {
+                int n = fileStream.Read(readBuf, 0, readLen);
+                memStream.Write(readBuf, 0, n);
+                readTotal += n;
+                if ((readTotal + readLen) >= fileInfo.Length)
+                {
+                    readLen = (int)fileInfo.Length - readTotal;
+                }
+                Application.Current.Dispatcher.Invoke(new Action(() =>
+                {
+                    progressBar.Value = Convert.ToInt32(Math.Ceiling(100d * readTotal / (int)fileInfo.Length));
+                }));
             }
-            //GC.Collect();
-            /*
-                bitmapImage = new BitmapImage();
-                bitmapImage.BeginInit();
-                bitmapImage.DecodePixelHeight = 1080;
-                bitmapImage.StreamSource = memStream;
-                bitmapImage.CacheOption = BitmapCacheOption.None;
-                bitmapImage.CreateOptions = BitmapCreateOptions.IgnoreColorProfile;
-                bitmapImage.EndInit();
-                bitmapImage.Freeze();
-                DisplayPicInfoDpiX = (int)bitmapImage.DpiX;
-                DisplayPicInfoDpiY = (int)bitmapImage.DpiY;
-                DisplayPicInfoHeight = bitmapImage.PixelHeight;
-                DisplayPicInfoWidth = bitmapImage.PixelWidth;
-                return;*/
+            fileStream.Close();
+            fileStream.Dispose();
+            GC.Collect();
+            memStream.Seek(0, SeekOrigin.Begin);
+            decoder = BitmapDecoder.Create(memStream, BitmapCreateOptions.IgnoreColorProfile, BitmapCacheOption.OnLoad);
+            Application.Current.Dispatcher.Invoke(new Action(() =>
+            {
+                TextBlockControl.Visibility = Visibility.Hidden;
+                progressBar.Visibility = Visibility.Hidden;
+            }));
+            return decoder;
         }
     }
 }
