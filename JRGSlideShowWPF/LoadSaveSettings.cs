@@ -19,8 +19,20 @@ namespace JRGSlideShowWPF
                 c++;
             }
             dispatcherImageTimer.Interval = new TimeSpan(0, 0, 0, i, c);
-                       
-            if (Properties.Settings.Default.isMaximized)
+
+            string[] args = Environment.GetCommandLineArgs();
+
+            Boolean cmdlineGoFullScreen = false;
+            if (args.Length > 1)
+            {                
+                if (args[1] == "/Fullscreen")
+                {
+                    cmdlineGoFullScreen = true;
+                }
+            }
+
+
+            if (Properties.Settings.Default.isMaximized || cmdlineGoFullScreen )
             {
                 GoFullScreen();                
             }
