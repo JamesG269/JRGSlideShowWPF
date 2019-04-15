@@ -1,4 +1,22 @@
-﻿using System;
+﻿/*
+JRGSlideShowWPF is a slide show program written in C# targetting WPF by James Gentile (jamesraymondgentile@gmail.com), that runs on Windows.
+I wrote this app because other slide show software I tried was lacking in several key areas,
+I wanted the monitor not to sleep (this is like 1 line of code, I can't understand why 
+this is not an option in other slide show apps) and I wanted the ability to delete the
+currently displayed picture which I couldn't find in the others I tried. It is simple to use:
+open the app, select a folder, and it starts playing. 
+
+Functions:
+F1 Key - Picture and technical info.
+Del key - prompt to delete current picture.
+Double click window - maximize or de-maximize.
+Right click window - options such as open folder, randomize/sequential play, change timer, etc.
+Mouse wheel up/down - scroll through picture list.
+Screen will not sleep if the app is full screen.
+
+*/
+
+using System;
 using System.Linq;
 using System.Windows;
 using System.Windows.Forms;
