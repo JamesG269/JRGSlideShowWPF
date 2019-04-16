@@ -17,6 +17,14 @@ namespace JRGSlideShowWPF
 
         public static Folder RecyclingBin = shell.NameSpace(10);
 
+        private readonly CancellationTokenSource _cancelTokenSource = new CancellationTokenSource();
+
+        private void GoogleImageSearch_Click(object sender, RoutedEventArgs e)
+        {
+            Task<string> task = GoogleImageSearch(ImageList[ImageIdxList[ImageIdxListPtr]].FullName, true, true, _cancelTokenSource.Token);
+            task.ContinueWith(OnUploadComplete, TaskScheduler.FromCurrentSynchronizationContext());
+        }
+        
         private async void ContextMenuOpenFolder(object sender, RoutedEventArgs e)
         {
             await OpenDirCheckCancel();
@@ -31,6 +39,7 @@ namespace JRGSlideShowWPF
             {
                 await Task.Delay(1);
             }
+            StartGetFiles_Cancel = false;
             while (0 != Interlocked.Exchange(ref OneInt, 1))
             {
                 await Task.Delay(1);
@@ -49,8 +58,9 @@ namespace JRGSlideShowWPF
             if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 SlideShowDirectory = dialog.SelectedPath;
-                await Task.Run(() => StartGetFiles());
+                await Task.Run(() => StartGetFilesNoInterlock());                
                 DisplayCurrentImage();
+                Play();
             }
             return true;
         }
@@ -170,7 +180,7 @@ namespace JRGSlideShowWPF
                 return;
             }
 
-            var fileName = ImageList[ImageIdxList[ImageIdxListDeletePtr]];
+            var fileName = ImageList[ImageIdxList[ImageIdxListDeletePtr]].FullName;
             var result = MessageBox.Show("Confirm delete: " + fileName, "Confirm delete image.", MessageBoxButton.YesNo);
             if (result == MessageBoxResult.Yes)
             {
@@ -180,13 +190,12 @@ namespace JRGSlideShowWPF
                     {
                         memStream.Dispose();
                     }
-                    if (bitmapImage != null && bitmapImage.StreamSource != null)
-                    {
-                        bitmapImage.StreamSource.Dispose();
-                    }
-                    bitmapImage = null;
+                    memStream = null;                    
+                    displayPhoto = null;
+                    ImageControl.Source = null;
                     RecyclingBin.MoveHere(fileName);
-                    if (!File.Exists(fileName.FullName))
+                    //File.Delete(fileName);
+                    if (!File.Exists(fileName))
                     {
                         ImageIdxList[ImageIdxListDeletePtr] = -1;
                         ImagesNotNull--;
@@ -200,7 +209,7 @@ namespace JRGSlideShowWPF
                 }
                 catch
                 {
-                    MessageBox.Show("Error: Could not delete image.");
+                    MessageBox.Show("Exception: Could not delete image.");
                 }
             }
             if (ImagesNotNull <= 0)

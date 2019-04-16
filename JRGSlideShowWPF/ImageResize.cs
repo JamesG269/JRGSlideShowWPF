@@ -72,6 +72,9 @@ namespace JRGSlideShowWPF
                 }
                 var target = new TransformedBitmap(photo, new ScaleTransform(widthAspect, heightAspect,0,0));                
                 displayPhoto = BitmapFrame.Create(target);
+                photo = null;
+                decoder = null;
+                target = null;
                 displayPhoto.Freeze();
                 DisplayPicInfoDpiX = (int)displayPhoto.DpiX;
                 DisplayPicInfoDpiY = (int)displayPhoto.DpiY;
@@ -86,13 +89,8 @@ namespace JRGSlideShowWPF
             }
             catch (Exception e)
             {
-                ImageError = true;
-                if (bitmapImage != null && bitmapImage.StreamSource != null)
-                {
-                    bitmapImage.StreamSource.Dispose();
-                }
-                bitmapImage = null;
-
+                ImageError = true;                
+                displayPhoto = null;
                 string destName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), Path.GetFileName(ImageList[ImageIdxList[ImageIdxListPtr]].FullName));
                 try
                 {

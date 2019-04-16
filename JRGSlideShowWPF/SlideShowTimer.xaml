@@ -8,8 +8,8 @@
         Title="SlideShowTimer" Height="130.08" Width="292.915">
     <Grid Margin="0,0,0,0">
         <StackPanel Margin="0,10,0,63" Orientation="Horizontal">
-            <TextBox x:Name="TimerTextBox" KeyDown="TimerTextBox_KeyDown" RenderTransformOrigin="2.797,0.506" Width="128" />
-            <Label Content="Enter Timer in Seconds" Height="26" VerticalAlignment="Bottom" />
+            <Label Content="Enter Time in Seconds" Height="26" Margin="0,0" />
+            <TextBox x:Name="TimerTextBox" KeyDown="TimerTextBox_KeyDown" Width="68" />
         </StackPanel>
     </Grid>
 </Window>

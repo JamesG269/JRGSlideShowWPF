@@ -10,9 +10,13 @@
         Title="JRG's SlideShow WPF v1.0" Height="360" Width="640" MouseWheel="MouseWheel2" Background="Black" 
         Icon="cd.ico" Loaded="Window_Loaded" ShowInTaskbar="False" WindowStyle="None" KeyDown="Window_KeyDown"
         MouseLeftButtonUp="OnMouseLeftButtonUp" MouseLeftButtonDown="OnMouseLeftButtonDown" MouseMove="OnMouseMove" WindowStartupLocation="Manual"
+        FontFamily="Courier"
         
-        >
-    
+    >
+
+
+
+
     <WindowChrome.WindowChrome>
         <WindowChrome     
         CaptionHeight="1"  
@@ -21,10 +25,16 @@
         GlassFrameThickness="0">
         </WindowChrome>
     </WindowChrome.WindowChrome>
-    <Grid Name="Grid1" Background="Black" >
+
+    <Grid Name="Grid1" Background="black" >
+
         <Image Height="auto" Margin="0,0,0,0"  Width="auto" Name="ImageControl" RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform"/>
-        <TextBlock Name="TextBlockControl" Text="test" Width="auto" Height="auto" Margin="10,0,0,0" Foreground="Red" Visibility="Visible" />
-        <ProgressBar Name="progressBar" HorizontalAlignment="Left" Height="10" Margin="10,20,0,0" VerticalAlignment="Top" Width="100" Minimum="0" Maximum="100" Visibility="Hidden"/>
+        <TextBlock Name="TextBlockControl" Text="test" Width="auto" Height="auto" Margin="10,0,0,0" Foreground="white" Visibility="Visible" FontSize="20" FontFamily="consolas">
+            <TextBlock.Effect>
+                <DropShadowEffect BlurRadius="10" ShadowDepth="0" Color="Black"/>
+            </TextBlock.Effect>
+        </TextBlock>
+        <ProgressBar Name="progressBar" HorizontalAlignment="Left" Height="16" Margin="10,26,0,0" VerticalAlignment="Top" Width="151" Minimum="0" Maximum="100" Visibility="Visible"/>
 
         <Grid.ContextMenu>
             <ContextMenu>
@@ -40,9 +50,9 @@
                 <MenuItem Header="Randomize" Click="CheckedRandomize" IsCheckable="true" Name="ContextMenuCheckBox"/>
                 <MenuItem Header="Benchmark" Click="Benchmark_Click"/>
                 <MenuItem Header="Image Info" Click="ImageInfo_Click"/>
+                <MenuItem Header="Google Image Search" Click="GoogleImageSearch_Click"/>
                 <MenuItem Header="Exit" Click="ContextMenuExit"/>
             </ContextMenu>
         </Grid.ContextMenu>
     </Grid>
 </Window>
-    

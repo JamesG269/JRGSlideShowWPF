@@ -120,6 +120,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="GoogleImageSearch.cs" />
     <Compile Include="FullScreen.cs" />
     <Compile Include="Keyboard.cs" />
     <Compile Include="LoadSaveSettings.cs" />

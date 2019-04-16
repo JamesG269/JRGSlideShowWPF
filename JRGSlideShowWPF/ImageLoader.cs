@@ -51,7 +51,8 @@ namespace JRGSlideShowWPF
         }        
         private void GetFilesCode()
         {
-            NewImageList.Clear();
+            NewImageList = null;
+            NewImageList = new List<FileInfo>();            
             if (SlideShowDirectory == null || !Directory.Exists(SlideShowDirectory))
             {
                 return;

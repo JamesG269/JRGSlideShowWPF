@@ -61,8 +61,6 @@ namespace JRGSlideShowWPF
         int OneInt = 0;
         int imagesDisplayed = 0;
 
-        public static BitmapImage bitmapImage = null;
-
         FolderBrowserDialog dialog = new FolderBrowserDialog();
 
         IntPtr thisHandle = IntPtr.Zero;
@@ -78,6 +76,9 @@ namespace JRGSlideShowWPF
         {            
             PSource = PresentationSource.FromVisual(this);
             thisHandle = new WindowInteropHelper(this).Handle;
+
+            progressBar.Visibility = Visibility.Hidden;
+            TextBlockControl.Visibility = Visibility.Hidden;
 
             dispatcherImageTimer.Tick += DisplayNextImageTimer;
             dispatcherMouseTimer.Tick += MouseHide;
@@ -97,7 +98,7 @@ namespace JRGSlideShowWPF
                 {
                     await Task.Delay(1);
                 }                
-                await Task.Run(() => StartGetFiles());
+                await Task.Run(() => StartGetFilesNoInterlock());
                 DisplayCurrentImage();
                 Interlocked.Exchange(ref OneInt, 0);
             }                        
@@ -157,6 +158,10 @@ namespace JRGSlideShowWPF
                     ImageIdxListDeletePtr = ImageIdxListPtr;
                     imageTimeToDecode.Stop();
                     imagesDisplayed++;
+                    if (displayingInfo)
+                    {
+                        updateInfo();
+                    }
                 }
                 else
                 {                    
@@ -174,8 +179,17 @@ namespace JRGSlideShowWPF
             await DisplayGetNextImage(1);
         }
 
-        private void StartGetFiles()
+        private async void StartGetFiles()
         {
+            while (0 != Interlocked.Exchange(ref StartGetFilesBW_IsBusy, 1))
+            {
+                await Task.Delay(1);
+            }
+            StartGetFilesNoInterlock();
+            Interlocked.Exchange(ref StartGetFilesBW_IsBusy, 0);
+        }
+        private async void StartGetFilesNoInterlock()
+        { 
             Boolean ImageListReadyBackup = ImageListReady;
             ImageListReady = false;
             StartGetFiles_Cancel = false;
@@ -191,14 +205,15 @@ namespace JRGSlideShowWPF
                     i++;
                 }
                 ImagesNotNull = ImageList.Length;
-                CreateIdxListCode();                
+                CreateIdxListCode();
+                imageTimeToDecode.Restart();
                 ResizeImageCode();
                 ImageListReady = true;                                
             }
             else
             {
                 ImageListReady = ImageListReadyBackup;
-            }            
+            }
         }
 
         private void GetMaxSize()
@@ -268,7 +283,8 @@ namespace JRGSlideShowWPF
         }
 
         protected override async void OnClosing(CancelEventArgs e)
-        {            
+        {
+            _cancelTokenSource.Cancel();
             Stop();
             if (NIcon != null)
             {
@@ -286,5 +302,6 @@ namespace JRGSlideShowWPF
             base.OnClosing(e);
         }
 
+        
     }
 }
