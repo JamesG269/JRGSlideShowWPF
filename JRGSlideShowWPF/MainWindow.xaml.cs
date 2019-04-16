@@ -294,8 +294,6 @@ namespace JRGSlideShowWPF
                 SaveSettings();
             }                        
             base.OnClosing(e);
-        }
-
-        
+        } 
     }
 }
