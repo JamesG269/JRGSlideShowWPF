@@ -46,7 +46,7 @@ namespace JRGSlideShowWPF
             ES_SYSTEM_REQUIRED = 0x00000001
         }
 
-        const string version = "1.1";
+        const string version = "1.2";
 
         System.Windows.Threading.DispatcherTimer dispatcherImageTimer = new System.Windows.Threading.DispatcherTimer();
         System.Windows.Threading.DispatcherTimer dispatcherMouseTimer = new System.Windows.Threading.DispatcherTimer();
@@ -93,14 +93,9 @@ namespace JRGSlideShowWPF
                 await OpenDirCheckCancel();
             }
             else
-            {
-                while (0 != Interlocked.Exchange(ref OneInt, 1))
-                {
-                    await Task.Delay(1);
-                }                
-                await Task.Run(() => StartGetFilesNoInterlock());
+            {                             
+                await Task.Run(() => StartGetFiles());
                 DisplayCurrentImage();
-                Interlocked.Exchange(ref OneInt, 0);
             }                        
             Play();
         }
@@ -147,16 +142,14 @@ namespace JRGSlideShowWPF
         private void DisplayCurrentImage()
         {
             if (ImageReady == true)
-            {
-                ImageReady = false;
-                Boolean timerenabled = dispatcherImageTimer.IsEnabled;
-                dispatcherImageTimer.Stop();                
+            {            
                 if (ImageError == false)
                 {
                     ImageIdxListDeletePtr = -1;
                     ImageControl.Source = displayPhoto;                   
-                    ImageIdxListDeletePtr = ImageIdxListPtr;
                     imageTimeToDecode.Stop();
+                    ImageIdxListDeletePtr = ImageIdxListPtr;
+                    ImageReady = false;
                     imagesDisplayed++;
                     if (displayingInfo)
                     {
@@ -166,11 +159,7 @@ namespace JRGSlideShowWPF
                 else
                 {                    
                     MessageBox.Show(ErrorMessage);                                       
-                }                
-                if (timerenabled)
-                {
-                    dispatcherImageTimer.Start();
-                }
+                }                                
             }
         }
 
@@ -181,14 +170,19 @@ namespace JRGSlideShowWPF
 
         private async void StartGetFiles()
         {
+            while (0 != Interlocked.Exchange(ref OneInt, 1))
+            {
+                await Task.Delay(1);
+            }
             while (0 != Interlocked.Exchange(ref StartGetFilesBW_IsBusy, 1))
             {
                 await Task.Delay(1);
             }
             StartGetFilesNoInterlock();
             Interlocked.Exchange(ref StartGetFilesBW_IsBusy, 0);
+            Interlocked.Exchange(ref OneInt, 0);
         }
-        private async void StartGetFilesNoInterlock()
+        private void StartGetFilesNoInterlock()
         { 
             Boolean ImageListReadyBackup = ImageListReady;
             ImageListReady = false;
