@@ -23,7 +23,7 @@ namespace JRGSlideShowWPF
 
         Boolean ImageError = false;
 
-        MemoryStream memStream;
+        public MemoryStream memStream;
         public string ErrorMessage = "";
 
         double widthAspect;

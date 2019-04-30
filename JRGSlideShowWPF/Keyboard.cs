@@ -59,21 +59,22 @@ namespace JRGSlideShowWPF
             if (ImageIdxListDeletePtr != -1 && ImageIdxList[ImageIdxListDeletePtr] != -1)
             {
                 FileInfo imageInfo = ImageList[ImageIdxList[ImageIdxListDeletePtr]];
-
+                var s = string.Format("{0:0.0}", (decimal)((decimal)imageTimeToDecode.ElapsedTicks / (decimal)10000));
                 StringBuilder sb = new StringBuilder();
                 sb.Append(
-                      "      JRGSlideShowWPF Ver: " + version + System.Environment.NewLine
-                    + "                     Name: " + imageInfo.Name + System.Environment.NewLine
-                    + "                   Length: " + imageInfo.Length.ToString("N0") + " Bytes" + Environment.NewLine
-                    + "       Current Resolution: " + DisplayPicInfoWidth + " x " + DisplayPicInfoHeight + Environment.NewLine
-                    + "      Original Resolution: " + imageOriginalWidth + " x " + imageOriginalHeight + Environment.NewLine
-                    + "                     DpiX: " + DisplayPicInfoDpiX + Environment.NewLine
-                    + "                     DpiY: " + DisplayPicInfoDpiY + Environment.NewLine
-                    + "        Mouse Wheel Count: " + MouseWheelCount + Environment.NewLine
-                    + "Mouse Wheel missed OneInt: " + MouseOneIntCount + Environment.NewLine
-                    + "          ImageIdxListPtr: " + ImageIdxListPtr + Environment.NewLine
-                    + "     Image time to decode: " + imageTimeToDecode.ElapsedTicks + Environment.NewLine
-                    + "             Total Images: " + ImagesNotNull);
+                      "         JRGSlideShowWPF Ver: " + version + System.Environment.NewLine
+                    + "                        Name: " + imageInfo.Name + System.Environment.NewLine
+                    + "                      Length: " + imageInfo.Length.ToString("N0") + " Bytes" + Environment.NewLine
+                    + "          Current Resolution: " + DisplayPicInfoWidth + " x " + DisplayPicInfoHeight + Environment.NewLine
+                    + "         Original Resolution: " + imageOriginalWidth + " x " + imageOriginalHeight + Environment.NewLine
+                    + "                        DpiX: " + DisplayPicInfoDpiX + Environment.NewLine
+                    + "                        DpiY: " + DisplayPicInfoDpiY + Environment.NewLine
+                    + "           Mouse Wheel Count: " + MouseWheelCount + Environment.NewLine
+                    + "   Mouse Wheel missed OneInt: " + MouseOneIntCount + Environment.NewLine
+                    + "             ImageIdxListPtr: " + ImageIdxListPtr + Environment.NewLine
+                    + "Image time to decode (ticks): " + imageTimeToDecode.ElapsedTicks + Environment.NewLine
+                    + "   Image time to decode (ms): " + s + Environment.NewLine
+                    + "                Total Images: " + ImagesNotNull);
 
                 TextBlockControl.Text = sb.ToString();
             }

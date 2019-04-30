@@ -17,10 +17,8 @@ Screen will not sleep if the app is full screen.
 */
 
 using System;
-using System.Linq;
 using System.Windows;
 using System.Windows.Forms;
-using System.Windows.Media.Imaging;
 using System.ComponentModel;
 using System.Windows.Interop;
 using System.Threading;
@@ -28,8 +26,7 @@ using System.IO;
 using MessageBox = System.Windows.MessageBox;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using System.Windows.Media;
-using System.Diagnostics;
+
 
 namespace JRGSlideShowWPF
 {

@@ -19,10 +19,16 @@ namespace JRGSlideShowWPF
 
         private readonly CancellationTokenSource _cancelTokenSource = new CancellationTokenSource();
 
-        private void GoogleImageSearch_Click(object sender, RoutedEventArgs e)
+        private async void GoogleImageSearch_Click(object sender, RoutedEventArgs e)
         {
-            Task<string> task = GoogleImageSearch(ImageList[ImageIdxList[ImageIdxListPtr]].FullName, true, true, _cancelTokenSource.Token);
-            task.ContinueWith(OnUploadComplete, TaskScheduler.FromCurrentSynchronizationContext());
+            while (0 != Interlocked.Exchange(ref OneInt, 1))
+            {
+                await Task.Delay(1);
+            }
+            PauseSave();
+            await Task.Run(() => GoogleImageSearch(ImageList[ImageIdxList[ImageIdxListPtr]].FullName, true, _cancelTokenSource.Token));
+            PauseRestore();
+            Interlocked.Exchange(ref OneInt, 0);
         }
         
         private async void ContextMenuOpenFolder(object sender, RoutedEventArgs e)
@@ -85,8 +91,12 @@ namespace JRGSlideShowWPF
             Stopwatch benchmark = new Stopwatch();
             ImageIdxListPtr = 0;
             imagesDisplayed = 0;
-            Randomize = false;
-            
+            var backuprandomize = Randomize;
+            if (Randomize == true)
+            {
+                Randomize = false;
+                await Task.Run(() => CreateIdxListCode());
+            }
             while (0 != Interlocked.Exchange(ref OneInt, 1))
             {
                 await Task.Delay(1);
@@ -102,7 +112,12 @@ namespace JRGSlideShowWPF
                 }
                 benchmark.Stop();
                 PauseRestore();
-            }            
+            }
+            if (backuprandomize == true)
+            {
+                Randomize = backuprandomize;
+                await Task.Run(() => CreateIdxListCode());
+            }
             Interlocked.Exchange(ref OneInt, 0);
             MessageBox.Show("Benchmark - Images displayed: " + imagesDisplayed + " Milliseconds: " + benchmark.ElapsedMilliseconds + " Ticks: " + benchmark.ElapsedTicks);
         }
