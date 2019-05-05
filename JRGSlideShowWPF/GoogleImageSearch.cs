@@ -46,19 +46,17 @@ namespace JRGSlideShowWPF
                     form.Add(new StringContent(Path.GetFileName(imagePath)), "filename");
                 }
                 var response = await client.PostAsync("https://images.google.com/searchbyimage/upload", form, cancelToken);
+                if (cancelToken.IsCancellationRequested)
+                {
+                    return;
+                }
                 if (response.StatusCode != HttpStatusCode.Redirect)
                 {
-                    throw new IOException("Expected redirect to results page, got " + (int)response.StatusCode);
-                }
-                try
-                {
-                    string resultUrl = response.Headers.Location.ToString();
-                    TryOpenBrowser(resultUrl);
-                }
-                catch (Exception e)
-                {
-                    MessageBox.Show("http exception: " + e.InnerException.Message);
-                }
+                    MessageBox.Show("Expected redirect to results page, got " + (int)response.StatusCode);
+                    return;
+                }                
+                string resultUrl = response.Headers.Location.ToString();
+                TryOpenBrowser(resultUrl);                               
             }
         }
 
