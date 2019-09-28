@@ -26,7 +26,7 @@ using System.IO;
 using MessageBox = System.Windows.MessageBox;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-
+using System.Runtime;
 
 namespace JRGSlideShowWPF
 {
@@ -70,7 +70,8 @@ namespace JRGSlideShowWPF
         }
 
         private async void Window_Loaded(object sender, RoutedEventArgs e)
-        {            
+        {
+            GCSettings.LatencyMode = GCLatencyMode.LowLatency;
             PSource = PresentationSource.FromVisual(this);
             thisHandle = new WindowInteropHelper(this).Handle;
 
