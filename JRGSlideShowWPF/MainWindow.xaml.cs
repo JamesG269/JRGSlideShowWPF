@@ -27,6 +27,8 @@ using MessageBox = System.Windows.MessageBox;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Runtime;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace JRGSlideShowWPF
 {
@@ -43,7 +45,7 @@ namespace JRGSlideShowWPF
             ES_SYSTEM_REQUIRED = 0x00000001
         }
 
-        const string version = "1.2";
+        const string version = "1.3";
 
         System.Windows.Threading.DispatcherTimer dispatcherImageTimer = new System.Windows.Threading.DispatcherTimer();
         System.Windows.Threading.DispatcherTimer dispatcherMouseTimer = new System.Windows.Threading.DispatcherTimer();
@@ -63,6 +65,8 @@ namespace JRGSlideShowWPF
         IntPtr thisHandle = IntPtr.Zero;
 
         PresentationSource PSource = null;
+
+        Stack<bool> pauseStack = new Stack<bool>();
 
         public MainWindow()
         {
@@ -104,20 +108,28 @@ namespace JRGSlideShowWPF
             {
                 await Task.Delay(1);
             }
-            if (ImageListReady == true && Paused == 0)
+            if (Paused == false)
+            {
+                await DisplayGetNextImageWithoutCheck(i);
+            }            
+            Interlocked.Exchange(ref OneInt, 0);
+        }
+
+        private async Task DisplayGetNextImageWithoutCheck(int i)
+        {
+            if (ImageListReady == true)
             {
                 PauseSave();
                 await Task.Run(() => LoadNextImage(i));
                 DisplayCurrentImage();
                 PauseRestore();
             }
-            Interlocked.Exchange(ref OneInt, 0);
         }
 
         private void LoadNextImage(int i)
         {            
             do
-            {
+            {                
                 if (Randomize == true)
                 {
                     if (ImageIdxListPtr == 0 && i == -1)
@@ -128,10 +140,10 @@ namespace JRGSlideShowWPF
                     {
                         EncryptIdxListCode();
                     }
-                }
-                ImageIdxListPtr += i;
+                }                
+                ImageIdxListPtr += i;                            
                 ImageIdxListPtr = ((ImageIdxListPtr % ImageIdxList.Length) + ImageIdxList.Length) % ImageIdxList.Length;
-
+                
             } while (ImageIdxList[ImageIdxListPtr] == -1);
             imageTimeToDecode.Restart();
             ResizeImageCode();            
@@ -155,8 +167,9 @@ namespace JRGSlideShowWPF
                     }
                 }
                 else
-                {                    
-                    MessageBox.Show(ErrorMessage);                                       
+                {
+                    MessageBox.Show(ErrorMessage); 
+                    //copydeleteworker();
                 }                                
             }
         }
@@ -213,31 +226,25 @@ namespace JRGSlideShowWPF
             var bounds = Screen.FromHandle(thisHandle).Bounds;
             ScreenMaxHeight = bounds.Height;
             ScreenMaxWidth = bounds.Width;
-        }
-
-        Boolean OldSlow;
-        int Paused = 0;
+        }        
+        Boolean Paused = false;
         private void PauseSave()
-        {            
-            if (Paused > 0)
-            {
-                return;
-            }
-            Paused++;
-            OldSlow = dispatcherImageTimer.IsEnabled;
+        {
+            pauseStack.Push(dispatcherImageTimer.IsEnabled);
             Stop();
+            Paused = true;
         }
         private void PauseRestore()
-        {
-            Paused--;
-            if (Paused > 0)
+        {            
+            if (pauseStack.Count == 0)
             {
                 return;
             }
-            Paused = 0;
-            if (OldSlow == true)
+            bool playState = pauseStack.Pop();
+            if (playState)
             {
                 Play();
+                Paused = false;
             }
         }
         private void Stop()

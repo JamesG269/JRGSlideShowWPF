@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Runtime.InteropServices;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
@@ -26,14 +28,19 @@ namespace JRGSlideShowWPF
                 MouseOneIntCount++;
                 return;
             }
+            while (0 != Interlocked.Exchange(ref OneInt, 1))
+            {
+                await Task.Delay(1);
+            }            
             if (e.Delta > 0)
             {                
-                await DisplayGetNextImage(1);                             
+                await DisplayGetNextImageWithoutCheck(1);                             
             }
             else if (e.Delta < 0)
             {
-                await DisplayGetNextImage(-1);
+                await DisplayGetNextImageWithoutCheck(-1);
             }
+            Interlocked.Exchange(ref OneInt, 0);
         }
 
         Boolean MouseLeftDown = false;

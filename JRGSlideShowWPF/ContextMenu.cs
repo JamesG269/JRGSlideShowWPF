@@ -101,23 +101,23 @@ namespace JRGSlideShowWPF
             {
                 await Task.Delay(1);
             }
+            PauseSave();
             if (ImageListReady == true)
-            {
-                PauseSave();
+            {                
                 benchmark.Start();
                 while (imagesDisplayed < imagesLimit)
                 {
                     await Task.Run(() => LoadNextImage(1));
                     DisplayCurrentImage();
                 }
-                benchmark.Stop();
-                PauseRestore();
+                benchmark.Stop();                
             }
             if (backuprandomize == true)
             {
                 Randomize = backuprandomize;
                 await Task.Run(() => CreateIdxListCode());
             }
+            PauseRestore();
             Interlocked.Exchange(ref OneInt, 0);
             MessageBox.Show("Benchmark - Images displayed: " + imagesDisplayed + " Milliseconds: " + benchmark.ElapsedMilliseconds + " Ticks: " + benchmark.ElapsedTicks);
         }
@@ -127,23 +127,34 @@ namespace JRGSlideShowWPF
         }
         private async void ContextMenuNext(object sender, RoutedEventArgs e)
         {
-            await DisplayGetNextImage(1);
+            while (0 != Interlocked.Exchange(ref OneInt, 1))
+            {
+                await Task.Delay(1);
+            }
+            await DisplayGetNextImageWithoutCheck(1);            
+            Interlocked.Exchange(ref OneInt, 0);
         }
 
         private async void ContextMenuPrev(object sender, RoutedEventArgs e)
         {
-            await DisplayGetNextImage(-1);
+            while (0 != Interlocked.Exchange(ref OneInt, 1))
+            {
+                await Task.Delay(1);
+            }
+            await DisplayGetNextImageWithoutCheck(-1);
+            Interlocked.Exchange(ref OneInt, 0);
         }
         private void ContextMenuPause(object sender, RoutedEventArgs e)
         {
-            PauseSave();
+            if (Paused == false)
+            {
+                PauseSave();
+            }
         }
-
         private void ContextMenuPlay(object sender, RoutedEventArgs e)
         {
             PauseRestore();
         }
-
         private async void ContextMenuCopyDelete(object sender, RoutedEventArgs e)
         {
             await CopyDeleteCode();
@@ -154,9 +165,17 @@ namespace JRGSlideShowWPF
             while (0 != Interlocked.Exchange(ref OneInt, 1))
             {
                 await Task.Delay(1);
-            }            
+            }
+            copydeleteworker();
+            PauseRestore();
+            Interlocked.Exchange(ref OneInt, 0);
+            return true;
+        }
+
+        private void copydeleteworker()
+        {
             if (ImageIdxListDeletePtr != -1 && ImageIdxList[ImageIdxListDeletePtr] != -1)
-            {                
+            {
                 string destPath = "";
                 string sourcePath = ImageList[ImageIdxList[ImageIdxListDeletePtr]].FullName;
                 try
@@ -172,9 +191,6 @@ namespace JRGSlideShowWPF
                     MessageBox.Show("Error: image not copied to " + destPath);
                 }
             }
-            PauseRestore();
-            Interlocked.Exchange(ref OneInt, 0);
-            return true;
         }
 
         private async void ContextMenuDelete(object sender, RoutedEventArgs e)
