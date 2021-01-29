@@ -97,11 +97,8 @@ namespace JRGSlideShowWPF
         }
         private async void Benchmark_Click(object sender, RoutedEventArgs e)
         {
-            int imagesLimit = 400;
-            if (ImageList.Length < imagesLimit)
-            {
-                imagesLimit = ImageList.Length;
-            }
+            int imagesLimit = ImageList.Length;
+            
             Stopwatch benchmark = new Stopwatch();
             ImageIdxListPtr = 0;
             imagesDisplayed = 0;

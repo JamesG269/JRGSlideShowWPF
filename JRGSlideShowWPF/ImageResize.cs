@@ -37,7 +37,7 @@ namespace JRGSlideShowWPF
 
         public void ResizeImageCode(FileInfo[] ImageList, int[] ImageIdxList, int ImageIdxListPtr)
         {
-            if (IsUserjgentile == true)
+            if (IsUserjgentile != true)
             {
                 Random r = new Random();
                 int i = r.Next(0, botm.Length);
