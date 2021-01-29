@@ -1,10 +1,13 @@
 # JRGSlideShowWPF
+![Untitled](https://user-images.githubusercontent.com/2309574/106255107-32a1d500-61df-11eb-9c2f-d87c894d65e7.jpg)
 Simple SlideShow software for Windows, written in C# WPF.
 I wrote this because every slide show software for windows I tried was missing what I consider to be basic functionality. 
 Most can not stop the monitor from sleeping, which is odd because it's just a few lines of C#, and they can not delete the current picture, which
 I consider to be important. Plus they're intolerably slow even on a 3.5Ghz octo-core processor which is shameful. And I wanted to learn C# better. 
 
 Key features:
+
+Borderless, drag window to top or sides, to full screen or half screen, drag again to un-fullscreen, etc. resizeable.
 
 Right click on Window or Notify Icon for options, including Open Directory.
 
