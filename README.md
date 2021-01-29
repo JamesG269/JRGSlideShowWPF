@@ -21,5 +21,4 @@ Can stop monitor from Sleeping.
 Has google picture lookup.
 
 Written for Multithreadedness and Performanance. Every time I add code, I test performance and benchmark as if it were a 3D game. 
-Most slide show programs I tried are 1-2 pictures a second. This one includes a benchmark mode, and it can display 400 high quality jpegs in 11 seconds. 
-(the pictures I tested are 500k - 3MB typically, and are stored on a Samsung 850 512GB SSD, the test bed cpu is a 5960x 8-core but most of the code executes on 2 threads since I couldn't find a good way to use more threads). Even though most people would not consider performance of a slide show program to be important at first thought, it's annoying to use slide software that is just unnecessarily slow, the functions seem too simple for the dog slow performance I find in most of them.
+It includes a benchmark mode, and it can display 700 high quality jpegs in 18 seconds which is twice the speed what I could get out of Xnview MP x64 with the same images.
