@@ -1,5 +1,5 @@
 # JRGSlideShowWPF
-![Untitled](https://user-images.githubusercontent.com/2309574/106255107-32a1d500-61df-11eb-9c2f-d87c894d65e7.jpg)
+![Untitled](https://user-images.githubusercontent.com/2309574/106255569-cf647280-61df-11eb-8ade-9da6694570b9.jpg)
 Simple SlideShow software for Windows, written in C# WPF.
 I wrote this because every slide show software for windows I tried was missing what I consider to be basic functionality. 
 Most can not stop the monitor from sleeping, which is odd because it's just a few lines of C#, and they can not delete the current picture, which
