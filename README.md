@@ -5,6 +5,7 @@ Most can not stop the monitor from sleeping, which is odd because it's just a fe
 I consider to be important. Plus they're intolerably slow even on a 3.5Ghz octo-core processor which is shameful. And I wanted to learn C# better. 
 
 Key features:
+
 Right click on Window or Notify Icon for options, including Open Directory.
 
 Double click or drag to top of monitor to full screen.
