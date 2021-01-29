@@ -8,15 +8,9 @@
         mc:Ignorable="d"
         AllowsTransparency="True"                
         Title="JRG's SlideShow WPF v1.0" Height="360" Width="640" MouseWheel="MouseWheel2" Background="Black" 
-        Icon="cd.ico" Loaded="Window_Loaded" ShowInTaskbar="False" WindowStyle="None" KeyDown="Window_KeyDown"
+        Icon="cd.ico" ContentRendered="Window_ContentRendered" ShowInTaskbar="False" WindowStyle="None" KeyDown="Window_KeyDown"
         MouseLeftButtonUp="OnMouseLeftButtonUp" MouseLeftButtonDown="OnMouseLeftButtonDown" MouseMove="OnMouseMove" WindowStartupLocation="Manual"
-        FontFamily="Courier"
-        
-    >
-
-
-
-
+        FontFamily="Courier">
     <WindowChrome.WindowChrome>
         <WindowChrome     
         CaptionHeight="1"  
@@ -29,13 +23,17 @@
     <Grid Name="Grid1" Background="black" >
 
         <Image Height="auto" Margin="0,0,0,0"  Width="auto" Name="ImageControl" RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform"/>
-        <TextBlock Name="TextBlockControl" Text="test" Width="auto" Height="auto" Margin="10,0,0,0" Foreground="white" Visibility="Visible" FontSize="20" FontFamily="consolas">
+        <TextBlock Name="TextBlockControl" Text="" Width="auto" Height="auto" Margin="10,0,0,0" Foreground="white" Visibility="Visible" FontSize="20" FontFamily="consolas">
+            <TextBlock.Effect>
+                <DropShadowEffect BlurRadius="10" ShadowDepth="0" Color="Black"/>
+            </TextBlock.Effect>
+        </TextBlock>
+        <TextBlock Name="TextBlockControl2" Text="" Width="auto" Height="auto" Margin="10,10,10,69" Foreground="LightGreen" Visibility="Visible" FontSize="40" FontFamily="consolas">
             <TextBlock.Effect>
                 <DropShadowEffect BlurRadius="10" ShadowDepth="0" Color="Black"/>
             </TextBlock.Effect>
         </TextBlock>
         <ProgressBar Name="progressBar" HorizontalAlignment="Left" Height="16" Margin="10,26,0,0" VerticalAlignment="Top" Width="151" Minimum="0" Maximum="100" Visibility="Visible"/>
-
         <Grid.ContextMenu>
             <ContextMenu>
                 <MenuItem Header="Pause" Click="ContextMenuPause"/>
@@ -43,8 +41,8 @@
                 <MenuItem Header="Next" Click="ContextMenuNext"/>
                 <MenuItem Header="Previous" Click="ContextMenuPrev"/>
                 <MenuItem Header="Delete" Click="ContextMenuDelete"/>
-                <MenuItem Header="Copy and Delete" Click="ContextMenuCopyDelete"/>
                 <MenuItem Header="Open Folder" Click="ContextMenuOpenFolder"/>
+                <MenuItem Header="Private Mode" IsCheckable="True" Name="PrivateModeCheckBox" />
                 <MenuItem Header="Change Timer" Click="ContextMenuChangeTimer"/>
                 <MenuItem Header="Full Screen Toggle" Click="ContextMenuFullScreen"/>
                 <MenuItem Header="Randomize" Click="CheckedRandomize" IsCheckable="true" Name="ContextMenuCheckBox"/>

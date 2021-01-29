@@ -48,8 +48,8 @@ namespace JRGSlideShowWPF
         {
             if (MouseHidden == false)
             {
-                dispatcherMouseTimer.Stop();
-                dispatcherMouseTimer.Start();
+                dispatcherPureSense.Stop();
+                dispatcherPureSense.Start();
             }
             if (e.ClickCount == 2)
             {
@@ -119,9 +119,10 @@ namespace JRGSlideShowWPF
                 }
                 lastMovePosition = currentPosition;
             }
-            if (isMaximized && !MouseHidden)
+            if (isMaximized)
             {
-                dispatcherMouseTimer.Start();
+                dispatcherPureSense.Stop();
+                dispatcherPureSense.Start();
             }
         }
 
@@ -146,8 +147,13 @@ namespace JRGSlideShowWPF
                 }
                 MouseHidden = true;
                 this.Cursor = System.Windows.Input.Cursors.None;
+                dispatcherPureSense.Stop();
             }
-            dispatcherMouseTimer.Stop();
+            else
+            {
+                dispatcherPureSense.Stop();
+                dispatcherPureSense.Start();
+            }            
         }
 
         private void OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)

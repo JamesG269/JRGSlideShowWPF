@@ -34,7 +34,7 @@ namespace JRGSlideShowWPF
                     ImageIdxList[i] = i;
                 }
                 ImageIdxListPtr = 0;
-                if (Randomize == true)
+                if (RandomizeNotFinishedIHaveToLOL == true)
                 {
                     InitRNGKeys();
                     EncryptIdxListCode();
@@ -53,21 +53,18 @@ namespace JRGSlideShowWPF
         {
             NewImageList = null;
             NewImageList = new List<FileInfo>();            
-            if (SlideShowDirectory == null || !Directory.Exists(SlideShowDirectory))
+            if (string.IsNullOrEmpty(SlideShowDirectory) || !Directory.Exists(SlideShowDirectory))
             {
                 return;
             }
             Application.Current.Dispatcher.Invoke(new Action(() => {
                 TextBlockControl.Visibility = Visibility.Visible;
                 TextBlockControl.Text = "Finding images...";
-            }));
-            
+            }));            
             GetFiles(SlideShowDirectory, "*.jpg;*.jpeg;*.png;*.bmp;*.gif;*.tif;*.tiff;*.webp");
-            
-            Application.Current.Dispatcher.Invoke(new Action(() => {
-                TextBlockControl.Visibility = Visibility.Hidden;
-            }));
+            StartTurnOffTextBoxDisplayTimer(NewImageList.Count() + " images found.", 5);            
         }
+        
         
         public void GetFiles(string path, string searchPattern)
         {

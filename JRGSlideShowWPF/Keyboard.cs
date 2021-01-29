@@ -30,9 +30,24 @@ namespace JRGSlideShowWPF
                 {
                     await Task.Delay(1);
                 }
-                DeleteNoInterlock();
+                await DeleteNoInterlock();
                 PauseRestore();
                 Interlocked.Exchange(ref OneInt, 0);
+            }
+            else if (e.Key == Key.Insert)
+            {
+                PauseSave();
+                while (0 != Interlocked.Exchange(ref OneInt, 1))
+                {
+                    await Task.Delay(1);
+                }
+                Undelete();
+                PauseRestore();
+                Interlocked.Exchange(ref OneInt, 0);
+            }
+            else if (e.Key == Key.Enter)
+            {
+                await DisplayGetNextImage(1);
             }
         }
         public bool displayingInfo = false;
@@ -74,7 +89,9 @@ namespace JRGSlideShowWPF
                     + "             ImageIdxListPtr: " + ImageIdxListPtr + Environment.NewLine
                     + "Image time to decode (ticks): " + imageTimeToDecode.ElapsedTicks + Environment.NewLine
                     + "   Image time to decode (ms): " + s + Environment.NewLine
-                    + "                Total Images: " + ImagesNotNull);
+                    + "                Total Images: " + ImagesNotNull + Environment.NewLine
+                    + "     Pictures undelete count: " + DeletedFiles.Count
+                    );
 
                 TextBlockControl.Text = sb.ToString();
             }

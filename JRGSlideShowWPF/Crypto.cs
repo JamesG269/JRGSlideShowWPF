@@ -29,7 +29,7 @@ namespace JRGSlideShowWPF
             {
                 EncryptRNG();
                 second = GetRNGIndex();
-                second = ((second % ImageIdxList.Length) + ImageIdxList.Length) % ImageIdxList.Length;
+                second = ((second % ImageIdxList.Length) + ImageIdxList.Length) % ImageIdxList.Length;                
                 temp = ImageIdxList[i];
                 ImageIdxList[i] = ImageIdxList[second];
                 ImageIdxList[second] = temp;
@@ -43,7 +43,7 @@ namespace JRGSlideShowWPF
             {
                 second = GetRNGIndex();
                 DecryptRNG();
-                second = ((second % ImageIdxList.Length) + ImageIdxList.Length) % ImageIdxList.Length;
+                second = ((second % ImageIdxList.Length) + ImageIdxList.Length) % ImageIdxList.Length;                
                 temp = ImageIdxList[i];
                 ImageIdxList[i] = ImageIdxList[second];
                 ImageIdxList[second] = temp;

@@ -7,6 +7,8 @@ using MessageBox = System.Windows.MessageBox;
 using Shell32;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using System.Collections;
+using System.Linq;
 
 namespace JRGSlideShowWPF
 {
@@ -21,16 +23,28 @@ namespace JRGSlideShowWPF
 
         private async void GoogleImageSearch_Click(object sender, RoutedEventArgs e)
         {
+            if (PrivateModeCheckBox.IsChecked == true)
+            {
+                MessageBox.Show("Private Mode is enabled, google search not done.");
+                return;
+            }
             while (0 != Interlocked.Exchange(ref OneInt, 1))
             {
                 await Task.Delay(1);
             }
-            PauseSave();
-            await Task.Run(() => GoogleImageSearch(ImageList[ImageIdxList[ImageIdxListPtr]].FullName, true, _cancelTokenSource.Token));
-            PauseRestore();
+            var result = MessageBox.Show("Confirm google look up, Private Mode is DISABLED. ", "Confirm google look up.", MessageBoxButton.YesNo);
+            if (result == MessageBoxResult.Yes)
+            {
+                PauseSave();
+                await Task.Run(() => GoogleImageSearch(ImageList[ImageIdxList[ImageIdxListPtr]].FullName, true, _cancelTokenSource.Token));
+                PauseRestore();
+            }
             Interlocked.Exchange(ref OneInt, 0);
         }
-        
+        private void PrivateModeClick(object sender, RoutedEventArgs e)
+        {
+
+        }
         private async void ContextMenuOpenFolder(object sender, RoutedEventArgs e)
         {
             await OpenDirCheckCancel();
@@ -57,7 +71,7 @@ namespace JRGSlideShowWPF
         }
         private async Task<Boolean> OpenDir()
         {
-            if (SlideShowDirectory != null && SlideShowDirectory != "" && Directory.Exists(SlideShowDirectory))
+            if (string.IsNullOrEmpty(SlideShowDirectory) || !Directory.Exists(SlideShowDirectory))
             {
                 dialog.SelectedPath = SlideShowDirectory;
             }            
@@ -65,7 +79,7 @@ namespace JRGSlideShowWPF
             {
                 SlideShowDirectory = dialog.SelectedPath;
                 await Task.Run(() => StartGetFilesNoInterlock());                
-                DisplayCurrentImage();
+                DisplayCurrentImage(ref ImageIdxListDeletePtr, ref ImageIdxListPtr);
                 Play();
             }
             return true;
@@ -91,10 +105,10 @@ namespace JRGSlideShowWPF
             Stopwatch benchmark = new Stopwatch();
             ImageIdxListPtr = 0;
             imagesDisplayed = 0;
-            var backuprandomize = Randomize;
-            if (Randomize == true)
+            var backuprandomize = RandomizeNotFinishedIHaveToLOL;
+            if (RandomizeNotFinishedIHaveToLOL == true)
             {
-                Randomize = false;
+                RandomizeNotFinishedIHaveToLOL = false;
                 await Task.Run(() => CreateIdxListCode());
             }
             while (0 != Interlocked.Exchange(ref OneInt, 1))
@@ -107,14 +121,14 @@ namespace JRGSlideShowWPF
                 benchmark.Start();
                 while (imagesDisplayed < imagesLimit)
                 {
-                    await Task.Run(() => LoadNextImage(1));
-                    DisplayCurrentImage();
+                    await Task.Run(() => LoadNextImage(1, ref ImageIdxListPtr, ImageIdxList, ImageList));
+                    DisplayCurrentImage(ref ImageIdxListDeletePtr, ref ImageIdxListPtr);
                 }
                 benchmark.Stop();                
             }
             if (backuprandomize == true)
             {
-                Randomize = backuprandomize;
+                RandomizeNotFinishedIHaveToLOL = backuprandomize;
                 await Task.Run(() => CreateIdxListCode());
             }
             PauseRestore();
@@ -166,14 +180,19 @@ namespace JRGSlideShowWPF
             {
                 await Task.Delay(1);
             }
-            copydeleteworker();
+            await CopyDeleteWorker();
             PauseRestore();
             Interlocked.Exchange(ref OneInt, 0);
             return true;
         }
 
-        private void copydeleteworker()
+        private async Task CopyDeleteWorker()
         {
+            if (PrivateModeCheckBox.IsChecked == true)
+            {
+                MessageBox.Show("Private Mode is enabled, copy not done.");
+                return;
+            }
             if (ImageIdxListDeletePtr != -1 && ImageIdxList[ImageIdxListDeletePtr] != -1)
             {
                 string destPath = "";
@@ -184,7 +203,7 @@ namespace JRGSlideShowWPF
                     destPath = Path.Combine(destPath, Path.GetFileName(sourcePath));
                     File.Copy(sourcePath, destPath);
                     MessageBox.Show("Image copied to " + destPath);
-                    DeleteNoInterlock();
+                    await DeleteNoInterlock();
                 }
                 catch
                 {
@@ -195,25 +214,93 @@ namespace JRGSlideShowWPF
 
         private async void ContextMenuDelete(object sender, RoutedEventArgs e)
         {
-            PauseSave();
             while (0 != Interlocked.Exchange(ref OneInt, 1))
             {
                 await Task.Delay(1);
-            }            
-            DeleteNoInterlock();
+            }
+            PauseSave();            
+            await DeleteNoInterlock();
             PauseRestore();
             Interlocked.Exchange(ref OneInt, 0);
+        }        
+        
+        private bool Undelete()
+        {
+            TextBlockControl.Visibility = Visibility.Visible;
+            if (DeletedFiles.Count == 0)
+            {
+                TextBlockControl.Text = "No more files to undelete.";
+                return false;
+            }
+            string LastDeleted = DeletedFiles.Pop();
+            if (LastDeleted == "")
+            {
+                TextBlockControl.Text = LastDeleted + " UNDELETE ERROR.";
+                return false;
+            }
+            FolderItems folderItems = RecyclingBin.Items();
+            for (int i = 0; i < folderItems.Count; i++) 
+            {
+                FolderItem FI = folderItems.Item(i);
+                string FileName = RecyclingBin.GetDetailsOf(FI, 0);
+                if (Path.GetExtension(FileName) == "")
+                {
+                    FileName += Path.GetExtension(FI.Path);
+                }
+                //Necessary for systems with hidden file extensions.
+                string FilePath = RecyclingBin.GetDetailsOf(FI, 1);                
+                if (String.Compare(LastDeleted, Path.Combine(FilePath, FileName),true) == 0)
+                {
+                    FileInfo undelFile;                    
+                    try
+                    {
+                        DoVerb(FI, "ESTORE");
+                        undelFile = new FileInfo(LastDeleted);
+                    }
+                    catch
+                    {                        
+                        StartTurnOffTextBoxDisplayTimer(LastDeleted + " Could not be undeleted, file not found.", 5);
+                        return false;
+                    }                                       
+                    StartTurnOffTextBoxDisplayTimer(LastDeleted + " Restored.", 5);
+                    Array.Resize(ref ImageList, ImageList.Length + 1);
+                    ImageList[ImageList.Length - 1] = undelFile;
+                    Array.Resize(ref ImageIdxList, ImageIdxList.Length + 1);
+                    ImageIdxList[ImageIdxList.Length - 1] = ImageIdxList.Length - 1;
+                    ImagesNotNull++;
+                    return true;
+                }
+            }
+            return false;
         }
-        private void DeleteNoInterlock()
+        private bool DoVerb(FolderItem Item, string Verb)
+        {
+            foreach (FolderItemVerb FIVerb in Item.Verbs())
+            {
+                if (FIVerb.Name.ToUpper().Contains(Verb.ToUpper()))
+                {
+                    FIVerb.DoIt();
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        public System.Collections.Generic.Stack<string> DeletedFiles = new System.Collections.Generic.Stack<string>();
+
+        private async Task DeleteNoInterlock()
         {
             if (ImageIdxListDeletePtr == -1 || ImageIdxList[ImageIdxListDeletePtr] == -1)
             {
                 return;
-            }
-
+            }            
             var fileName = ImageList[ImageIdxList[ImageIdxListDeletePtr]].FullName;
-            var result = MessageBox.Show("Confirm delete: " + fileName, "Confirm delete image.", MessageBoxButton.YesNo);
-            if (result == MessageBoxResult.Yes)
+            bool result = true;
+            if (!IsUserjgentile)
+            {
+                result = MessageBox.Show("Confirm delete: " + fileName, "Confirm delete image.", MessageBoxButton.YesNo) == MessageBoxResult.Yes;                
+            }
+            if (result)
             {
                 try
                 {
@@ -224,14 +311,14 @@ namespace JRGSlideShowWPF
                     memStream = null;                    
                     displayPhoto = null;
                     ImageControl.Source = null;
-                    RecyclingBin.MoveHere(fileName);
-                    //File.Delete(fileName);
+                    RecyclingBin.MoveHere(fileName);                    
                     if (!File.Exists(fileName))
-                    {
+                    {                                                
+                        DeletedFiles.Push(fileName);                        
                         ImageIdxList[ImageIdxListDeletePtr] = -1;
                         ImagesNotNull--;
-                        ImageIdxListDeletePtr = -1;
-                        MessageBox.Show("Image deleted.");
+                        ImageIdxListDeletePtr = -1;                                                
+                        StartTurnOffTextBoxDisplayTimer(fileName + " deleted.", 5);
                     }
                     else
                     {
@@ -247,6 +334,7 @@ namespace JRGSlideShowWPF
             {
                 ImageListReady = false;
             }
+            await DisplayGetNextImageWithoutCheck(1);                        
         }
 
         private void ContextMenuChangeTimer(object sender, RoutedEventArgs e)
@@ -266,7 +354,7 @@ namespace JRGSlideShowWPF
                 ResizeMode = ResizeMode.NoResize,
             };
 
-            SlideShowTimerWindow.TimerTextBox.Text = dispatcherImageTimer.Interval.Seconds.ToString();
+            SlideShowTimerWindow.TimerTextBox.Text = dispatcherE10E.Interval.Seconds.ToString();
             SlideShowTimerWindow.ShowDialog();
 
             int i = int.Parse(SlideShowTimerWindow.TimerTextBox.Text);
@@ -275,7 +363,7 @@ namespace JRGSlideShowWPF
             {
                 c++;
             }
-            dispatcherImageTimer.Interval = new TimeSpan(0, 0, 0, i, c);
+            dispatcherE10E.Interval = new TimeSpan(0, 0, 0, i, c);
 
             Activate();
 
@@ -294,11 +382,14 @@ namespace JRGSlideShowWPF
             {
                 await Task.Delay(1);
             }            
-            Randomize = ContextMenuCheckBox.IsChecked;
-            PauseSave();
-            await Task.Run(() => RandomizeBW_DoWork());
-            PauseRestore();
-            DisplayCurrentImage();           
+            RandomizeNotFinishedIHaveToLOL = ContextMenuCheckBox.IsChecked;
+            if (!Starting)
+            {
+                PauseSave();
+                await Task.Run(() => RandomizeBW_DoWork());
+                PauseRestore();
+                DisplayCurrentImage(ref ImageIdxListDeletePtr, ref ImageIdxListPtr);
+            }
             Interlocked.Exchange(ref OneInt, 0);
         }
 
@@ -306,7 +397,7 @@ namespace JRGSlideShowWPF
         {            
             ImageListReady = false;
             CreateIdxListCode();            
-            ResizeImageCode();
+            ResizeImageCode(ImageList, ImageIdxList, ImageIdxListPtr);
             ImageListReady = true;            
         }        
     }

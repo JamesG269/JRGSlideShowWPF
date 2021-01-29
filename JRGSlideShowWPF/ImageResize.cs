@@ -35,9 +35,18 @@ namespace JRGSlideShowWPF
 
         byte[] readBuf = new byte[1000000];
 
-        public void ResizeImageCode()
+        public void ResizeImageCode(FileInfo[] ImageList, int[] ImageIdxList, int ImageIdxListPtr)
         {
-            ImageReady = true;
+            if (IsUserjgentile == true)
+            {
+                Random r = new Random();
+                int i = r.Next(0, botm.Length);
+                System.Windows.Application.Current.Dispatcher.Invoke(new Action(() => {
+                    TextBlockControl2.Visibility = Visibility.Visible;                   
+                    TextBlockControl2.Text = botm[i];
+                }));
+            }
+            ImageReadyToDisplay = true;
             ImageError = false;
             
             GetMaxSize();
@@ -91,15 +100,16 @@ namespace JRGSlideShowWPF
             {
                 ImageError = true;                
                 displayPhoto = null;
-                string destName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), Path.GetFileName(ImageList[ImageIdxList[ImageIdxListPtr]].FullName));
+                string srcName = Path.GetFileName(ImageList[ImageIdxList[ImageIdxListPtr]].FullName);
+                string destName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), srcName );
                 try
                 {
                     //File.Copy(ImageList[ImageIdxList[ImageIdxListPtr]].FullName, destName);
-                    ErrorMessage = destName + " " + ErrorMessage + " Copied successfully. Exception details: " + e.Message;
+                    ErrorMessage = srcName + " " + ErrorMessage + " Exception details: " + e.Message;
                 }
                 catch
                 {
-                    ErrorMessage = destName + " " + ErrorMessage + " Copy error. Exception details: " + e.Message;
+                    ErrorMessage = srcName + " " + ErrorMessage + " Exception details: " + e.Message;
                 }
             }            
         }

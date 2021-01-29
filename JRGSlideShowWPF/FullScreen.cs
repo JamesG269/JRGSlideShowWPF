@@ -20,8 +20,7 @@ namespace JRGSlideShowWPF
         {            
             base.OnRenderSizeChanged(sizeInfo);
             WindowStateCode();            
-        }
-        
+        }        
         private void WindowStateCode()
         {                        
             switch (WindowState)
@@ -34,7 +33,6 @@ namespace JRGSlideShowWPF
                     return;
             }                    
         }
-        
         int oldHeight = 0;
         int oldWidth = 0;
         int oldTop = 0;
@@ -56,7 +54,6 @@ namespace JRGSlideShowWPF
                 oldWidth = (int)Width;
                 oldTop = (int)Top;
                 oldLeft = (int)Left;
-
                 Matrix matrix;
                 if (PSource != null)
                 {
@@ -67,7 +64,12 @@ namespace JRGSlideShowWPF
                 Top = Left = 0;                
                 isMaximized = true;
                 Activate();
-                DisplayRequired();
+                if (dispatcherE10E.IsEnabled)
+                {                    
+                    dispatcherPureSense.Stop();
+                    dispatcherPureSense.Start();
+                }
+                DisplayRequired();                
             }
             Interlocked.Exchange(ref inScreenChange, 0);
         }
@@ -89,7 +91,7 @@ namespace JRGSlideShowWPF
                 }
                 isMaximized = false;
                 Activate();
-                dispatcherMouseTimer.Stop();
+                dispatcherPureSense.Stop();
                 DisplayNotRequired();
             }
             Interlocked.Exchange(ref inScreenChange, 0);
