@@ -94,7 +94,7 @@ namespace JRGSlideShowWPF
                     {
                         if (StartGetFiles_Cancel)
                         {
-                            NewImageList = null;
+                            NewImageList.Clear();
                             return;
                         }                        
                         DirectoryInfo dirInfo = new DirectoryInfo(currentDir);

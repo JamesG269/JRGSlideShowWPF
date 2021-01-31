@@ -8,17 +8,24 @@ namespace JRGSlideShowWPF
         public void LoadSettings()
         {           
             RandomizeImages = Properties.Settings.Default.Randomize;
+            StopMonitorSleepPaused = Properties.Settings.Default.AllowSleepPaused;
+            StopMonitorSleepPlaying = Properties.Settings.Default.AllowSleepPlay;
+            StopMonitorSleepFullScreenOnly = Properties.Settings.Default.AllowSleepFull;
+
             int i = Properties.Settings.Default.TimerSeconds;
             SlideShowDirectory = Properties.Settings.Default.SlideShowFolder;
 
             ContextMenuCheckBox.IsChecked = RandomizeImages;
             PrivateModeCheckBox.IsChecked = Properties.Settings.Default.PrivateMode;
+            StopSleepFullScreenXaml.IsChecked = StopMonitorSleepFullScreenOnly;
+            StopSleepPausedXaml.IsChecked = StopMonitorSleepPaused;
+            StopSleepPlayingXaml.IsChecked = StopMonitorSleepPlaying;
             int c = 0;
             if (i == 0)
             {
                 c++;
             }
-            dispatcherE10E.Interval = new TimeSpan(0, 0, 0, i, c);
+            dispatcherPlaying.Interval = new TimeSpan(0, 0, 0, i, c);
 
             string[] args = Environment.GetCommandLineArgs();
 
@@ -41,7 +48,7 @@ namespace JRGSlideShowWPF
                 Properties.Settings.Default.SlideShowFolder = SlideShowDirectory;
             }
             Properties.Settings.Default.PrivateMode = PrivateModeCheckBox.IsChecked;
-            Properties.Settings.Default.TimerSeconds = dispatcherE10E.Interval.Seconds;
+            Properties.Settings.Default.TimerSeconds = dispatcherPlaying.Interval.Seconds;
             Properties.Settings.Default.Save();            
         }
     }

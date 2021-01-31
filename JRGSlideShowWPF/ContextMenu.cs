@@ -400,7 +400,7 @@ namespace JRGSlideShowWPF
                 ResizeMode = ResizeMode.NoResize,
             };
 
-            SlideShowTimerWindow.TimerTextBox.Text = dispatcherE10E.Interval.Seconds.ToString();
+            SlideShowTimerWindow.TimerTextBox.Text = dispatcherPlaying.Interval.Seconds.ToString();
             SlideShowTimerWindow.ShowDialog();
 
             int i = int.Parse(SlideShowTimerWindow.TimerTextBox.Text);
@@ -409,7 +409,7 @@ namespace JRGSlideShowWPF
             {
                 c++;
             }
-            dispatcherE10E.Interval = new TimeSpan(0, 0, 0, i, c);
+            dispatcherPlaying.Interval = new TimeSpan(0, 0, 0, i, c);
 
             Activate();
 

@@ -50,6 +50,9 @@
                 <MenuItem Header="Image Info" Click="ImageInfo_Click"/>
                 <MenuItem Header="Google Image Search" Click="GoogleImageSearch_Click"/>
                 <MenuItem Header="Open in Explorer" Click="OpenInExplorer"/>
+                <MenuItem Header="Stop Monitor sleep while playing." IsCheckable="True" Unchecked="AllowMonitorSleepPlaying_Checked" Checked="AllowMonitorSleepPlaying_Checked" Name="StopSleepPlayingXaml"/>
+                <MenuItem Header="Stop Monitor sleep while paused." IsCheckable="True" Unchecked="AllowMonitorSleepPaused_Checked" Checked="AllowMonitorSleepPaused_Checked" Name="StopSleepPausedXaml"/>
+                <MenuItem Header="Stop Monitor sleep full screen only" IsCheckable="True" Unchecked="AllowMonitorSleepFullScreenOnly_Checked" Checked="AllowMonitorSleepFullScreenOnly_Checked" Name="StopSleepFullScreenXaml"/>
                 <MenuItem Header="Exit" Click="ContextMenuExit"/>
             </ContextMenu>
         </Grid.ContextMenu>

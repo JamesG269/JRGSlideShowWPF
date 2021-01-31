@@ -64,12 +64,12 @@ namespace JRGSlideShowWPF
                 Top = Left = 0;                
                 isMaximized = true;
                 Activate();
-                if (dispatcherE10E.IsEnabled)
+                if (dispatcherPlaying.IsEnabled)
                 {                    
                     dispatcherPureSense.Stop();
                     dispatcherPureSense.Start();
                 }
-                DisplayRequired();                
+                SetDisplayMode();                
             }
             Interlocked.Exchange(ref inScreenChange, 0);
         }
@@ -92,7 +92,7 @@ namespace JRGSlideShowWPF
                 isMaximized = false;
                 Activate();
                 dispatcherPureSense.Stop();
-                DisplayNotRequired();
+                SetDisplayMode();
             }
             Interlocked.Exchange(ref inScreenChange, 0);
         }
