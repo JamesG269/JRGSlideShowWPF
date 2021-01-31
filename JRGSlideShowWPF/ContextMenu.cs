@@ -163,8 +163,7 @@ namespace JRGSlideShowWPF
                     LoadNextImage(1);
                     System.Windows.Application.Current.Dispatcher.InvokeAsync((new Action(async () => {
                         await DisplayCurrentImage();
-                    })), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
-                   
+                    })), System.Windows.Threading.DispatcherPriority.SystemIdle);                   
                 }
                 benchmark.Stop();
             }

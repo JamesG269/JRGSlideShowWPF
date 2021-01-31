@@ -75,6 +75,7 @@ namespace JRGSlideShowWPF
                 return;
             }
             dirs.Push(path);
+            int NextListUpdate = 0;
             do
             {
                 string currentDir = dirs.Pop();
@@ -99,8 +100,10 @@ namespace JRGSlideShowWPF
                         DirectoryInfo dirInfo = new DirectoryInfo(currentDir);
                         FileInfo[] fs = dirInfo.GetFiles(filter);
                         NewImageList.AddRange(fs);
-                        if (fs.Length > 0)
+                        NextListUpdate += fs.Length;
+                        if (NextListUpdate > 100)
                         {
+                            NextListUpdate = 0;
                             Application.Current.Dispatcher.Invoke(new Action(() =>
                             {
                                 TextBlockControl.Text = NewImageList.Count + " Images found...";
