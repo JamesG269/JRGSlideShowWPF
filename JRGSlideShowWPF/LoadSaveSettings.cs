@@ -7,11 +7,11 @@ namespace JRGSlideShowWPF
     {
         public void LoadSettings()
         {           
-            RandomizeNotFinishedIHaveToLOL = Properties.Settings.Default.Randomize;
+            RandomizeImages = Properties.Settings.Default.Randomize;
             int i = Properties.Settings.Default.TimerSeconds;
             SlideShowDirectory = Properties.Settings.Default.SlideShowFolder;
 
-            ContextMenuCheckBox.IsChecked = RandomizeNotFinishedIHaveToLOL;
+            ContextMenuCheckBox.IsChecked = RandomizeImages;
             PrivateModeCheckBox.IsChecked = Properties.Settings.Default.PrivateMode;
             int c = 0;
             if (i == 0)
@@ -35,7 +35,7 @@ namespace JRGSlideShowWPF
         public void SaveSettings()
         {
             Properties.Settings.Default.isMaximized = isMaximized;
-            Properties.Settings.Default.Randomize = RandomizeNotFinishedIHaveToLOL;
+            Properties.Settings.Default.Randomize = RandomizeImages;
             if (PrivateModeCheckBox.IsChecked == false)
             {
                 Properties.Settings.Default.SlideShowFolder = SlideShowDirectory;

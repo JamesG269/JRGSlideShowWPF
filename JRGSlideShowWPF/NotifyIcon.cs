@@ -64,9 +64,9 @@ namespace JRGSlideShowWPF
             }
             (sender as MenuItem).Checked = !(sender as MenuItem).Checked;
             var s = (sender as MenuItem).Checked;
-            RandomizeNotFinishedIHaveToLOL = s;
+            RandomizeImages = s;
             await Task.Run(() => RandomizeBW_DoWork());
-            DisplayCurrentImage(ref ImageIdxListDeletePtr, ref ImageIdxListPtr);
+            await DisplayCurrentImage();
             Interlocked.Exchange(ref OneInt, 0);
         }
         private void NotifyWipeCode(object sender, EventArgs e)
@@ -181,7 +181,7 @@ namespace JRGSlideShowWPF
             NotifyMenu.MenuItems.Add(NotifyNorm);
 
             MenuItem NotifyRand = new MenuItem();
-            NotifyRand.Checked = RandomizeNotFinishedIHaveToLOL;
+            NotifyRand.Checked = RandomizeImages;
             NotifyRand.Index = 9;
             NotifyRand.Text = "Randomize";
             NotifyRand.Click += new EventHandler(NotifyRandomizeCode);

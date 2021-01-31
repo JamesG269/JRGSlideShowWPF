@@ -63,7 +63,7 @@ namespace JRGSlideShowWPF
 
         string SlideShowDirectory;
 
-        Boolean RandomizeNotFinishedIHaveToLOL = true;
+        Boolean RandomizeImages = true;
         Boolean ImageReadyToDisplay = false;
         Boolean StartUp = true;
 
@@ -117,7 +117,7 @@ namespace JRGSlideShowWPF
             else
             {
                 await Task.Run(() => StartGetFiles());
-                DisplayCurrentImage(ref ImageIdxListDeletePtr, ref ImageIdxListPtr);
+                await DisplayCurrentImage();
             }
             Play();
             dispatcherPureSense.Stop();
@@ -167,25 +167,25 @@ namespace JRGSlideShowWPF
             if (ImageListReady == true)
             {
                 PauseSave();
-                await Task.Run(() => LoadNextImage(i, ref ImageIdxListPtr, ImageIdxList, ImageList));
-                DisplayCurrentImage(ref ImageIdxListDeletePtr, ref ImageIdxListPtr);
+                await Task.Run(() => LoadNextImage(i));
+                await DisplayCurrentImage();
                 FileInfo fileInfo = ImageList[ImageIdxList[ImageIdxListPtr]];                
                 PauseRestore();
             }
         }
         
-        private void LoadNextImage(int i, ref int ImageIdxListPtr, int[] ImageIdxList, FileInfo[] ImageList)
+        private void LoadNextImage(int i)
         {            
-            IteratePicList(i, ref ImageIdxListPtr, ImageIdxList);            
+            IteratePicList(i);            
             imageTimeToDecode.Restart();
-            ResizeImageCode(ImageList, ImageIdxList, ImageIdxListPtr);
+            ResizeImageCode();
         }
 
-        private void IteratePicList(int i, ref int ImageIdxListPtr, int[] ImageIdxList)
+        private void IteratePicList(int i)
         {
             do
             {
-                if (RandomizeNotFinishedIHaveToLOL == true)
+                if (RandomizeImages == true)
                 {
                     if (ImageIdxListPtr == 0 && i == -1)
                     {
@@ -202,7 +202,7 @@ namespace JRGSlideShowWPF
             } while (ImageIdxList[ImageIdxListPtr] == -1);
         }
 
-        private void DisplayCurrentImage(ref int ImageIdxListDeletePtr, ref int ImageIdxListPtr)
+        private async Task DisplayCurrentImage()
         {            
             if (ImageReadyToDisplay == true)
             {            
@@ -221,7 +221,14 @@ namespace JRGSlideShowWPF
                 }
                 else
                 {
-                    MessageBox.Show(ErrorMessage); 
+                    if (IsUserjgentile)
+                    {
+                        await DeleteNoInterlock(true);
+                    }
+                    else
+                    {
+                        MessageBox.Show(ErrorMessage);
+                    }
                     //copydeleteworker();
                 }                                
             }
@@ -282,7 +289,7 @@ namespace JRGSlideShowWPF
                 ImagesNotNull = ImageList.Length;
                 CreateIdxListCode();
                 imageTimeToDecode.Restart();
-                ResizeImageCode(ImageList, ImageIdxList, ImageIdxListPtr);
+                ResizeImageCode();
                 ImageListReady = true;                                
             }
             else
@@ -364,8 +371,6 @@ namespace JRGSlideShowWPF
                 SaveSettings();
             }                        
             base.OnClosing(e);
-        }
-
-        
+        }       
     }
 }

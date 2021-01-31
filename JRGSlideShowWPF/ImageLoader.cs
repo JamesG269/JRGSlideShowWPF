@@ -34,7 +34,7 @@ namespace JRGSlideShowWPF
                     ImageIdxList[i] = i;
                 }
                 ImageIdxListPtr = 0;
-                if (RandomizeNotFinishedIHaveToLOL == true)
+                if (RandomizeImages == true)
                 {
                     InitRNGKeys();
                     EncryptIdxListCode();

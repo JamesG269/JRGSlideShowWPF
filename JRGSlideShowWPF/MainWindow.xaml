@@ -49,6 +49,7 @@
                 <MenuItem Header="Benchmark" Click="Benchmark_Click"/>
                 <MenuItem Header="Image Info" Click="ImageInfo_Click"/>
                 <MenuItem Header="Google Image Search" Click="GoogleImageSearch_Click"/>
+                <MenuItem Header="Open in Explorer" Click="OpenInExplorer"/>
                 <MenuItem Header="Exit" Click="ContextMenuExit"/>
             </ContextMenu>
         </Grid.ContextMenu>

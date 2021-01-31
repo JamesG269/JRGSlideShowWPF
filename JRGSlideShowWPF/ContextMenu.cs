@@ -9,11 +9,40 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 using System.Collections;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace JRGSlideShowWPF
 {
     public partial class MainWindow : Window
     {
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+        public struct SHELLEXECUTEINFO
+        {
+            public int cbSize;
+            public uint fMask;
+            public IntPtr hwnd;
+            [MarshalAs(UnmanagedType.LPTStr)]
+            public string lpVerb;
+            [MarshalAs(UnmanagedType.LPTStr)]
+            public string lpFile;
+            [MarshalAs(UnmanagedType.LPTStr)]
+            public string lpParameters;
+            [MarshalAs(UnmanagedType.LPTStr)]
+            public string lpDirectory;
+            public int nShow;
+            public IntPtr hInstApp;
+            public IntPtr lpIDList;
+            [MarshalAs(UnmanagedType.LPTStr)]
+            public string lpClass;
+            public IntPtr hkeyClass;
+            public uint dwHotKey;
+            public IntPtr hIcon;
+            public IntPtr hProcess;
+        }
+        [DllImport("shell32.dll", CharSet = CharSet.Auto)]
+        static extern bool ShellExecuteEx(ref SHELLEXECUTEINFO lpExecInfo);
+
+        private const int SW_SHOW = 5;
 
         public static Shell shell = new Shell();
 
@@ -79,7 +108,7 @@ namespace JRGSlideShowWPF
             {
                 SlideShowDirectory = dialog.SelectedPath;
                 await Task.Run(() => StartGetFilesNoInterlock());                
-                DisplayCurrentImage(ref ImageIdxListDeletePtr, ref ImageIdxListPtr);
+                await DisplayCurrentImage();
                 Play();
             }
             return true;
@@ -95,43 +124,61 @@ namespace JRGSlideShowWPF
             PauseRestore();
             Interlocked.Exchange(ref OneInt, 0);
         }
+        int benchmarkRunning = 0;
+        bool benchmarkStop = false;
         private async void Benchmark_Click(object sender, RoutedEventArgs e)
         {
-            int imagesLimit = ImageList.Length;
-            
-            Stopwatch benchmark = new Stopwatch();
-            ImageIdxListPtr = 0;
-            imagesDisplayed = 0;
-            var backuprandomize = RandomizeNotFinishedIHaveToLOL;
-            if (RandomizeNotFinishedIHaveToLOL == true)
+            await Task.Run(() => BenchMarkWorker());
+        }
+
+        private void BenchMarkWorker()
+        {
+            if (0 != Interlocked.Exchange(ref benchmarkRunning, 1))
             {
-                RandomizeNotFinishedIHaveToLOL = false;
-                await Task.Run(() => CreateIdxListCode());
+                benchmarkStop = true;
+                return;
             }
             while (0 != Interlocked.Exchange(ref OneInt, 1))
             {
-                await Task.Delay(1);
+                Task.Delay(1);
             }
             PauseSave();
+            benchmarkStop = false;
+            int imagesLimit = ImageList.Length;
+
+            Stopwatch benchmark = new Stopwatch();
+            ImageIdxListPtr = 0;
+            imagesDisplayed = 0;
+            var backuprandomize = RandomizeImages;
+            if (RandomizeImages == true)
+            {
+                RandomizeImages = false;
+                CreateIdxListCode();
+            }
             if (ImageListReady == true)
-            {                
+            {
                 benchmark.Start();
-                while (imagesDisplayed < imagesLimit)
+                while (imagesDisplayed < imagesLimit && benchmarkStop == false)
                 {
-                    await Task.Run(() => LoadNextImage(1, ref ImageIdxListPtr, ImageIdxList, ImageList));
-                    DisplayCurrentImage(ref ImageIdxListDeletePtr, ref ImageIdxListPtr);
+                    LoadNextImage(1);
+                    System.Windows.Application.Current.Dispatcher.InvokeAsync((new Action(async () => {
+                        await DisplayCurrentImage();
+                    })), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+                   
                 }
-                benchmark.Stop();                
+                benchmark.Stop();
             }
             if (backuprandomize == true)
             {
-                RandomizeNotFinishedIHaveToLOL = backuprandomize;
-                await Task.Run(() => CreateIdxListCode());
+                RandomizeImages = backuprandomize;
+                CreateIdxListCode();
             }
             PauseRestore();
-            Interlocked.Exchange(ref OneInt, 0);
             MessageBox.Show("Benchmark - Images displayed: " + imagesDisplayed + " Milliseconds: " + benchmark.ElapsedMilliseconds + " Ticks: " + benchmark.ElapsedTicks);
+            Interlocked.Exchange(ref benchmarkRunning, 0);
+            Interlocked.Exchange(ref OneInt, 0);
         }
+
         private void ContextMenuExit(object sender, RoutedEventArgs e)
         {
             Close();
@@ -285,7 +332,7 @@ namespace JRGSlideShowWPF
         
         public System.Collections.Generic.Stack<string> DeletedFiles = new System.Collections.Generic.Stack<string>();
 
-        private async Task DeleteNoInterlock()
+        private async Task DeleteNoInterlock(bool GetNextImage = false)
         {
             if (ImageIdxListDeletePtr == -1 || ImageIdxList[ImageIdxListDeletePtr] == -1)
             {
@@ -315,7 +362,7 @@ namespace JRGSlideShowWPF
                         ImageIdxList[ImageIdxListDeletePtr] = -1;
                         ImagesNotNull--;
                         ImageIdxListDeletePtr = -1;                                                
-                        StartTurnOffTextBoxDisplayTimer(fileName + " deleted.", 5);
+                        StartTurnOffTextBoxDisplayTimer("Deleted: " + fileName, 5);
                     }
                     else
                     {
@@ -331,7 +378,10 @@ namespace JRGSlideShowWPF
             {
                 ImageListReady = false;
             }
-            await DisplayGetNextImageWithoutCheck(1);                        
+            if (GetNextImage)
+            {
+                await DisplayGetNextImageWithoutCheck(1);
+            }
         }
 
         private void ContextMenuChangeTimer(object sender, RoutedEventArgs e)
@@ -379,13 +429,13 @@ namespace JRGSlideShowWPF
             {
                 await Task.Delay(1);
             }            
-            RandomizeNotFinishedIHaveToLOL = ContextMenuCheckBox.IsChecked;
+            RandomizeImages = ContextMenuCheckBox.IsChecked;
             if (!Starting)
             {
                 PauseSave();
                 await Task.Run(() => RandomizeBW_DoWork());
                 PauseRestore();
-                DisplayCurrentImage(ref ImageIdxListDeletePtr, ref ImageIdxListPtr);
+                await DisplayCurrentImage();
             }
             Interlocked.Exchange(ref OneInt, 0);
         }
@@ -394,8 +444,23 @@ namespace JRGSlideShowWPF
         {            
             ImageListReady = false;
             CreateIdxListCode();            
-            ResizeImageCode(ImageList, ImageIdxList, ImageIdxListPtr);
+            ResizeImageCode();
             ImageListReady = true;            
-        }        
+        }
+        private void OpenInExplorer(object sender, RoutedEventArgs e)
+        {
+            if (ImageIdxListDeletePtr == -1)
+            {
+                return;
+            }
+            FileInfo imageInfo = ImageList[ImageIdxList[ImageIdxListDeletePtr]];
+            var info = new SHELLEXECUTEINFO();
+            info.cbSize = Marshal.SizeOf<SHELLEXECUTEINFO>();
+            info.lpVerb = "explore";
+            info.nShow = SW_SHOW;
+            info.lpFile = imageInfo.DirectoryName;
+            ShellExecuteEx(ref info);
+            return;
+        }
     }
 }

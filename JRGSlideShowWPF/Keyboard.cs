@@ -78,7 +78,7 @@ namespace JRGSlideShowWPF
                 StringBuilder sb = new StringBuilder();
                 sb.Append(
                       "         JRGSlideShowWPF Ver: " + version + System.Environment.NewLine
-                    + "                        Name: " + imageInfo.Name + System.Environment.NewLine
+                    + "                        Name: " + imageInfo.FullName + System.Environment.NewLine
                     + "                      Length: " + imageInfo.Length.ToString("N0") + " Bytes" + Environment.NewLine
                     + "          Current Resolution: " + DisplayPicInfoWidth + " x " + DisplayPicInfoHeight + Environment.NewLine
                     + "         Original Resolution: " + imageOriginalWidth + " x " + imageOriginalHeight + Environment.NewLine

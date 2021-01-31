@@ -31,11 +31,14 @@ namespace JRGSlideShowWPF
 
         Stopwatch imageTimeToDecode = new Stopwatch();
         
-        BitmapFrame displayPhoto;
+        BitmapFrame displayPhoto = null;
+        TransformedBitmap target = null;
+        BitmapDecoder decoder = null;
+        BitmapFrame photo = null;
 
         byte[] readBuf = new byte[1000000];
 
-        public void ResizeImageCode(FileInfo[] ImageList, int[] ImageIdxList, int ImageIdxListPtr)
+        public void ResizeImageCode()
         {
             if (IsUserjgentile != true)
             {
@@ -54,7 +57,7 @@ namespace JRGSlideShowWPF
             {
                 ErrorMessage = "Resize Error.";
                 FileInfo fileInfo = ImageList[ImageIdxList[ImageIdxListPtr]];
-                BitmapDecoder decoder = null;
+                decoder = null;
                 if (fileInfo.Length > 20000000)
                 {
                     decoder = LoadLargeImage(fileInfo);
@@ -66,7 +69,7 @@ namespace JRGSlideShowWPF
 
                     decoder = BitmapDecoder.Create(memStream, BitmapCreateOptions.IgnoreColorProfile, BitmapCacheOption.OnDemand);
                 }                
-                var photo = decoder.Frames[0];
+                photo = decoder.Frames[0];
                 imageOriginalHeight = photo.PixelHeight;
                 imageOriginalWidth = photo.PixelWidth;
                 widthAspect = ScreenMaxWidth / imageOriginalWidth;
@@ -79,7 +82,7 @@ namespace JRGSlideShowWPF
                 {
                     heightAspect = widthAspect;
                 }
-                var target = new TransformedBitmap(photo, new ScaleTransform(widthAspect, heightAspect,0,0));                
+                target = new TransformedBitmap(photo, new ScaleTransform(widthAspect, heightAspect,0,0));                
                 displayPhoto = BitmapFrame.Create(target);
                 photo = null;
                 decoder = null;
@@ -98,8 +101,16 @@ namespace JRGSlideShowWPF
             }
             catch (Exception e)
             {
+                if (memStream != null)
+                {
+                    memStream.Dispose();
+                }
+                memStream = null;
                 ImageError = true;                
                 displayPhoto = null;
+                photo = null;
+                decoder = null;
+                target = null;
                 string srcName = Path.GetFileName(ImageList[ImageIdxList[ImageIdxListPtr]].FullName);
                 string destName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), srcName );
                 try
@@ -110,7 +121,7 @@ namespace JRGSlideShowWPF
                 catch
                 {
                     ErrorMessage = srcName + " " + ErrorMessage + " Exception details: " + e.Message;
-                }
+                }                
             }            
         }
 
