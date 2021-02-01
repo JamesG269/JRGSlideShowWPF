@@ -39,19 +39,9 @@ namespace JRGSlideShowWPF
         byte[] readBuf = new byte[1000000];
 
         public void ResizeImageCode()
-        {
-            if (IsUserjgentile != true)
-            {
-                Random r = new Random();
-                int i = r.Next(0, botm.Length);
-                System.Windows.Application.Current.Dispatcher.Invoke(new Action(() => {
-                    TextBlockControl2.Visibility = Visibility.Visible;                   
-                    TextBlockControl2.Text = botm[i];
-                }));
-            }
+        {            
             ImageReadyToDisplay = true;
-            ImageError = false;
-            
+            ImageError = false;            
             GetMaxSize();
             try
             {

@@ -130,5 +130,17 @@ namespace JRGSlideShowWPF.Properties {
                 this["AllowSleepFull"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool ShowMotd {
+            get {
+                return ((bool)(this["ShowMotd"]));
+            }
+            set {
+                this["ShowMotd"] = value;
+            }
+        }
     }
 }

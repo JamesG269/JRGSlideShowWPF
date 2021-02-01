@@ -28,21 +28,21 @@
                 <DropShadowEffect BlurRadius="10" ShadowDepth="0" Color="Black"/>
             </TextBlock.Effect>
         </TextBlock>
-        <TextBlock Name="TextBlockControl2" Text="" Width="auto" Height="auto" Margin="10,10,10,69" Foreground="LightGreen" Visibility="Visible" FontSize="40" FontFamily="consolas">
+        <TextBlock Name="MotdBlockControl" Text="" Width="auto" Height="auto" Margin="10,50,10,69" Foreground="LightGreen" Visibility="Visible" FontSize="40" FontFamily="consolas">
             <TextBlock.Effect>
                 <DropShadowEffect BlurRadius="10" ShadowDepth="0" Color="Black"/>
             </TextBlock.Effect>
         </TextBlock>
         <ProgressBar Name="progressBar" HorizontalAlignment="Left" Height="16" Margin="10,26,0,0" VerticalAlignment="Top" Width="151" Minimum="0" Maximum="100" Visibility="Visible"/>
         <Grid.ContextMenu>
-            <ContextMenu>
-                <MenuItem Header="Pause" Click="ContextMenuPause"/>
-                <MenuItem Header="Play" Click="ContextMenuPlay"/>
+            <ContextMenu Opened="ContextMenu_Opened">
+                <MenuItem Header="Pause" Click="ContextMenuPause" IsCheckable="True" Name="PauseXaml"/>
+                <MenuItem Header="Play" Click="ContextMenuPlay" IsCheckable="True" Name="PlayXaml"/>
                 <MenuItem Header="Next" Click="ContextMenuNext"/>
                 <MenuItem Header="Previous" Click="ContextMenuPrev"/>
                 <MenuItem Header="Delete" Click="ContextMenuDelete"/>
                 <MenuItem Header="Open Folder" Click="ContextMenuOpenFolder"/>
-                <MenuItem Header="Private Mode" IsCheckable="True" Name="PrivateModeCheckBox" />
+                <MenuItem Header="Private Mode (disable accidental Google Search)" IsCheckable="True" Name="PrivateModeCheckBox" />
                 <MenuItem Header="Change Timer" Click="ContextMenuChangeTimer"/>
                 <MenuItem Header="Full Screen Toggle" Click="ContextMenuFullScreen"/>
                 <MenuItem Header="Randomize" Click="CheckedRandomize" IsCheckable="true" Name="ContextMenuCheckBox"/>
@@ -52,7 +52,8 @@
                 <MenuItem Header="Open in Explorer" Click="OpenInExplorer"/>
                 <MenuItem Header="Stop Monitor sleep while playing." IsCheckable="True" Unchecked="AllowMonitorSleepPlaying_Checked" Checked="AllowMonitorSleepPlaying_Checked" Name="StopSleepPlayingXaml"/>
                 <MenuItem Header="Stop Monitor sleep while paused." IsCheckable="True" Unchecked="AllowMonitorSleepPaused_Checked" Checked="AllowMonitorSleepPaused_Checked" Name="StopSleepPausedXaml"/>
-                <MenuItem Header="Stop Monitor sleep full screen only" IsCheckable="True" Unchecked="AllowMonitorSleepFullScreenOnly_Checked" Checked="AllowMonitorSleepFullScreenOnly_Checked" Name="StopSleepFullScreenXaml"/>
+                <MenuItem Header="Stop Monitor sleep in full screen only" IsCheckable="True" Unchecked="AllowMonitorSleepFullScreenOnly_Checked" Checked="AllowMonitorSleepFullScreenOnly_Checked" Name="StopSleepFullScreenXaml"/>
+                <MenuItem Header="Enable MOTD" IsCheckable="True" Unchecked="EnableMotd" Checked="EnableMotd" Name="MotdXaml"/>
                 <MenuItem Header="Exit" Click="ContextMenuExit"/>
             </ContextMenu>
         </Grid.ContextMenu>

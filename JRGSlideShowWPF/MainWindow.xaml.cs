@@ -59,7 +59,7 @@ namespace JRGSlideShowWPF
 
         System.Windows.Threading.DispatcherTimer dispatcherPlaying = new System.Windows.Threading.DispatcherTimer();
         System.Windows.Threading.DispatcherTimer dispatcherPureSense = new System.Windows.Threading.DispatcherTimer();
-        System.Windows.Threading.DispatcherTimer dispatcherNotFinishedIHaveToLaugh = new System.Windows.Threading.DispatcherTimer();
+        System.Windows.Threading.DispatcherTimer dispatcherTextBoxMessage = new System.Windows.Threading.DispatcherTimer();
 
         string SlideShowDirectory;
 
@@ -77,7 +77,9 @@ namespace JRGSlideShowWPF
 
         PresentationSource PSource = null;
 
-        Stack<bool> pauseStack = new Stack<bool>();        
+        Stack<bool> pauseStack = new Stack<bool>();
+        Stack<string> TextBoxMessages = new Stack<string>();
+        Stack<int> TextBoxMessagesTimes = new Stack<int>();
 
         public MainWindow()
         {
@@ -100,7 +102,7 @@ namespace JRGSlideShowWPF
 
             progressBar.Visibility = Visibility.Hidden;
             TextBlockControl.Visibility = Visibility.Hidden;
-            TextBlockControl2.Visibility = Visibility.Hidden;
+            MotdBlockControl.Visibility = Visibility.Hidden;
 
             dispatcherPlaying.Tick += DisplayNextImageTimer;
             dispatcherPureSense.Tick += MouseHide;
@@ -109,6 +111,7 @@ namespace JRGSlideShowWPF
             LoadSettings();
             StartUp = false;
             NotifyStart();
+            Starting = false;
 
             if (string.IsNullOrEmpty(SlideShowDirectory) || !Directory.Exists(SlideShowDirectory))
             {
@@ -119,10 +122,11 @@ namespace JRGSlideShowWPF
                 await Task.Run(() => StartGetFiles());
                 await DisplayCurrentImage();
             }
-            Play();
+            MenuPlay();
             dispatcherPureSense.Stop();
             dispatcherPureSense.Start();
-            Starting = false;
+            EnableMotdCode();
+            
         }
 
         private bool InitAndClosePrevious()
@@ -201,7 +205,7 @@ namespace JRGSlideShowWPF
 
             } while (ImageIdxList[ImageIdxListPtr] == -1);
         }
-
+        bool ShowMotd = false;
         private async Task DisplayCurrentImage()
         {            
             if (ImageReadyToDisplay == true)
@@ -209,7 +213,7 @@ namespace JRGSlideShowWPF
                 if (ImageError == false)
                 {
                     ImageIdxListDeletePtr = -1;
-                    ImageControl.Source = displayPhoto;                   
+                    ImageControl.Source = displayPhoto;
                     imageTimeToDecode.Stop();
                     ImageIdxListDeletePtr = ImageIdxListPtr;
                     ImageReadyToDisplay = false;
@@ -217,7 +221,8 @@ namespace JRGSlideShowWPF
                     if (displayingInfo)
                     {
                         updateInfo();
-                    }                                      
+                    }
+                    PutMotd();
                 }
                 else
                 {
@@ -233,21 +238,42 @@ namespace JRGSlideShowWPF
                 }                                
             }
         }
-       
+
+        private void PutMotd()
+        {
+            if (ShowMotd)
+            {
+                Random r = new Random();
+                int i = r.Next(0, motd.Length);
+                MotdBlockControl.Text = motd[i];
+            }
+        }
+
         private void StartTurnOffTextBoxDisplayTimer(string displayText, int seconds)
         {
+            if (dispatcherTextBoxMessage.IsEnabled)
+            {
+                TextBoxMessages.Push(displayText);
+                TextBoxMessagesTimes.Push(seconds);
+                return;
+            }
             System.Windows.Application.Current.Dispatcher.Invoke(new Action(() => {
                 TextBlockControl.Visibility = Visibility.Visible;
                 TextBlockControl.Text = displayText;
             }));
-            dispatcherNotFinishedIHaveToLaugh.Stop();
-            dispatcherNotFinishedIHaveToLaugh.Tick += TurnOffTextBoxDisplay;
-            dispatcherNotFinishedIHaveToLaugh.Interval = new TimeSpan(0, 0, 0, seconds, 0);
-            dispatcherNotFinishedIHaveToLaugh.Start();
+            dispatcherTextBoxMessage.Stop();
+            dispatcherTextBoxMessage.Tick += TurnOffTextBoxDisplay;
+            dispatcherTextBoxMessage.Interval = new TimeSpan(0, 0, 0, seconds, 0);
+            dispatcherTextBoxMessage.Start();
         }
         private void TurnOffTextBoxDisplay(object sender, EventArgs e)
         {
-            dispatcherNotFinishedIHaveToLaugh.Stop();
+            dispatcherTextBoxMessage.Stop();
+            if (TextBoxMessages.Count > 0)
+            {
+                StartTurnOffTextBoxDisplayTimer(TextBoxMessages.Pop(), TextBoxMessagesTimes.Pop());
+                return;
+            }
             TextBlockControl.Visibility = Visibility.Hidden;
         }
 
@@ -312,12 +338,12 @@ namespace JRGSlideShowWPF
             Paused = true;
         }
         private void PauseRestore()
-        {            
-            if (pauseStack.Count == 0)
+        {
+            bool playState = true;
+            if (pauseStack.Count > 0)
             {
-                return;
+                playState = pauseStack.Pop();
             }
-            bool playState = pauseStack.Pop();
             if (playState)
             {
                 Play();
@@ -398,6 +424,30 @@ namespace JRGSlideShowWPF
         private void AllowMonitorSleepFullScreenOnly_Checked(object sender, RoutedEventArgs e)
         {
             StopMonitorSleepFullScreenOnly = StopSleepFullScreenXaml.IsChecked;
+        }
+
+        private void EnableMotd(object sender, RoutedEventArgs e)
+        {
+            ShowMotd = MotdXaml.IsChecked;
+            EnableMotdCode();
+        }
+
+        private void EnableMotdCode()
+        {
+            if (Starting)
+            {
+                return;
+            }            
+            getMotd();
+            if (ShowMotd)
+            {
+                MotdBlockControl.Visibility = Visibility.Visible;
+                PutMotd();
+            }
+            else
+            {
+                MotdBlockControl.Visibility = Visibility.Hidden;
+            }
         }
     }
 }

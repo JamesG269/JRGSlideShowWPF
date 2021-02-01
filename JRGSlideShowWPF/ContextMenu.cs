@@ -14,35 +14,12 @@ using System.Runtime.InteropServices;
 namespace JRGSlideShowWPF
 {
     public partial class MainWindow : Window
-    {
-        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
-        public struct SHELLEXECUTEINFO
-        {
-            public int cbSize;
-            public uint fMask;
-            public IntPtr hwnd;
-            [MarshalAs(UnmanagedType.LPTStr)]
-            public string lpVerb;
-            [MarshalAs(UnmanagedType.LPTStr)]
-            public string lpFile;
-            [MarshalAs(UnmanagedType.LPTStr)]
-            public string lpParameters;
-            [MarshalAs(UnmanagedType.LPTStr)]
-            public string lpDirectory;
-            public int nShow;
-            public IntPtr hInstApp;
-            public IntPtr lpIDList;
-            [MarshalAs(UnmanagedType.LPTStr)]
-            public string lpClass;
-            public IntPtr hkeyClass;
-            public uint dwHotKey;
-            public IntPtr hIcon;
-            public IntPtr hProcess;
-        }
-        [DllImport("shell32.dll", CharSet = CharSet.Auto)]
-        static extern bool ShellExecuteEx(ref SHELLEXECUTEINFO lpExecInfo);
+    {                
+        [DllImport("shell32.dll", SetLastError = true)]
+        public static extern int SHOpenFolderAndSelectItems(IntPtr pidlFolder, uint cidl, [In, MarshalAs(UnmanagedType.LPArray)] IntPtr[] apidl, uint dwFlags);
 
-        private const int SW_SHOW = 5;
+        [DllImport("shell32.dll", SetLastError = true)]
+        public static extern void SHParseDisplayName([MarshalAs(UnmanagedType.LPWStr)] string name, IntPtr bindingContext, [Out] out IntPtr pidl, uint sfgaoIn, [Out] out uint psfgaoOut);
 
         public static Shell shell = new Shell();
 
@@ -203,14 +180,26 @@ namespace JRGSlideShowWPF
         }
         private void ContextMenuPause(object sender, RoutedEventArgs e)
         {
+            MenuPause();
+        }
+        private void MenuPause()
+        {
             if (Paused == false)
             {
+                PlayXaml.IsChecked = false;
+                PauseXaml.IsChecked = true;
                 PauseSave();
             }
         }
         private void ContextMenuPlay(object sender, RoutedEventArgs e)
         {
+            MenuPlay();
+        }
+        private void MenuPlay()
+        {
             PauseRestore();
+            PlayXaml.IsChecked = true;
+            PauseXaml.IsChecked = false;
         }
         private async void ContextMenuCopyDelete(object sender, RoutedEventArgs e)
         {
@@ -453,13 +442,47 @@ namespace JRGSlideShowWPF
                 return;
             }
             FileInfo imageInfo = ImageList[ImageIdxList[ImageIdxListDeletePtr]];
-            var info = new SHELLEXECUTEINFO();
-            info.cbSize = Marshal.SizeOf<SHELLEXECUTEINFO>();
-            info.lpVerb = "explore";
-            info.nShow = SW_SHOW;
-            info.lpFile = imageInfo.DirectoryName;
-            ShellExecuteEx(ref info);
-            return;
+            OpenFolderAndSelectItem(imageInfo.DirectoryName, imageInfo.Name);
+            return;            
+        }
+        public static void OpenFolderAndSelectItem(string folderPath, string file)
+        {
+            IntPtr nativeFolder;
+            uint psfgaoOut;
+            SHParseDisplayName(folderPath, IntPtr.Zero, out nativeFolder, 0, out psfgaoOut);
+
+            if (nativeFolder == IntPtr.Zero)
+            {
+                // Log error, can't find folder
+                return;
+            }
+
+            IntPtr nativeFile;
+            SHParseDisplayName(Path.Combine(folderPath, file), IntPtr.Zero, out nativeFile, 0, out psfgaoOut);
+
+            IntPtr[] fileArray;
+            if (nativeFile == IntPtr.Zero)
+            {
+                // Open the folder without the file selected if we can't find the file
+                fileArray = new IntPtr[0];
+            }
+            else
+            {
+                fileArray = new IntPtr[] { nativeFile };
+            }
+
+            SHOpenFolderAndSelectItems(nativeFolder, (uint)fileArray.Length, fileArray, 0);
+
+            Marshal.FreeCoTaskMem(nativeFolder);
+            if (nativeFile != IntPtr.Zero)
+            {
+                Marshal.FreeCoTaskMem(nativeFile);
+            }
+        }
+        private void ContextMenu_Opened(object sender, RoutedEventArgs e)
+        {
+            PlayXaml.IsChecked = !Paused;
+            PauseXaml.IsChecked = Paused;
         }
     }
 }

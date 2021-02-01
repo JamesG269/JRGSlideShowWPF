@@ -160,7 +160,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="botm.cs" />
     <Compile Include="GoogleImageSearch.cs" />
     <Compile Include="FullScreen.cs" />
     <Compile Include="Keyboard.cs" />
