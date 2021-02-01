@@ -80,6 +80,8 @@ namespace JRGSlideShowWPF
         Stack<bool> pauseStack = new Stack<bool>();
         Stack<string> TextBoxMessages = new Stack<string>();
         Stack<int> TextBoxMessagesTimes = new Stack<int>();
+        TextBoxMessage MotdClass;
+        TextBoxMessage TextBoxClass;
 
         public MainWindow()
         {
@@ -87,7 +89,7 @@ namespace JRGSlideShowWPF
         }
         bool Starting = false;
         bool IsUserjgentile = false;
-        private async void Window_ContentRendered(object sender, EventArgs e)
+        public async void Window_ContentRendered(object sender, EventArgs e)
         {
             Starting = true;
             bool result = await Task.Run(() => InitAndClosePrevious());
@@ -95,7 +97,18 @@ namespace JRGSlideShowWPF
             {
                 Close();
             }
-            IsUserjgentile = String.Compare(Environment.UserName,"jgentile", true) == 0;
+            MotdClass = new TextBoxMessage()
+            {
+                textBlock = MotdBlockControl,
+                dispatchTimer = new System.Windows.Threading.DispatcherTimer()
+            };
+            TextBoxClass = new TextBoxMessage()
+            {
+                textBlock = TextBlockControl,
+                dispatchTimer = new System.Windows.Threading.DispatcherTimer()
+            };
+            
+            IsUserjgentile = String.Compare(Environment.UserName, "jgentile", true) == 0;
             GCSettings.LatencyMode = GCLatencyMode.LowLatency;
             PSource = PresentationSource.FromVisual(this);
             thisHandle = new WindowInteropHelper(this).Handle;
@@ -107,9 +120,8 @@ namespace JRGSlideShowWPF
             dispatcherPlaying.Tick += DisplayNextImageTimer;
             dispatcherPureSense.Tick += MouseHide;
             dispatcherPureSense.Interval = new TimeSpan(0, 0, 0, 5, 0);
-            
+
             LoadSettings();
-            StartUp = false;
             NotifyStart();
             Starting = false;
 
@@ -126,9 +138,9 @@ namespace JRGSlideShowWPF
             dispatcherPureSense.Stop();
             dispatcherPureSense.Start();
             EnableMotdCode();
-            
-        }
 
+        }
+        
         private bool InitAndClosePrevious()
         {
             InitRNGKeys();
@@ -162,25 +174,25 @@ namespace JRGSlideShowWPF
             if (Paused == false)
             {
                 await DisplayGetNextImageWithoutCheck(i);
-            }            
+            }
             Interlocked.Exchange(ref OneInt, 0);
         }
 
         private async Task DisplayGetNextImageWithoutCheck(int i)
-        {            
+        {
             if (ImageListReady == true)
             {
                 PauseSave();
                 await Task.Run(() => LoadNextImage(i));
                 await DisplayCurrentImage();
-                FileInfo fileInfo = ImageList[ImageIdxList[ImageIdxListPtr]];                
+                FileInfo fileInfo = ImageList[ImageIdxList[ImageIdxListPtr]];
                 PauseRestore();
             }
         }
-        
+
         private void LoadNextImage(int i)
-        {            
-            IteratePicList(i);            
+        {
+            IteratePicList(i);
             imageTimeToDecode.Restart();
             ResizeImageCode();
         }
@@ -207,9 +219,9 @@ namespace JRGSlideShowWPF
         }
         bool ShowMotd = false;
         private async Task DisplayCurrentImage()
-        {            
+        {
             if (ImageReadyToDisplay == true)
-            {            
+            {
                 if (ImageError == false)
                 {
                     ImageIdxListDeletePtr = -1;
@@ -235,48 +247,130 @@ namespace JRGSlideShowWPF
                         MessageBox.Show(ErrorMessage);
                     }
                     //copydeleteworker();
-                }                                
+                }
             }
-        }
 
+        }
+        private void EnableMotdCode()
+        {
+            if (Starting)
+            {
+                return;
+            }
+            PutMotd();
+        }
         private void PutMotd()
         {
             if (ShowMotd)
             {
+                if (motd.Length == 0)
+                {
+                    getMotd();
+                }
+                if (motd.Length == 0)
+                {
+                    return;
+                }
                 Random r = new Random();
                 int i = r.Next(0, motd.Length);
-                MotdBlockControl.Text = motd[i];
+                MotdClass.messageDisplayStart(motd[i], -1, true, true);
+            }
+            else
+            {
+                MotdClass.messageDisplayEndUninterruptable(new Action(() => { MotdClass.textBlock.Visibility = Visibility.Hidden; }));
+            }
+        }
+        public void getMotd()
+        {
+            if (!ShowMotd)
+            {
+                return;
+            }
+            string motdFilePath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\motd.txt";
+            if (File.Exists(motdFilePath))
+            {
+                motd = File.ReadAllLines(motdFilePath);
+                TextBoxClass.messageDisplayStart(motd.Length.ToString() + " MOTDs loaded.", 5);
+            }
+            else
+            {
+                TextBoxClass.messageDisplayStart("no MOTD found at " + motdFilePath, 5, false, false);
             }
         }
 
-        private void StartTurnOffTextBoxDisplayTimer(string displayText, int seconds)
+        public class TextBoxMessage
         {
-            if (dispatcherTextBoxMessage.IsEnabled)
+            public System.Windows.Threading.DispatcherTimer dispatchTimer;            
+            public Stack<string> messages = new Stack<string>();
+            public Stack<int> times = new Stack<int>();
+            public Stack<bool> interruptable = new Stack<bool>();
+            public System.Windows.Controls.TextBlock textBlock; 
+            public static int InterlockInt = 0;
+            public bool LastWasInterruptable = true;
+            public void messageDisplayEndUninterruptable(Action action)
             {
-                TextBoxMessages.Push(displayText);
-                TextBoxMessagesTimes.Push(seconds);
-                return;
+                dispatchTimer.Stop();
+                dispatchTimer.IsEnabled = false;
+                LastWasInterruptable = true;
+                DispatcherWait(action + new Action(() => { InterlockInt = 0; }));                
             }
-            System.Windows.Application.Current.Dispatcher.Invoke(new Action(() => {
-                TextBlockControl.Visibility = Visibility.Visible;
-                TextBlockControl.Text = displayText;
-            }));
-            dispatcherTextBoxMessage.Stop();
-            dispatcherTextBoxMessage.Tick += TurnOffTextBoxDisplay;
-            dispatcherTextBoxMessage.Interval = new TimeSpan(0, 0, 0, seconds, 0);
-            dispatcherTextBoxMessage.Start();
-        }
-        private void TurnOffTextBoxDisplay(object sender, EventArgs e)
-        {
-            dispatcherTextBoxMessage.Stop();
-            if (TextBoxMessages.Count > 0)
+            public void messageDisplayEnd(object sender, EventArgs e)
             {
-                StartTurnOffTextBoxDisplayTimer(TextBoxMessages.Pop(), TextBoxMessagesTimes.Pop());
-                return;
+                dispatchTimer.Stop();
+                dispatchTimer.IsEnabled = false;
+                if (messages.Count > 0)
+                {
+                    messageDisplayStart(messages.Pop(), times.Pop(), interruptable.Pop());
+                }
+                else
+                {
+                    DispatcherWait(new Action(() =>
+                    {
+                        textBlock.Visibility = Visibility.Hidden;
+                        InterlockInt = 0;
+                    }));
+                }
             }
-            TextBlockControl.Visibility = Visibility.Hidden;
-        }
-
+            public void DispatcherWait(Action action)
+            {
+                while (0 != Interlocked.Exchange(ref InterlockInt, 1))
+                {
+                    Thread.Sleep(10);
+                }
+                System.Windows.Application.Current.Dispatcher.Invoke(action);
+                while (InterlockInt != 0)
+                {
+                    Thread.Sleep(10);
+                }
+            }
+            public void messageDisplayStart(string displayText, int seconds, bool Interruptable = false, bool highPriority = false)
+            {                
+                if (dispatchTimer.IsEnabled && LastWasInterruptable == false && highPriority == false)
+                {                    
+                    messages.Push(displayText);
+                    times.Push(seconds);
+                    interruptable.Push(Interruptable);
+                    InterlockInt = 0;
+                    return;
+                }                
+                LastWasInterruptable = Interruptable;
+                DispatcherWait(new Action(() => {
+                    textBlock.Visibility = Visibility.Visible;
+                    textBlock.Text = displayText;
+                    InterlockInt = 0;
+                }));   
+                if (seconds == -1)
+                {
+                    return;
+                }
+                dispatchTimer.Stop();                                
+                dispatchTimer.Interval = new TimeSpan(0, 0, 0, seconds, 0);
+                dispatchTimer.Tick -= messageDisplayEnd;
+                dispatchTimer.Tick += messageDisplayEnd;
+                dispatchTimer.Start();
+                dispatchTimer.IsEnabled = true;
+            }
+        }       
         private async void DisplayNextImageTimer(object sender, EventArgs e)
         {            
             await DisplayGetNextImage(1);
@@ -323,7 +417,6 @@ namespace JRGSlideShowWPF
                 ImageListReady = ImageListReadyBackup;
             }
         }
-
         private void GetMaxSize()
         {
             var bounds = Screen.FromHandle(thisHandle).Bounds;
@@ -401,7 +494,7 @@ namespace JRGSlideShowWPF
             {
                 await Task.Delay(1);
             }
-            if (StartUp == false)
+            if (Starting == false)
             {
                 SaveSettings();
             }                        
@@ -425,29 +518,12 @@ namespace JRGSlideShowWPF
         {
             StopMonitorSleepFullScreenOnly = StopSleepFullScreenXaml.IsChecked;
         }
-
         private void EnableMotd(object sender, RoutedEventArgs e)
         {
             ShowMotd = MotdXaml.IsChecked;
             EnableMotdCode();
         }
 
-        private void EnableMotdCode()
-        {
-            if (Starting)
-            {
-                return;
-            }            
-            getMotd();
-            if (ShowMotd)
-            {
-                MotdBlockControl.Visibility = Visibility.Visible;
-                PutMotd();
-            }
-            else
-            {
-                MotdBlockControl.Visibility = Visibility.Hidden;
-            }
-        }
+        
     }
 }

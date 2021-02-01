@@ -261,13 +261,13 @@ namespace JRGSlideShowWPF
             TextBlockControl.Visibility = Visibility.Visible;
             if (DeletedFiles.Count == 0)
             {
-                TextBlockControl.Text = "No more files to undelete.";
+                TextBoxClass.messageDisplayStart("No more files to undelete.", 5);
                 return false;
             }
             string LastDeleted = DeletedFiles.Pop();
             if (LastDeleted == "")
             {
-                TextBlockControl.Text = LastDeleted + " UNDELETE ERROR.";
+                TextBoxClass.messageDisplayStart(LastDeleted + " UNDELETE ERROR.", 5);
                 return false;
             }
             FolderItems folderItems = RecyclingBin.Items();
@@ -291,10 +291,10 @@ namespace JRGSlideShowWPF
                     }
                     catch
                     {                        
-                        StartTurnOffTextBoxDisplayTimer(LastDeleted + " Could not be undeleted, file not found.", 5);
+                        TextBoxClass.messageDisplayStart(LastDeleted + " Could not be undeleted, file not found.", 5);
                         return false;
                     }                                       
-                    StartTurnOffTextBoxDisplayTimer(LastDeleted + " Restored.", 5);
+                    TextBoxClass.messageDisplayStart(LastDeleted + " Restored.", 5);
                     Array.Resize(ref ImageList, ImageList.Length + 1);
                     ImageList[ImageList.Length - 1] = undelFile;
                     Array.Resize(ref ImageIdxList, ImageIdxList.Length + 1);
@@ -350,7 +350,7 @@ namespace JRGSlideShowWPF
                         ImageIdxList[ImageIdxListDeletePtr] = -1;
                         ImagesNotNull--;
                         ImageIdxListDeletePtr = -1;                                                
-                        StartTurnOffTextBoxDisplayTimer("Deleted: " + fileName, 5);
+                        TextBoxClass.messageDisplayStart("Deleted: " + fileName, 5);
                     }
                     else
                     {

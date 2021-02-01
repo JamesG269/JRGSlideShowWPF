@@ -123,8 +123,7 @@ namespace JRGSlideShowWPF
                 progressBar.Value = 0;
                 TextBlockControl.Visibility = Visibility.Visible;
                 progressBar.Visibility = Visibility.Visible;
-                TextBlockControl.Text = "Loading large image : " + fileInfo.Name + " Length: " + fileInfo.Length.ToString("N0") + " Bytes";
-
+                TextBoxClass.messageDisplayStart("Loading large image : " + fileInfo.Name + " Length: " + fileInfo.Length.ToString("N0") + " Bytes", -1, false, true);
             }));
             GC.Collect();
             FileStream fileStream = new FileStream(fileInfo.FullName, FileMode.Open, FileAccess.Read);
@@ -150,11 +149,11 @@ namespace JRGSlideShowWPF
             fileStream.Dispose();
             GC.Collect();
             memStream.Seek(0, SeekOrigin.Begin);
-            decoder = BitmapDecoder.Create(memStream, BitmapCreateOptions.IgnoreColorProfile, BitmapCacheOption.OnLoad);
-            Application.Current.Dispatcher.Invoke(new Action(() =>
+            decoder = BitmapDecoder.Create(memStream, BitmapCreateOptions.IgnoreColorProfile, BitmapCacheOption.OnLoad);            
+            TextBoxClass.messageDisplayEndUninterruptable(new Action(() =>
             {
-                TextBlockControl.Visibility = Visibility.Hidden;
-                progressBar.Visibility = Visibility.Hidden;
+                TextBoxClass.textBlock.Visibility = Visibility.Hidden;
+                progressBar.Visibility = Visibility.Hidden;                
             }));
             return decoder;
         }

@@ -6,7 +6,7 @@ namespace JRGSlideShowWPF
 {
     public partial class MainWindow : Window
     {
-        string[] motd;
+        string[] motd = new string[] {};
         public void LoadSettings()
         {            
             RandomizeImages = Properties.Settings.Default.Randomize;
@@ -23,8 +23,7 @@ namespace JRGSlideShowWPF
             StopSleepPausedXaml.IsChecked = StopMonitorSleepPaused;
             StopSleepPlayingXaml.IsChecked = StopMonitorSleepPlaying;
             ShowMotd = Properties.Settings.Default.ShowMotd;
-            MotdXaml.IsChecked = ShowMotd;
-            getMotd();
+            MotdXaml.IsChecked = ShowMotd;            
             int c = 0;
             if (i == 0)
             {
@@ -60,18 +59,6 @@ namespace JRGSlideShowWPF
             Properties.Settings.Default.ShowMotd = ShowMotd;
             Properties.Settings.Default.Save();            
         }
-        public void getMotd()
-        {
-            if (!ShowMotd)
-            {
-                return;
-            }
-            string motdFilePath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\motd.txt";
-            if (File.Exists(motdFilePath))
-            {
-                motd = File.ReadAllLines(motdFilePath);
-                StartTurnOffTextBoxDisplayTimer(motd.Length.ToString() + " MOTD's loaded.", 5);
-            }
-        }
+        
     }
 }
