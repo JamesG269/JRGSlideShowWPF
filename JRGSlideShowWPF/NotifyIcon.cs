@@ -25,7 +25,7 @@ namespace JRGSlideShowWPF
         }
         private async void NotifyDeleteCode(object sender, EventArgs e)
         {
-            PauseSave();
+            PauseSave(true);
             while (0 != Interlocked.Exchange(ref OneInt, 1))
             {
                 await Task.Delay(1);

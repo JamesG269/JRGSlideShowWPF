@@ -25,7 +25,7 @@ namespace JRGSlideShowWPF
             }
             else if (e.Key == Key.Delete || e.Key == Key.D)
             {
-                PauseSave();
+                PauseSave(true);
                 while (0 != Interlocked.Exchange(ref OneInt, 1))
                 {
                     await Task.Delay(1);
@@ -36,7 +36,7 @@ namespace JRGSlideShowWPF
             }
             else if (e.Key == Key.Insert)
             {
-                PauseSave();
+                PauseSave(true);
                 while (0 != Interlocked.Exchange(ref OneInt, 1))
                 {
                     await Task.Delay(1);
@@ -63,14 +63,17 @@ namespace JRGSlideShowWPF
                 displayingInfo = false;
             }
             else
-            {
-                
+            {                
                 displayingInfo = true;
                 updateInfo();
             }
         }
         public void updateInfo()
         {
+            if (displayingInfo == false)
+            {
+                return;
+            }
             if (ImageIdxListDeletePtr != -1 && ImageIdxList[ImageIdxListDeletePtr] != -1)
             {
                 FileInfo imageInfo = ImageList[ImageIdxList[ImageIdxListDeletePtr]];

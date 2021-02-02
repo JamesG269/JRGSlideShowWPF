@@ -41,7 +41,7 @@ namespace JRGSlideShowWPF
             var result = MessageBox.Show("Confirm google look up, Private Mode is DISABLED. ", "Confirm google look up.", MessageBoxButton.YesNo);
             if (result == MessageBoxResult.Yes)
             {
-                PauseSave();
+                PauseSave(true);
                 await Task.Run(() => GoogleImageSearch(ImageList[ImageIdxList[ImageIdxListPtr]].FullName, true, _cancelTokenSource.Token));
                 PauseRestore();
             }
@@ -92,7 +92,7 @@ namespace JRGSlideShowWPF
         }
         private async void ImageInfo_Click(object sender, RoutedEventArgs e)
         {
-            PauseSave();
+            PauseSave(true);
             while (0 != Interlocked.Exchange(ref OneInt, 1))
             {
                 await Task.Delay(1);
@@ -207,7 +207,7 @@ namespace JRGSlideShowWPF
         }
         private async Task<Boolean> CopyDeleteCode()
         {
-            PauseSave();
+            PauseSave(true);
             while (0 != Interlocked.Exchange(ref OneInt, 1))
             {
                 await Task.Delay(1);
@@ -250,7 +250,7 @@ namespace JRGSlideShowWPF
             {
                 await Task.Delay(1);
             }
-            PauseSave();            
+            PauseSave(true);            
             await DeleteNoInterlock();
             PauseRestore();
             Interlocked.Exchange(ref OneInt, 0);

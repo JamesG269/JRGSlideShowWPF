@@ -182,7 +182,7 @@ namespace JRGSlideShowWPF
         {
             if (ImageListReady == true)
             {
-                PauseSave();
+                PauseSave(true);
                 await Task.Run(() => LoadNextImage(i));
                 await DisplayCurrentImage();
                 FileInfo fileInfo = ImageList[ImageIdxList[ImageIdxListPtr]];
@@ -429,10 +429,10 @@ namespace JRGSlideShowWPF
             ScreenMaxWidth = bounds.Width;
         }        
         Boolean Paused = false;
-        private void PauseSave()
+        private void PauseSave(bool temp = false)
         {
             pauseStack.Push(dispatcherPlaying.IsEnabled);
-            Stop();
+            Stop(temp);
             Paused = true;
         }
         private void PauseRestore()
@@ -448,17 +448,20 @@ namespace JRGSlideShowWPF
                 Paused = false;
             }            
         }
-        private void Stop()
+        private void Stop(bool temp = false)
         {
             dispatcherPlaying.Stop();
-            SetDisplayMode();           
+            if (!temp)
+            {
+                SetDisplayMode();
+            }
         }
         
         private void Play()
         {
             if (ImageListReady == false)
             {
-                Stop();
+                Stop(true);
                 return;
             }
             dispatcherPlaying.Stop();
@@ -469,24 +472,29 @@ namespace JRGSlideShowWPF
 
         private void SetDisplayMode()
         {
+            SetDisplayModeCode();
+            updateInfo();
+        }
+        private void SetDisplayModeCode()
+        {
             if ((AllowMonitorSleepFullScreenOnly == false) || (AllowMonitorSleepFullScreenOnly == true && isMaximized == true))
             {
                 if (AllowMonitorSleepPlaying && dispatcherPlaying.IsEnabled)
                 {
-                    MessageBox.Show("Display sleep Playing.");
+                    //MessageBox.Show("Display sleep Playing.");
                     SetThreadExecutionState(EXECUTION_STATE.ES_CONTINUOUS);
                     LastDisplayMode = 0;
                     return;
                 }
                 if (AllowMonitorSleepPaused && !dispatcherPlaying.IsEnabled)
                 {
-                    MessageBox.Show("Display sleep Paused.");
+                    //MessageBox.Show("Display sleep Paused.");
                     SetThreadExecutionState(EXECUTION_STATE.ES_CONTINUOUS);
                     LastDisplayMode = 0;
                     return;
                 }
             }
-            MessageBox.Show("display awake");
+            //MessageBox.Show("display awake");
             SetThreadExecutionState(EXECUTION_STATE.ES_DISPLAY_REQUIRED | EXECUTION_STATE.ES_CONTINUOUS);
             LastDisplayMode = 1;
         }
@@ -516,17 +524,20 @@ namespace JRGSlideShowWPF
         bool AllowMonitorSleepFullScreenOnly = false;
         private void AllowMonitorSleepPlaying_Checked(object sender, RoutedEventArgs e)
         {
-            AllowMonitorSleepPlaying = AllowSleepPlayingXaml.IsChecked;            
+            AllowMonitorSleepPlaying = AllowSleepPlayingXaml.IsChecked;
+            SetDisplayMode();
         }
 
         private void AllowMonitorSleepPaused_Checked(object sender, RoutedEventArgs e)
         {
             AllowMonitorSleepPaused = AllowSleepPausedXaml.IsChecked;
+            SetDisplayMode();
         }
 
         private void AllowMonitorSleepFullScreenOnly_Checked(object sender, RoutedEventArgs e)
         {
             AllowMonitorSleepFullScreenOnly = AllowSleepFullScreenXaml.IsChecked;
+            SetDisplayMode();
         }
         private void EnableMotd(object sender, RoutedEventArgs e)
         {
