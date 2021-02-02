@@ -257,16 +257,13 @@ namespace JRGSlideShowWPF
             {
                 return;
             }
+            getMotd();
             PutMotd();
         }
         private void PutMotd()
         {
             if (ShowMotd)
-            {
-                if (motd.Length == 0)
-                {
-                    getMotd();
-                }
+            {                
                 if (motd.Length == 0)
                 {
                     return;
@@ -294,6 +291,7 @@ namespace JRGSlideShowWPF
             }
             else
             {
+                ShowMotd = false;
                 TextBoxClass.messageDisplayStart("no MOTD found at " + motdFilePath, 5, false, false);
             }
         }
@@ -312,7 +310,14 @@ namespace JRGSlideShowWPF
                 dispatchTimer.Stop();
                 dispatchTimer.IsEnabled = false;
                 LastWasInterruptable = true;
-                DispatcherWait(action + new Action(() => { InterlockInt = 0; }));                
+                DispatcherWait(action + new Action(() => {
+                    textBlock.Visibility = Visibility.Hidden;
+                    InterlockInt = 0; 
+                }));
+                if (messages.Count > 0)
+                {
+                    messageDisplayStart(messages.Pop(), times.Pop(), interruptable.Pop());
+                }
             }
             public void messageDisplayEnd(object sender, EventArgs e)
             {
@@ -460,25 +465,30 @@ namespace JRGSlideShowWPF
             dispatcherPlaying.Start();
             SetDisplayMode();            
         }
+        int LastDisplayMode = 0;
+
         private void SetDisplayMode()
         {
-            if (!StopMonitorSleepFullScreenOnly || (StopMonitorSleepFullScreenOnly && isMaximized))
+            if ((AllowMonitorSleepFullScreenOnly == false) || (AllowMonitorSleepFullScreenOnly == true && isMaximized == true))
             {
-                if (StopMonitorSleepPlaying && dispatcherPlaying.IsEnabled)
+                if (AllowMonitorSleepPlaying && dispatcherPlaying.IsEnabled)
                 {
-                    //MessageBox.Show("Display sleep.");
+                    MessageBox.Show("Display sleep Playing.");
                     SetThreadExecutionState(EXECUTION_STATE.ES_CONTINUOUS);
+                    LastDisplayMode = 0;
                     return;
                 }
-                if (StopMonitorSleepPaused && !dispatcherPlaying.IsEnabled)
+                if (AllowMonitorSleepPaused && !dispatcherPlaying.IsEnabled)
                 {
-                    //MessageBox.Show("Display sleep.");
+                    MessageBox.Show("Display sleep Paused.");
                     SetThreadExecutionState(EXECUTION_STATE.ES_CONTINUOUS);
+                    LastDisplayMode = 0;
                     return;
                 }
             }
-            //MessageBox.Show("display awake");
-            SetThreadExecutionState(EXECUTION_STATE.ES_DISPLAY_REQUIRED | EXECUTION_STATE.ES_CONTINUOUS);                            
+            MessageBox.Show("display awake");
+            SetThreadExecutionState(EXECUTION_STATE.ES_DISPLAY_REQUIRED | EXECUTION_STATE.ES_CONTINUOUS);
+            LastDisplayMode = 1;
         }
         
         protected override async void OnClosing(CancelEventArgs e)
@@ -501,22 +511,22 @@ namespace JRGSlideShowWPF
             base.OnClosing(e);
         }
 
-        bool StopMonitorSleepPlaying = true;
-        bool StopMonitorSleepPaused = false;
-        bool StopMonitorSleepFullScreenOnly = true;
+        bool AllowMonitorSleepPlaying = false;
+        bool AllowMonitorSleepPaused = true;
+        bool AllowMonitorSleepFullScreenOnly = false;
         private void AllowMonitorSleepPlaying_Checked(object sender, RoutedEventArgs e)
         {
-            StopMonitorSleepPlaying = StopSleepPlayingXaml.IsChecked;            
+            AllowMonitorSleepPlaying = AllowSleepPlayingXaml.IsChecked;            
         }
 
         private void AllowMonitorSleepPaused_Checked(object sender, RoutedEventArgs e)
         {
-            StopMonitorSleepPaused = StopSleepPausedXaml.IsChecked;
+            AllowMonitorSleepPaused = AllowSleepPausedXaml.IsChecked;
         }
 
         private void AllowMonitorSleepFullScreenOnly_Checked(object sender, RoutedEventArgs e)
         {
-            StopMonitorSleepFullScreenOnly = StopSleepFullScreenXaml.IsChecked;
+            AllowMonitorSleepFullScreenOnly = AllowSleepFullScreenXaml.IsChecked;
         }
         private void EnableMotd(object sender, RoutedEventArgs e)
         {

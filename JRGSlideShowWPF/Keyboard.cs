@@ -59,12 +59,12 @@ namespace JRGSlideShowWPF
             }
             if (displayingInfo == true && TextBlockControl.Visibility != Visibility.Hidden)
             {
-                TextBlockControl.Visibility = Visibility.Hidden;
+                TextBoxClass.messageDisplayEndUninterruptable(new Action(() => { }));
                 displayingInfo = false;
             }
             else
             {
-                TextBlockControl.Visibility = Visibility.Visible;
+                
                 displayingInfo = true;
                 updateInfo();
             }
@@ -90,10 +90,11 @@ namespace JRGSlideShowWPF
                     + "Image time to decode (ticks): " + imageTimeToDecode.ElapsedTicks + Environment.NewLine
                     + "   Image time to decode (ms): " + s + Environment.NewLine
                     + "                Total Images: " + ImagesNotNull + Environment.NewLine
-                    + "     Pictures undelete count: " + DeletedFiles.Count
+                    + "     Pictures undelete count: " + DeletedFiles.Count + Environment.NewLine
+                    + "             Last Sleep Mode: " + (LastDisplayMode == 0 ? "Display not required." : "Display Required.")
                     );
 
-                TextBlockControl.Text = sb.ToString();
+                TextBoxClass.messageDisplayStart(sb.ToString(), -1, false, true);
             }
         }
     }

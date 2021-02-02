@@ -10,18 +10,18 @@ namespace JRGSlideShowWPF
         public void LoadSettings()
         {            
             RandomizeImages = Properties.Settings.Default.Randomize;
-            StopMonitorSleepPaused = Properties.Settings.Default.AllowSleepPaused;
-            StopMonitorSleepPlaying = Properties.Settings.Default.AllowSleepPlay;
-            StopMonitorSleepFullScreenOnly = Properties.Settings.Default.AllowSleepFull;
+            AllowMonitorSleepPaused = Properties.Settings.Default.AllowSleepPaused;
+            AllowMonitorSleepPlaying = Properties.Settings.Default.AllowSleepPlay;
+            AllowMonitorSleepFullScreenOnly = Properties.Settings.Default.AllowSleepFull;
 
             int i = Properties.Settings.Default.TimerSeconds;
             SlideShowDirectory = Properties.Settings.Default.SlideShowFolder;
 
             ContextMenuCheckBox.IsChecked = RandomizeImages;
             PrivateModeCheckBox.IsChecked = Properties.Settings.Default.PrivateMode;
-            StopSleepFullScreenXaml.IsChecked = StopMonitorSleepFullScreenOnly;
-            StopSleepPausedXaml.IsChecked = StopMonitorSleepPaused;
-            StopSleepPlayingXaml.IsChecked = StopMonitorSleepPlaying;
+            AllowSleepFullScreenXaml.IsChecked = AllowMonitorSleepFullScreenOnly;
+            AllowSleepPausedXaml.IsChecked = AllowMonitorSleepPaused;
+            AllowSleepPlayingXaml.IsChecked = AllowMonitorSleepPlaying;
             ShowMotd = Properties.Settings.Default.ShowMotd;
             MotdXaml.IsChecked = ShowMotd;            
             int c = 0;
@@ -53,9 +53,9 @@ namespace JRGSlideShowWPF
             }
             Properties.Settings.Default.PrivateMode = PrivateModeCheckBox.IsChecked;
             Properties.Settings.Default.TimerSeconds = dispatcherPlaying.Interval.Seconds;
-            Properties.Settings.Default.AllowSleepPaused = StopSleepPausedXaml.IsChecked;
-            Properties.Settings.Default.AllowSleepPlay = StopSleepPlayingXaml.IsChecked;
-            Properties.Settings.Default.AllowSleepFull = StopSleepFullScreenXaml.IsChecked;
+            Properties.Settings.Default.AllowSleepPaused = AllowSleepPausedXaml.IsChecked;
+            Properties.Settings.Default.AllowSleepPlay = AllowSleepPlayingXaml.IsChecked;
+            Properties.Settings.Default.AllowSleepFull = AllowSleepFullScreenXaml.IsChecked;
             Properties.Settings.Default.ShowMotd = ShowMotd;
             Properties.Settings.Default.Save();            
         }
