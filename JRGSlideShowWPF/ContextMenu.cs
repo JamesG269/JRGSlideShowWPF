@@ -91,15 +91,8 @@ namespace JRGSlideShowWPF
             return true;
         }
         private async void ImageInfo_Click(object sender, RoutedEventArgs e)
-        {
-            PauseSave(true);
-            while (0 != Interlocked.Exchange(ref OneInt, 1))
-            {
-                await Task.Delay(1);
-            }
-            DisplayFileInfo();
-            PauseRestore();
-            Interlocked.Exchange(ref OneInt, 0);
+        {                        
+            await DisplayFileInfo();            
         }
         int benchmarkRunning = 0;
         bool benchmarkStop = false;
@@ -261,13 +254,13 @@ namespace JRGSlideShowWPF
             TextBlockControl.Visibility = Visibility.Visible;
             if (DeletedFiles.Count == 0)
             {
-                TextBoxClass.messageDisplayStart("No more files to undelete.", 5);
+                topTextBoxClass.messageDisplayStart("No more files to undelete.", 5);
                 return false;
             }
             string LastDeleted = DeletedFiles.Pop();
             if (LastDeleted == "")
             {
-                TextBoxClass.messageDisplayStart(LastDeleted + " UNDELETE ERROR.", 5);
+                topTextBoxClass.messageDisplayStart(LastDeleted + " UNDELETE ERROR.", 5);
                 return false;
             }
             FolderItems folderItems = RecyclingBin.Items();
@@ -291,10 +284,10 @@ namespace JRGSlideShowWPF
                     }
                     catch
                     {                        
-                        TextBoxClass.messageDisplayStart(LastDeleted + " Could not be undeleted, file not found.", 5);
+                        topTextBoxClass.messageDisplayStart(LastDeleted + " Could not be undeleted, file not found.", 5);
                         return false;
                     }                                       
-                    TextBoxClass.messageDisplayStart(LastDeleted + " Restored.", 5);
+                    topTextBoxClass.messageDisplayStart(LastDeleted + " Restored.", 5);
                     Array.Resize(ref ImageList, ImageList.Length + 1);
                     ImageList[ImageList.Length - 1] = undelFile;
                     Array.Resize(ref ImageIdxList, ImageIdxList.Length + 1);
@@ -350,7 +343,7 @@ namespace JRGSlideShowWPF
                         ImageIdxList[ImageIdxListDeletePtr] = -1;
                         ImagesNotNull--;
                         ImageIdxListDeletePtr = -1;                                                
-                        TextBoxClass.messageDisplayStart("Deleted: " + fileName, 5);
+                        topTextBoxClass.messageDisplayStart("Deleted: " + fileName, 5);
                     }
                     else
                     {

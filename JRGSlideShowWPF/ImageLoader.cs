@@ -57,9 +57,9 @@ namespace JRGSlideShowWPF
             {
                 return;
             }
-            TextBoxClass.messageDisplayStart("Finding images...", 5, true, true);            
+            topTextBoxClass.messageDisplayStart("Finding images...", -1, true, false);            
             GetFiles(SlideShowDirectory, "*.jpg;*.jpeg;*.png;*.bmp;*.gif;*.tif;*.tiff;*.webp");
-            TextBoxClass.messageDisplayStart(NewImageList.Count + " images found.", 5, false, true);            
+            topTextBoxClass.messageDisplayStart(NewImageList.Count + " images found.", 5);            
         }
         
         
@@ -101,7 +101,7 @@ namespace JRGSlideShowWPF
                         if (NextListUpdate > 100)
                         {
                             NextListUpdate = 0;
-                            TextBoxClass.messageDisplayStart("Scanning directories... Images found: " + NewImageList.Count, -1, true, true);                            
+                            topTextBoxClass.messageDisplayStart("Scanning directories... Images found: " + NewImageList.Count, -1, true, false);                            
                         }
                     }
                 }

@@ -43,13 +43,18 @@ namespace JRGSlideShowWPF
             ImageReadyToDisplay = true;
             ImageError = false;            
             GetMaxSize();
+            bool DisplayedMessage = false;
             try
             {
+                DisplayedMessage = false;
                 ErrorMessage = "Resize Error.";
                 FileInfo fileInfo = ImageList[ImageIdxList[ImageIdxListPtr]];
                 decoder = null;
+                
                 if (fileInfo.Length > 20000000)
                 {
+                    DisplayedMessage = true;
+                    topTextBoxClass.messageDisplayStart("Loading large image : " + fileInfo.Name + " Length: " + fileInfo.Length.ToString("N0") + " Bytes", -1, false, true);
                     decoder = LoadLargeImage(fileInfo);
                 }
                 else
@@ -112,7 +117,17 @@ namespace JRGSlideShowWPF
                 {
                     ErrorMessage = srcName + " " + ErrorMessage + " Exception details: " + e.Message;
                 }                
-            }            
+            }
+            finally
+            {
+                if (DisplayedMessage)
+                {
+                    topTextBoxClass.messageDisplayEndUninterruptable(new Action(() =>
+                    {
+                        progressBar.Visibility = Visibility.Hidden;
+                    }));                    
+                }
+            }
         }
 
         private BitmapDecoder LoadLargeImage(FileInfo fileInfo)
@@ -120,11 +135,9 @@ namespace JRGSlideShowWPF
             BitmapDecoder decoder;
             Application.Current.Dispatcher.Invoke(new Action(() =>
             {
-                progressBar.Value = 0;
-                TextBlockControl.Visibility = Visibility.Visible;
-                progressBar.Visibility = Visibility.Visible;
-                TextBoxClass.messageDisplayStart("Loading large image : " + fileInfo.Name + " Length: " + fileInfo.Length.ToString("N0") + " Bytes", -1, false, true);
-            }));
+                progressBar.Value = 0;                
+                progressBar.Visibility = Visibility.Visible;                
+            }));            
             GC.Collect();
             FileStream fileStream = new FileStream(fileInfo.FullName, FileMode.Open, FileAccess.Read);
 
@@ -149,12 +162,7 @@ namespace JRGSlideShowWPF
             fileStream.Dispose();
             GC.Collect();
             memStream.Seek(0, SeekOrigin.Begin);
-            decoder = BitmapDecoder.Create(memStream, BitmapCreateOptions.IgnoreColorProfile, BitmapCacheOption.OnLoad);            
-            TextBoxClass.messageDisplayEndUninterruptable(new Action(() =>
-            {
-                TextBoxClass.textBlock.Visibility = Visibility.Hidden;
-                progressBar.Visibility = Visibility.Hidden;                
-            }));
+            decoder = BitmapDecoder.Create(memStream, BitmapCreateOptions.IgnoreColorProfile, BitmapCacheOption.OnLoad);                        
             return decoder;
         }
     }

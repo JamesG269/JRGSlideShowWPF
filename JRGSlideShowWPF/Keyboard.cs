@@ -51,15 +51,19 @@ namespace JRGSlideShowWPF
             }
         }
         public bool displayingInfo = false;
-        private void DisplayFileInfo()
+        private async Task DisplayFileInfo()
         {
             if (!ImageListReady)
             {
                 return;
             }
-            if (displayingInfo == true && TextBlockControl.Visibility != Visibility.Hidden)
+            while (0 != Interlocked.Exchange(ref OneInt, 1))
             {
-                TextBoxClass.messageDisplayEndUninterruptable(new Action(() => { }));
+                await Task.Delay(1);
+            }            
+            if (displayingInfo == true)
+            {
+                topTextBoxClass.messageDisplayEndUninterruptable(new Action(() => { }));
                 displayingInfo = false;
             }
             else
@@ -67,7 +71,8 @@ namespace JRGSlideShowWPF
                 displayingInfo = true;
                 updateInfo();
             }
-        }
+            Interlocked.Exchange(ref OneInt, 0);
+        }        
         public void updateInfo()
         {
             if (displayingInfo == false)
@@ -97,7 +102,11 @@ namespace JRGSlideShowWPF
                     + "             Last Sleep Mode: " + (LastDisplayMode == 0 ? "Display not required." : "Display Required.")
                     );
 
-                TextBoxClass.messageDisplayStart(sb.ToString(), -1, false, true);
+                topTextBoxClass.messageDisplayStart(sb.ToString(), -1, false, true);
+            }
+            else
+            {
+                displayingInfo = false;
             }
         }
     }
