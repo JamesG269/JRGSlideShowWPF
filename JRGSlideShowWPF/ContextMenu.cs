@@ -70,7 +70,9 @@ namespace JRGSlideShowWPF
             {
                 await Task.Delay(1);
             }
+            PauseSave(true);
             await OpenDir();
+            PauseRestore();
             Interlocked.Exchange(ref OneInt, 0);
             Interlocked.Exchange(ref StartGetFilesBW_IsBusy, 0);            
             return true;
@@ -84,9 +86,8 @@ namespace JRGSlideShowWPF
             if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 SlideShowDirectory = dialog.SelectedPath;
-                await Task.Run(() => StartGetFilesNoInterlock());                
-                await DisplayCurrentImage();
-                Play();
+                await Task.Run(() => StartGetFilesNoInterlock());
+                await DisplayGetNextImageWithoutCheck(1);                
             }
             return true;
         }

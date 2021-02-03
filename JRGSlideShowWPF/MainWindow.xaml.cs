@@ -132,7 +132,7 @@ namespace JRGSlideShowWPF
             else
             {
                 await Task.Run(() => StartGetFiles());
-                await DisplayCurrentImage();
+                await DisplayGetNextImageWithoutCheck(1);
             }
             MenuPlay();
             dispatcherPureSense.Stop();
@@ -413,9 +413,7 @@ namespace JRGSlideShowWPF
                     i++;
                 }
                 ImagesNotNull = ImageList.Length;
-                CreateIdxListCode();
-                imageTimeToDecode.Restart();
-                ResizeImageCode();
+                CreateIdxListCode();                               
                 ImageListReady = true;                                
             }
             else
