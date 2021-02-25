@@ -266,11 +266,7 @@ namespace JRGSlideShowWPF
                 }                
                 int i = Rand.Next(0, motd.Length);
                 MotdClass.messageDisplayStart(motd[i], -1, true, true);
-            }
-            else
-            {
-                MotdClass.messageDisplayEndUninterruptable(new Action(() => { MotdClass.textBlock.Visibility = Visibility.Hidden; }));
-            }
+            }            
         }
         public void getMotd()
         {
@@ -305,7 +301,7 @@ namespace JRGSlideShowWPF
             public System.Windows.Controls.TextBlock textBlock; 
             public static int InterlockInt = 0;
             public TextBoxStack textBoxStackCurrent = new TextBoxStack();
-            public List<TextBoxStack> textBoxStackList = new List<TextBoxStack>();
+            public Stack<TextBoxStack> textBoxStackList = new Stack<TextBoxStack>();
             public void messageDisplayEndUninterruptable(Action action)
             {                
                 dispatchTimer.Stop();
@@ -313,15 +309,13 @@ namespace JRGSlideShowWPF
                 textBoxStackCurrent.live = false;                
                 if (textBoxStackList.Count > 0)
                 {
-                    var textBoxStackSend = textBoxStackList.First();
-                    textBoxStackList.RemoveAt(0);
+                    var textBoxStackSend = textBoxStackList.Pop();                    
                     messageDisplayStart(textBoxStackSend.message, textBoxStackSend.time, textBoxStackSend.interruptable, textBoxStackSend.highPriority);
                 }
                 else
                 {
                     DispatcherWait(action + new Action(() => {
                         textBlock.Visibility = Visibility.Hidden;
-                        InterlockInt = 0;
                     }));
                 }
             }
@@ -335,7 +329,7 @@ namespace JRGSlideShowWPF
                 {
                     Thread.Sleep(10);
                 }
-                System.Windows.Application.Current.Dispatcher.Invoke(action);
+                System.Windows.Application.Current.Dispatcher.Invoke(action + new Action(() => { Interlocked.Exchange(ref InterlockInt, 0); }));
                 while (InterlockInt != 0)
                 {
                     Thread.Sleep(10);
@@ -348,14 +342,10 @@ namespace JRGSlideShowWPF
                 textBoxStackNew.time = seconds;
                 textBoxStackNew.interruptable = Interruptable;
                 textBoxStackNew.highPriority = highPriority;
-                textBoxStackNew.live = true;  
-                if (displayText.Contains("MOTD"))
-                {
-                    //Debugger.Break();
-                }
+                textBoxStackNew.live = true;                  
                 if (textBoxStackNew.highPriority == false && (textBoxStackCurrent.live == true && dispatchTimer.IsEnabled == true && textBoxStackCurrent.interruptable == false))
                 {                    
-                    textBoxStackList.Add(textBoxStackNew);                    
+                    textBoxStackList.Push(textBoxStackNew);
                     InterlockInt = 0;
                     return;
                 }
@@ -363,7 +353,6 @@ namespace JRGSlideShowWPF
                 DispatcherWait(new Action(() => {
                     textBlock.Visibility = Visibility.Visible;
                     textBlock.Text = displayText;
-                    InterlockInt = 0;
                 }));   
                 if (seconds == -1)
                 {
@@ -453,14 +442,15 @@ namespace JRGSlideShowWPF
             if (!temp)
             {
                 SetDisplayMode();
-            }
+            }            
+            Paused = true;
         }
         
         private void Play()
         {
             if (ImageListReady == false)
             {
-                Stop(true);
+                Stop();
                 return;
             }
             dispatcherPlaying.Stop();
@@ -476,24 +466,35 @@ namespace JRGSlideShowWPF
         }
         private void SetDisplayModeCode()
         {
-            if ((AllowMonitorSleepFullScreenOnly == false) || (AllowMonitorSleepFullScreenOnly == true && isMaximized == true))
+            if (AllowMonitorSleepFullScreenOnly == false)
             {
-                if (AllowMonitorSleepPlaying && dispatcherPlaying.IsEnabled)
-                {
-                    //MessageBox.Show("Display sleep Playing.");
-                    SetThreadExecutionState(EXECUTION_STATE.ES_CONTINUOUS);
-                    LastDisplayMode = 0;
-                    return;
-                }
-                if (AllowMonitorSleepPaused && !dispatcherPlaying.IsEnabled)
-                {
-                    //MessageBox.Show("Display sleep Paused.");
-                    SetThreadExecutionState(EXECUTION_STATE.ES_CONTINUOUS);
-                    LastDisplayMode = 0;
-                    return;
-                }
+                SetDisplayModeCheckPlay();
+                return;
             }
-            //MessageBox.Show("display awake");
+            if (isMaximized == true)
+            {
+                SetDisplayModeCheckPlay();
+                return;
+            }
+            SetThreadExecutionState(EXECUTION_STATE.ES_DISPLAY_REQUIRED | EXECUTION_STATE.ES_CONTINUOUS);
+            LastDisplayMode = 1;
+        }
+        private void SetDisplayModeCheckPlay()
+        {
+            if (AllowMonitorSleepPlaying && dispatcherPlaying.IsEnabled)
+            {
+                //MessageBox.Show("Display sleep Playing.");
+                SetThreadExecutionState(EXECUTION_STATE.ES_CONTINUOUS);
+                LastDisplayMode = 0;
+                return;
+            }
+            else if (AllowMonitorSleepPaused && !dispatcherPlaying.IsEnabled)
+            {
+                //MessageBox.Show("Display sleep Paused.");
+                SetThreadExecutionState(EXECUTION_STATE.ES_CONTINUOUS);
+                LastDisplayMode = 0;
+                return;
+            }
             SetThreadExecutionState(EXECUTION_STATE.ES_DISPLAY_REQUIRED | EXECUTION_STATE.ES_CONTINUOUS);
             LastDisplayMode = 1;
         }
@@ -541,7 +542,14 @@ namespace JRGSlideShowWPF
         private void EnableMotd(object sender, RoutedEventArgs e)
         {
             ShowMotd = MotdXaml.IsChecked;
-            EnableMotdCode();
+            if (ShowMotd == true)
+            {
+                EnableMotdCode();
+            }
+            else
+            {
+                MotdClass.messageDisplayEndUninterruptable(new Action(() => { MotdClass.textBlock.Visibility = Visibility.Hidden; }));
+            }
         }
 
         private async void DisplayInfo_Checked(object sender, RoutedEventArgs e)
